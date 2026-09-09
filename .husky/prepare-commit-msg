@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# Run commitizen (cz-customizable) to build the message, then let git open the
+# editor on the result so it can be reviewed/edited before committing.
+# Only for plain `git commit` (no -m, not a merge/squash/amend), so `pnpm cz` and
+# a bare `git commit` go through the guided flow, while `git commit -m "..."` stays direct.
+if [ -z "$2" ]; then
+  exec < /dev/tty && node_modules/.bin/cz --hook || true
+fi

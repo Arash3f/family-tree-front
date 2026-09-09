@@ -1,0 +1,124 @@
+/*
+ * Form layout.
+ *
+ * Every form used to cap itself at 24–34rem while sitting in a panel that
+ * spans the full content column, so half of each card was empty and the fields
+ * ran down one long strip. Here the fields flow into an auto-fitting grid
+ * instead: it takes a second column when the container can hold one and drops
+ * back to a single column on a phone or inside a pedigree side panel, without
+ * any form having to know which context it is in.
+ */
+.form {
+  --form-col: 17rem;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--form-col)), 1fr)
+  );
+  /* Columns need more air than rows, or two fields read as one wide control. */
+  gap: var(--space-4) var(--space-5);
+  align-items: start;
+  min-width: 0;
+}
+
+/*
+ * For forms whose fields are one thought each — a rename box, a reply — where
+ * a second column would only orphan a field beside an empty cell.
+ */
+.formSingle {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* A cell that takes the whole row: textareas, alerts, notes, pickers. */
+.row {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  min-width: 0;
+}
+
+/* A labelled group of related fields, set off from the fields around it. */
+.section {
+  /* The section is the recessed layer here, so its fields take the surface. */
+  --control-bg: var(--surface);
+  grid-column: 1 / -1;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  min-width: 0;
+}
+
+.sectionHead {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--ink-soft);
+}
+
+.sectionSupport {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-snug);
+}
+
+.sectionGrid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, var(--form-col)), 1fr)
+  );
+  gap: var(--space-3) var(--space-4);
+  align-items: start;
+  min-width: 0;
+}
+
+/*
+ * The footer rule is what makes a form look finished rather than stopped: the
+ * buttons used to sit in the field flow at the same gap as everything else.
+ */
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--border);
+  min-width: 0;
+}
+
+/* Pushes trailing buttons — usually a destructive one — to the far edge. */
+.actionsSpread {
+  justify-content: space-between;
+}
+
+.actionsGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Buttons go full width on a phone, where a 40%-wide button looks stranded. */
+@media (max-width: 479.98px) {
+  .actions > button,
+  .actionsGroup > button {
+    flex: 1 1 100%;
+  }
+}

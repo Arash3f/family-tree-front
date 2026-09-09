@@ -1,0 +1,116 @@
+/*
+ * Label + control + hint/error, in the layout eight stylesheets were each
+ * approximating. Notably it always carries a focus ring: three of the old
+ * copies had none, so keyboard users could not see where they were.
+ */
+.field {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-soft);
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  line-height: var(--leading-snug);
+}
+
+.required {
+  color: var(--danger);
+  font-weight: var(--weight-bold);
+}
+
+.optional {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+}
+
+/*
+ * Controls are recessed rather than the same white as the card they sit on:
+ * on a panel the old bordered-white boxes read as empty space with a hairline
+ * around them. Focus lifts the field back to the surface colour, so the active
+ * row is obvious without relying on the ring alone.
+ */
+.control {
+  min-height: var(--control-h);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background-color: var(--control-bg);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.control::placeholder {
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+}
+
+.control:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.control:focus-visible,
+.control:focus {
+  outline: none;
+  border-color: var(--accent);
+  background-color: var(--surface);
+  box-shadow: var(--ring);
+}
+
+.control:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: color-mix(in srgb, var(--muted) 12%, var(--control-bg));
+}
+
+textarea.control {
+  min-height: 6.5rem;
+  padding-block: var(--space-3);
+  line-height: var(--leading-normal);
+  resize: vertical;
+}
+
+select.control {
+  cursor: pointer;
+  /* Restores what the `.control` padding shorthand above resets. */
+  padding-inline-end: var(--select-pad-end);
+}
+
+.invalid {
+  border-color: var(--danger);
+}
+
+.invalid:focus-visible,
+.invalid:focus {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 28%, transparent);
+}
+
+.hint,
+.error {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+}
+
+.hint {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--danger);
+}

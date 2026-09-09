@@ -1,0 +1,213 @@
+.page {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background:
+    radial-gradient(
+      90% 70% at 100% 0%,
+      color-mix(in srgb, var(--accent-muted) 70%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      70% 50% at 0% 100%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 55%
+    ),
+    var(--background);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  padding-block: max(1rem, var(--safe-top)) var(--space-2);
+  padding-inline: max(1.15rem, var(--safe-inline-start))
+    max(1.15rem, var(--safe-inline-end));
+}
+
+.homeLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  color: var(--muted);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-md);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.homeLink:hover {
+  color: var(--accent);
+}
+
+.toolbarControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stage {
+  display: grid;
+  place-items: center;
+  /* Keep the top of a tall form reachable instead of clipping via centering. */
+  align-content: safe center;
+  padding-block: var(--space-5) max(2rem, var(--safe-bottom));
+  padding-inline: max(1.15rem, var(--safe-inline-start))
+    max(1.15rem, var(--safe-inline-end));
+}
+
+.form {
+  width: min(100%, 25rem);
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(1.5rem, 5vw, 2.25rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg);
+  animation: rise 480ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form {
+    animation: none;
+  }
+}
+
+/*
+ * The product name is context, not the heading — sizing it above the `h1`
+ * inverted the hierarchy and made "Sign in" read as a caption.
+ */
+.brand {
+  color: var(--accent);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+:global(html[lang="fa"]) .brand {
+  text-transform: none;
+  letter-spacing: var(--tracking-normal);
+}
+
+.title {
+  margin-block-start: calc(var(--space-2) * -1);
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: var(--leading-tight);
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+}
+
+/* The end margin separates the intro from the controls without a wrapper. */
+.support {
+  margin-block: calc(var(--space-2) * -1) var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  text-wrap: pretty;
+}
+
+.actions {
+  margin-block-start: var(--space-2);
+  display: grid;
+  gap: var(--space-2);
+}
+
+/*
+ * Dial code must stay on the physical left in both LTR and RTL locales —
+ * phone numbers are always read +CC then national digits.
+ */
+.phoneRow {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 10.5rem) minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  direction: ltr;
+}
+
+@media (max-width: 28rem) {
+  .phoneRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.submit {
+  margin-block-start: var(--space-2);
+}
+
+.forgot {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.mailLink {
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.mailLink:hover {
+  color: color-mix(in srgb, var(--accent) 80%, var(--ink));
+}
+
+.altAction {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  text-align: center;
+}
+
+.altLink {
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+}
+
+.altLink:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.gate {
+  min-height: 60svh;
+  display: grid;
+  place-items: center;
+}
+
+.spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  border: 2px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

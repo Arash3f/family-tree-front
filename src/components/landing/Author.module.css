@@ -1,0 +1,119 @@
+.card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.15rem, 3vw, 1.75rem);
+  align-items: start;
+  max-width: 46rem;
+  padding: clamp(1.25rem, 3.5vw, 1.85rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.photoWrap {
+  position: relative;
+  width: clamp(6.5rem, 18vw, 8.5rem);
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  box-shadow: var(--shadow-sm);
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+}
+
+.photoFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface-sunken));
+  color: var(--accent-strong);
+  font-family: var(--font-fraunces), serif;
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.role {
+  color: var(--accent-strong);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  text-wrap: pretty;
+}
+
+.bio {
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-block-start: var(--space-3);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.6rem;
+  padding-inline: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-medium);
+  color: var(--foreground);
+  background: var(--background);
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.link:hover {
+  color: var(--accent-strong);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  transform: translate3d(0, -1px, 0);
+}
+
+.icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+@media (max-width: 479.98px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
+
+  .photoWrap {
+    width: 7.5rem;
+  }
+
+  .links {
+    display: grid;
+    width: 100%;
+  }
+
+  .link {
+    justify-content: center;
+  }
+}

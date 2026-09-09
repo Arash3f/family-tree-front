@@ -1,0 +1,443 @@
+.screen {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding:
+    max(2rem, var(--safe-top))
+    var(--page-pad-right)
+    max(2rem, var(--safe-bottom))
+    var(--page-pad-left);
+  background: var(--background);
+  overflow: hidden;
+}
+
+.glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      30rem 24rem at 50% 36%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      18rem 16rem at 14% 82%,
+      color-mix(in srgb, var(--accent) 9%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      16rem 14rem at 88% 18%,
+      color-mix(in srgb, var(--accent) 7%, transparent),
+      transparent 72%
+    );
+  animation: glowDrift 6s ease-in-out infinite alternate;
+}
+
+:global(html[data-theme="dark"]) .glow {
+  background:
+    radial-gradient(
+      34rem 26rem at 50% 34%,
+      color-mix(in srgb, var(--accent) 24%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      20rem 18rem at 82% 78%,
+      color-mix(in srgb, var(--accent) 12%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      14rem 12rem at 12% 20%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 70%
+    );
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image:
+    radial-gradient(circle at 20% 30%, currentColor 0.45px, transparent 0.55px),
+    radial-gradient(circle at 70% 55%, currentColor 0.4px, transparent 0.5px),
+    radial-gradient(circle at 40% 80%, currentColor 0.35px, transparent 0.45px);
+  background-size: 7px 7px, 9px 9px, 11px 11px;
+  color: var(--foreground);
+  mix-blend-mode: soft-light;
+}
+
+.stage {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 21rem);
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  animation: stageIn 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-bottom: 0.2rem;
+}
+
+.orb::before {
+  content: "";
+  position: absolute;
+  width: 11.5rem;
+  height: 11.5rem;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 68%
+  );
+  animation: orbPulse 2.8s ease-in-out infinite;
+}
+
+.tree {
+  position: relative;
+  width: min(100%, 16rem);
+  height: auto;
+  animation: treeFloat 4.2s ease-in-out infinite;
+}
+
+.edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.15s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.edge:nth-child(1) { animation-delay: 80ms; }
+.edge:nth-child(2) { animation-delay: 180ms; }
+.edge:nth-child(3) { animation-delay: 220ms; }
+.edge:nth-child(4) { animation-delay: 340ms; }
+.edge:nth-child(5) { animation-delay: 380ms; }
+.edge:nth-child(6) { animation-delay: 420ms; }
+.edge:nth-child(7) { animation-delay: 460ms; }
+.edge:nth-child(8) { animation-delay: 120ms; }
+.edge:nth-child(9) { animation-delay: 140ms; }
+
+.nodes .node {
+  fill: var(--accent);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodeIn 560ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.nodes .node:nth-child(1) { animation-delay: 220ms; }
+.nodes .node:nth-child(2) { animation-delay: 260ms; }
+.nodes .node:nth-child(3) { animation-delay: 180ms; }
+.nodes .node:nth-child(4) { animation-delay: 320ms; }
+.nodes .node:nth-child(5) { animation-delay: 360ms; }
+.nodes .node:nth-child(6) { animation-delay: 420ms; }
+.nodes .node:nth-child(9) { animation-delay: 520ms; }
+.nodes .node:nth-child(10) { animation-delay: 560ms; }
+.nodes .node:nth-child(11) { animation-delay: 640ms; }
+.nodes .node:nth-child(12) { animation-delay: 680ms; }
+.nodes .node:nth-child(13) { animation-delay: 720ms; }
+.nodes .node:nth-child(14) { animation-delay: 760ms; }
+
+.root {
+  animation:
+    nodeIn 560ms cubic-bezier(0.22, 1, 0.36, 1) 180ms forwards,
+    breathe 2.8s ease-in-out 900ms infinite !important;
+}
+
+.core {
+  animation:
+    nodeIn 560ms cubic-bezier(0.22, 1, 0.36, 1) 420ms forwards,
+    breathe 2.4s ease-in-out 1s infinite !important;
+}
+
+.ring,
+.ringDelayed {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.15;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ringPulse 2.6s ease-out infinite;
+}
+
+.ring {
+  animation-delay: 1s;
+}
+
+.ringDelayed {
+  animation-delay: 2.3s;
+}
+
+.spark {
+  opacity: 0;
+  animation: spark 3.2s ease-in-out infinite;
+}
+
+.spark:nth-child(1) { animation-delay: 0.2s; }
+.spark:nth-child(2) { animation-delay: 0.7s; }
+.spark:nth-child(3) { animation-delay: 1.1s; }
+.spark:nth-child(4) { animation-delay: 1.6s; }
+.spark:nth-child(5) { animation-delay: 0.4s; }
+.spark:nth-child(6) { animation-delay: 1.9s; }
+.spark:nth-child(7) { animation-delay: 2.4s; }
+
+.leaf {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: leafIn 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    leafDrift 3.6s ease-in-out 900ms infinite;
+}
+
+.leaf:nth-child(1) { animation-delay: 700ms, 900ms; }
+.leaf:nth-child(2) { animation-delay: 820ms, 1.1s; }
+.leaf:nth-child(3) { animation-delay: 980ms, 1.35s; }
+.leaf:nth-child(4) { animation-delay: 1080ms, 1.55s; }
+
+.brand {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5.2vw, 2.2rem);
+  font-weight: 750;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--foreground);
+  animation: textIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 360ms both;
+}
+
+.label {
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 550;
+  letter-spacing: -0.01em;
+  animation: textIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 500ms both;
+}
+
+.bar {
+  width: min(100%, 11.5rem);
+  height: 2px;
+  margin-top: 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 80%, transparent);
+  overflow: hidden;
+  animation: textIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 580ms both;
+}
+
+.barFill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    var(--accent)
+  );
+  /* Same window as tree growth (first edge → last leaf): 80ms → 1.78s. */
+  animation: barGrow 1.7s cubic-bezier(0.4, 0, 0.2, 1) 80ms forwards;
+}
+
+:global(html[dir="rtl"]) .barFill {
+  transform-origin: right center;
+  background: linear-gradient(
+    270deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    var(--accent)
+  );
+}
+
+@keyframes stageIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes glowDrift {
+  from {
+    transform: translate3d(-1.5%, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.04);
+  }
+}
+
+@keyframes orbPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes treeFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nodeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.65);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes spark {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 0.7;
+    transform: translateY(-4px);
+  }
+  70% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes leafIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4) rotate(-12deg);
+  }
+  to {
+    opacity: 0.55;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes leafDrift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(6deg);
+  }
+}
+
+@keyframes textIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes barGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage,
+  .glow,
+  .orb::before,
+  .tree,
+  .edge,
+  .nodes .node,
+  .root,
+  .core,
+  .ring,
+  .ringDelayed,
+  .spark,
+  .leaf,
+  .brand,
+  .label,
+  .bar,
+  .barFill {
+    animation: none !important;
+  }
+
+  .edge {
+    stroke-dashoffset: 0;
+  }
+
+  .nodes .node,
+  .root,
+  .core {
+    opacity: 0.9;
+  }
+
+  .ring {
+    opacity: 0.22;
+  }
+
+  .leaf {
+    opacity: 0.45;
+  }
+
+  .barFill {
+    transform: scaleX(1);
+    background: var(--accent);
+  }
+}

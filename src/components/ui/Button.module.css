@@ -1,0 +1,152 @@
+/*
+ * One button, four intents. Before this existed, `.primaryBtn` was declared in
+ * eight stylesheets with heights drifting between 2.45rem and 2.6rem and hover
+ * states present in some but not others.
+ */
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.base:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+/* Presses register as a small settle rather than a bounce. */
+.base:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.base:disabled,
+.base[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sm {
+  min-height: 2.1rem;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.lg {
+  min-height: 2.9rem;
+  padding: var(--space-3) var(--space-5);
+  font-size: var(--text-lg);
+}
+
+.primary {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--accent-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.ghost {
+  border-color: var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+  background: var(--surface-hover);
+}
+
+.subtle {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent-strong);
+}
+
+.subtle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+
+.danger {
+  background: var(--danger);
+  color: var(--danger-contrast);
+  box-shadow: var(--shadow-sm);
+}
+
+.danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--danger) 86%, var(--foreground));
+}
+
+/*
+ * Outline destructive action, for rows where the button repeats — a list of
+ * sessions with a solid red button on every line reads as an error state rather
+ * than a set of options. Solid `danger` stays for the one real commit point.
+ */
+.dangerGhost {
+  border-color: color-mix(in srgb, var(--danger) 34%, var(--border));
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.dangerGhost:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface));
+}
+
+.danger:focus-visible,
+.dangerGhost:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 32%, transparent);
+}
+
+.block {
+  width: 100%;
+}
+
+/* Sits inline with text, for destructive links that should not shout. */
+.quiet {
+  min-height: auto;
+  padding: var(--space-1) var(--space-2);
+  background: transparent;
+  color: var(--muted);
+  font-weight: var(--weight-medium);
+}
+
+.quiet:hover:not(:disabled) {
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+.spinner {
+  width: 0.9em;
+  height: 0.9em;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  border: 2px solid color-mix(in srgb, currentColor 30%, transparent);
+  border-top-color: currentColor;
+  animation: buttonSpin 0.6s linear infinite;
+}
+
+@keyframes buttonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

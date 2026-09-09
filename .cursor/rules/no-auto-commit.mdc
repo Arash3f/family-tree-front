@@ -1,0 +1,10 @@
+---
+description: Never create git commits unless the user explicitly asks
+alwaysApply: true
+---
+
+# No Auto-Commit
+
+- **Never** create a git commit unless the user explicitly asks in this conversation (e.g. «کامیت کن», «commit», «create a commit»).
+- Generating a commit **message** (skill `cz`) is allowed; running `git commit` is not, unless they asked to commit.
+- Do not stage+commit as a “helpful” follow-up after finishing a task.

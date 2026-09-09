@@ -1,0 +1,345 @@
+.skip {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: 0.75rem;
+  z-index: 80;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 650;
+  transform: translateY(-160%);
+  transition: transform 160ms ease;
+}
+
+.skip:focus {
+  transform: translateY(0);
+}
+
+.header {
+  position: sticky;
+  top: max(0.75rem, var(--safe-top));
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: var(--header-h, 4rem);
+  width: auto;
+  max-width: 100%;
+  margin-top: max(0.75rem, var(--safe-top));
+  margin-right: max(clamp(0.75rem, 3vw, 1.5rem), var(--safe-right));
+  margin-bottom: 0;
+  margin-left: max(clamp(0.75rem, 3vw, 1.5rem), var(--safe-left));
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.headerOpen {
+  background: var(--surface);
+}
+
+:global(html[data-theme="dark"]) .header {
+  border-color: color-mix(in srgb, var(--border) 85%, var(--accent) 15%);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow:
+    0 10px 40px -20px rgb(0 0 0 / 55%),
+    inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
+}
+
+:global(html[data-theme="dark"]) .headerOpen {
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+}
+
+.brand {
+  position: relative;
+  z-index: var(--z-raised);
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.98rem, 3.6vw, 1.18rem);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+:global(html[lang="fa"]) .brand {
+  letter-spacing: var(--tracking-normal);
+}
+
+.navDesktop {
+  display: none;
+  align-items: center;
+  gap: 1.35rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+/*
+ * Bare inline links here measured 20px tall, under the 24px WCAG 2.5.8 target
+ * minimum. The height is padding around the same text, so nothing moves except
+ * the underline, which follows it down.
+ */
+.navDesktop a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.navDesktop a::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.3rem;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-md) var(--ease-out);
+}
+
+:global(html[dir="rtl"]) .navDesktop a::after {
+  transform-origin: right;
+}
+
+.navDesktop a:hover {
+  color: var(--foreground);
+}
+
+.navDesktop a:hover::after,
+.navDesktop a.active::after {
+  transform: scaleX(1);
+}
+
+.navDesktop a.active {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.docs {
+  color: var(--accent) !important;
+  font-weight: 650;
+}
+
+.signIn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-contrast) !important;
+  font-weight: 650;
+  transition: background 160ms ease;
+}
+
+.signIn:hover {
+  background: var(--accent-strong);
+}
+
+.signIn::after {
+  display: none !important;
+}
+
+.controls {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.desktopOnly {
+  display: none;
+}
+
+.menuBtn {
+  display: inline-grid;
+  gap: 0.3rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 0.55rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.menuBtn span {
+  display: block;
+  width: 1.05rem;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transition:
+    transform 180ms ease,
+    opacity 180ms ease;
+}
+
+.menuBtnOpen span:nth-child(1) {
+  transform: translateY(5.5px) rotate(45deg);
+}
+
+.menuBtnOpen span:nth-child(2) {
+  opacity: 0;
+}
+
+.menuBtnOpen span:nth-child(3) {
+  transform: translateY(-5.5px) rotate(-45deg);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: color-mix(in srgb, var(--foreground) 28%, transparent);
+  opacity: 1;
+  animation: backdropIn 200ms ease;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.panel {
+  position: fixed;
+  z-index: 71;
+  top: var(--header-stack, 5.5rem);
+  right: max(0.75rem, var(--safe-right));
+  bottom: 0;
+  left: auto;
+  width: min(20rem, calc(100% - 1.5rem));
+  max-width: calc(100% - 1.5rem);
+  padding: 1.25rem 1.1rem max(1.5rem, calc(var(--safe-bottom) + 1rem));
+  background: color-mix(in srgb, var(--surface) 96%, var(--background));
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  transform: translateX(0);
+  animation: panelIn 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  display: grid;
+  align-content: start;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+@keyframes panelIn {
+  from {
+    transform: translateX(110%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+:global(html[dir="rtl"]) .panel {
+  right: auto;
+  left: max(0.75rem, var(--safe-left));
+  border-left: 0;
+  border-right: 1px solid var(--border);
+  animation-name: panelInRtl;
+}
+
+@keyframes panelInRtl {
+  from {
+    transform: translateX(-110%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.navMobile {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.navMobile a {
+  display: flex;
+  align-items: center;
+  min-height: 2.9rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  font-weight: 600;
+  transition: background 160ms ease;
+}
+
+.navMobile a:hover {
+  background: var(--surface-hover);
+}
+
+.navMobile a.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent-muted) 70%, transparent);
+}
+
+.navMobile .signIn {
+  margin-top: 0.35rem;
+  justify-content: center;
+  color: var(--accent-contrast) !important;
+  background: var(--accent);
+}
+
+.navMobile .signIn:hover {
+  background: var(--accent-strong);
+  color: var(--accent-contrast) !important;
+}
+
+.panelControls {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 920px) {
+  .header {
+    top: max(1rem, var(--safe-top));
+    margin-top: max(1rem, var(--safe-top));
+    margin-right: var(--page-pad-right);
+    margin-left: var(--page-pad-left);
+    padding: 0.85rem 1.35rem;
+  }
+
+  .brand {
+    flex: 0 1 auto;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .navDesktop {
+    display: flex;
+  }
+
+  .desktopOnly {
+    display: block;
+  }
+
+  .menuBtn {
+    display: none;
+  }
+}

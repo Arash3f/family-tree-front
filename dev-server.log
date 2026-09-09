@@ -1,0 +1,76 @@
+
+> frontend@0.1.0 dev H:\Personal\FamilyTree\frontend
+> next dev --port 5173
+
+▲ Next.js 16.3.0 (Turbopack)
+- Local:         http://localhost:5173
+- Network:       http://10.9.0.10:5173
+- Environments: .env.local
+✓ Ready in 1197ms
+✓ Running next.config.ts took 210ms
+
+○ Compiling /[locale] ...
+ GET /en 200 in 17.0s (next.js: 11.1s, proxy.ts: 428ms, generate-params: 3.5s, application-code: 2.0s)
+ GET /en 200 in 2.3s (next.js: 96ms, proxy.ts: 43ms, generate-params: 27ms, application-code: 2.1s)
+ GET /fa 200 in 2.5s (next.js: 33ms, proxy.ts: 26ms, generate-params: 0.1ms, application-code: 2.4s)
+ GET /en 200 in 1617ms (next.js: 67ms, proxy.ts: 65ms, generate-params: 25ms, application-code: 1460ms)
+ GET /backend/health 200 in 6.7s (next.js: 6.4s, application-code: 264ms)
+ GET /backend/health 200 in 6.8s (next.js: 6.4s, application-code: 354ms)
+ GET /backend/redoc 200 in 270ms (next.js: 181ms, application-code: 89ms)
+ GET /openapi.json 404 in 1409ms (next.js: 67ms, generate-params: 30ms, application-code: 1313ms)
+ GET /fa 200 in 4.0s (next.js: 772ms, proxy.ts: 333ms, generate-params: 55ms, application-code: 2.8s)
+ GET /backend/health 200 in 1955ms (next.js: 489ms, application-code: 1466ms)
+ GET /backend/health 200 in 2.0s (next.js: 1272ms, application-code: 747ms)
+ GET /en 200 in 1352ms (next.js: 254ms, proxy.ts: 132ms, generate-params: 0.1ms, application-code: 966ms)
+ GET /backend/health 200 in 860ms (next.js: 98ms, application-code: 763ms)
+ GET /backend/health 200 in 592ms (next.js: 303ms, application-code: 289ms)
+ GET /backend/redoc 200 in 50ms (next.js: 19ms, application-code: 31ms)
+ GET /openapi.json 404 in 870ms (next.js: 40ms, generate-params: 20ms, application-code: 809ms)
+ GET /fa 200 in 366ms (next.js: 33ms, proxy.ts: 14ms, generate-params: 19ms, application-code: 301ms)
+ GET /backend/health 200 in 335ms (next.js: 47ms, application-code: 287ms)
+ GET /backend/health 200 in 284ms (next.js: 69ms, application-code: 215ms)
+ GET /en 200 in 1341ms (next.js: 160ms, proxy.ts: 541ms, generate-params: 44ms, application-code: 596ms)
+ GET /backend/health 200 in 806ms (next.js: 260ms, application-code: 546ms)
+ GET /backend/health 200 in 871ms (next.js: 109ms, application-code: 762ms)
+○ Compiling /[locale]/[...rest] ...
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 11.7s (next.js: 11.3s, application-code: 433ms)
+✓ Compiled in 1024ms
+ GET /en 200 in 912ms (next.js: 109ms, proxy.ts: 27ms, generate-params: 19ms, application-code: 757ms)
+✓ Compiled in 114ms
+Error: MISSING_MESSAGE: Could not resolve `stack.graphql` in messages for locale `en`.
+    at eval (src\components\landing\StackIcons.tsx:36:18)
+    at Array.map (<anonymous>)
+    at StackIcons (src\components\landing\StackIcons.tsx:33:14)
+  34 |         <li key={key} className={styles.item}>
+  35 |           <Icon className={styles.icon} aria-hidden />
+> 36 |           <span>{t(key)}</span>
+     |                  ^
+  37 |         </li>
+  38 |       ))}
+  39 |     </ul> {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'Could not resolve `stack.graphql` in messages for locale `en`.'
+}
+ GET /en 200 in 1102ms (next.js: 62ms, proxy.ts: 15ms, generate-params: 13ms, application-code: 1012ms)
+Error: MISSING_MESSAGE: Could not resolve `stack.graphql` in messages for locale `en`.
+    at eval (src\components\landing\StackIcons.tsx:36:18)
+    at Array.map (<anonymous>)
+    at StackIcons (src\components\landing\StackIcons.tsx:33:14)
+  34 |         <li key={key} className={styles.item}>
+  35 |           <Icon className={styles.icon} aria-hidden />
+> 36 |           <span>{t(key)}</span>
+     |                  ^
+  37 |         </li>
+  38 |       ))}
+  39 |     </ul> {
+  code: 'MISSING_MESSAGE',
+  originalMessage: 'Could not resolve `stack.graphql` in messages for locale `en`.'
+}
+ GET /en 200 in 1207ms (next.js: 31ms, proxy.ts: 21ms, generate-params: 26ms, application-code: 1129ms)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 2.7s (next.js: 495ms, application-code: 2.2s)
+[browser] Image with src "/arash-alfooneh.webp" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+ GET /backend/health 200 in 403ms (next.js: 142ms, application-code: 261ms)
+ GET /backend/health 200 in 540ms (next.js: 207ms, application-code: 333ms)
+[?25h
+ ELIFECYCLE  Command failed with exit code 4294967295.

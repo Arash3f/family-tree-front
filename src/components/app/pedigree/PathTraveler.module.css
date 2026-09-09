@@ -1,0 +1,23 @@
+.traveler {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: -0.525rem 0 0 -0.525rem;
+  border-radius: 999px;
+  background: var(--pedigree-path);
+  border: 2px solid color-mix(in srgb, var(--surface) 70%, var(--pedigree-path));
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--pedigree-path) 35%, transparent),
+    0 4px 14px color-mix(in srgb, var(--pedigree-path) 45%, transparent);
+  pointer-events: none;
+  z-index: 40;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .traveler {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--pedigree-path) 28%, transparent);
+  }
+}

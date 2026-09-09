@@ -1,0 +1,391 @@
+.shell {
+  --sidebar-w: 16.5rem;
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  overflow-x: clip;
+  background: var(--background);
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  min-height: 3.5rem;
+  padding-block: max(0.5rem, var(--safe-top)) var(--space-2);
+  padding-inline: max(0.75rem, var(--safe-inline-start))
+    max(0.75rem, var(--safe-inline-end));
+  border-block-end: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  /* Below the 24px WCAG target minimum as a bare inline link. */
+  min-height: 2.25rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menuBtn {
+  display: inline-grid;
+  gap: 0.28rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  place-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  padding: 0.45rem;
+}
+
+.menuBtn span {
+  display: block;
+  width: 1rem;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+:global(html[lang="fa"]) .brand {
+  letter-spacing: var(--tracking-normal);
+}
+
+.topControls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.userChip {
+  display: none;
+  max-width: 9rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent-muted);
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The scrim sits under the drawer it dims, and over everything else. */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-drawer) - 1);
+  border: 0;
+  background: var(--overlay);
+  cursor: pointer;
+}
+
+.sidebar {
+  position: fixed;
+  z-index: var(--z-drawer);
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: min(var(--sidebar-w), calc(100% - 2.5rem));
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: var(--space-5);
+  padding-block: calc(var(--safe-top) + 4.5rem)
+    max(1.25rem, var(--safe-bottom));
+  padding-inline: max(1rem, var(--safe-inline-start)) var(--space-4);
+  background: var(--surface);
+  border-inline-end: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateX(-105%);
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+:global(html[dir="rtl"]) .sidebar {
+  transform: translateX(105%);
+}
+
+/*
+ * Must match or beat `html[dir="rtl"] .sidebar` specificity, otherwise the
+ * closed RTL translate wins and the drawer never slides in on fa/ar.
+ */
+.sidebarOpen,
+:global(html[dir="rtl"]) .sidebarOpen {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
+}
+
+.nav {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+}
+
+.navGroup {
+  display: grid;
+  gap: 0.2rem;
+  margin-block: 0.15rem;
+  padding: 0.2rem;
+  border-radius: var(--radius-md);
+}
+
+.navGroupOpen {
+  background: color-mix(in srgb, var(--surface-hover) 70%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--border) 85%, transparent);
+}
+
+.navParent {
+  position: relative;
+}
+
+.navGroupOpen > .navParent {
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.navSub {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0.1rem 0.15rem 0.25rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.85rem 0.2rem;
+  border-inline-start: 2px solid
+    color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.navSub a {
+  position: relative;
+  min-height: 2.2rem;
+  padding-block: 0.35rem;
+  padding-inline: 0.95rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.86rem;
+  font-weight: 550;
+  color: color-mix(in srgb, var(--muted) 88%, var(--foreground));
+}
+
+.navSub a::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0.2rem;
+  top: 50%;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--border) 70%, var(--muted));
+  transform: translateY(-50%);
+}
+
+.navSub a:hover::before {
+  background: var(--accent);
+}
+
+.navSub .navActive::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-muted) 80%, transparent);
+}
+
+.nav a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-weight: 600;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.nav a:hover {
+  color: var(--foreground);
+  background: var(--surface-hover);
+}
+
+.navActive {
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent-muted) 75%, transparent);
+}
+
+.navSub .navActive {
+  background: color-mix(in srgb, var(--accent-muted) 90%, transparent);
+  font-weight: 700;
+}
+
+.sessionActions {
+  display: grid;
+  gap: var(--space-2);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--border);
+}
+
+/* Nav items are start-aligned, so the actions below them line up too. */
+.sessionBtn {
+  justify-content: flex-start;
+}
+
+.main {
+  position: relative;
+  z-index: var(--z-base);
+  width: 100%;
+  max-width: 56rem;
+  min-width: 0;
+  margin-inline: auto;
+  padding-block: var(--space-4) max(1.5rem, var(--safe-bottom));
+  padding-inline: max(0.85rem, var(--safe-inline-start))
+    max(0.85rem, var(--safe-inline-end));
+}
+
+/*
+ * A workspace that has taken the whole screen — the pedigree canvas — must
+ * paint over the topbar and the drawer, which it cannot do while this element
+ * holds a stacking context of its own. Dropping the context leaves the ordinary
+ * page content where it was: it is unpositioned, so the topbar still covers it.
+ */
+body[data-immersive] .main {
+  z-index: auto;
+}
+
+.mainWide {
+  max-width: none;
+  padding-inline: max(0.55rem, var(--safe-inline-start))
+    max(0.55rem, var(--safe-inline-end));
+}
+
+/*
+ * The tree workspace is an instrument rather than a document: its canvas is
+ * meant to take whatever the frame leaves, not to lengthen a page that
+ * scrolls. A child can only fill a row that has a definite height, so for that
+ * one route the shell measures the viewport exactly instead of treating it as a
+ * floor — including phones, where a compact chrome leaves the rest to the
+ * canvas. Content that still cannot fit overflows and scrolls as before.
+ */
+.shellFill {
+  height: 100svh;
+}
+
+.mainFill {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  padding-block: var(--space-2) max(0.75rem, var(--safe-bottom));
+}
+
+.mainFill > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (min-width: 720px) {
+  .mainFill {
+    padding-block: var(--space-4) max(1.5rem, var(--safe-bottom));
+  }
+}
+
+@media (max-width: 479.98px) {
+  .topbar {
+    gap: var(--space-1);
+    padding-inline: max(0.55rem, var(--safe-inline-start))
+      max(0.55rem, var(--safe-inline-end));
+  }
+
+  .main {
+    padding-inline: max(0.65rem, var(--safe-inline-start))
+      max(0.65rem, var(--safe-inline-end));
+  }
+}
+
+/* Opaque sticky bar: blur is costly, and a translucent bar lets the backdrop
+ * flash through when a fling settles at scrollTop 0. */
+@media (max-width: 719.98px), (hover: none) and (pointer: coarse) {
+  .topbar {
+    background: var(--surface);
+    backdrop-filter: none;
+  }
+
+  .shell {
+    overscroll-behavior-y: none;
+  }
+}
+
+@media (min-width: 920px) {
+  .shell {
+    grid-template-columns: var(--sidebar-w) 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .topbar {
+    grid-column: 1 / -1;
+    gap: var(--space-3);
+    min-height: 3.75rem;
+    padding-block: max(0.65rem, var(--safe-top)) 0.65rem;
+    padding-inline: max(1rem, var(--safe-inline-start))
+      max(1rem, var(--safe-inline-end));
+  }
+
+  .menuBtn,
+  .backdrop {
+    display: none;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 3.75rem;
+    z-index: var(--z-base);
+    height: calc(100svh - 3.75rem);
+    width: auto;
+    transform: none;
+    box-shadow: none;
+    grid-row: 2;
+    transition: none;
+  }
+
+  :global(html[dir="rtl"]) .sidebar {
+    transform: none;
+  }
+
+  .main {
+    grid-column: 2;
+    grid-row: 2;
+    padding-block: var(--space-6) max(2.5rem, var(--safe-bottom));
+    padding-inline: var(--space-6);
+  }
+
+  .mainWide {
+    padding-inline: var(--space-5);
+  }
+
+  .userChip {
+    display: inline-block;
+  }
+}

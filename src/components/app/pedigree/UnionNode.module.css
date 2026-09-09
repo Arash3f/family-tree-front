@@ -1,0 +1,57 @@
+.union {
+  --union-accent: var(--accent);
+  --union-accent-strong: var(--accent-strong);
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--union-accent);
+  border: 2px solid color-mix(in srgb, var(--surface) 80%, var(--union-accent));
+}
+
+.secondary {
+  --union-accent: var(--pedigree-spouse-alt);
+  --union-accent-strong: var(--pedigree-spouse-alt-strong);
+}
+
+.highlighted {
+  background: var(--union-accent-strong);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--union-accent-strong) 28%, transparent);
+}
+
+.onPath {
+  background: var(--pedigree-path);
+  border-color: color-mix(in srgb, var(--surface) 70%, var(--pedigree-path));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pedigree-path) 32%, transparent);
+}
+
+.onAltPath {
+  background: var(--pedigree-path-alt);
+  border-color: color-mix(in srgb, var(--surface) 70%, var(--pedigree-path-alt));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pedigree-path-alt) 24%, transparent);
+}
+
+.dimmed {
+  opacity: 0.35;
+}
+
+.divorced {
+  background: var(--muted);
+  border-color: color-mix(in srgb, var(--surface) 70%, var(--muted));
+  box-shadow: none;
+}
+
+.unmarried {
+  background: transparent;
+  border: 2px dashed color-mix(in srgb, var(--muted) 70%, var(--border));
+  box-shadow: none;
+}
+
+.handle {
+  width: 4px !important;
+  height: 4px !important;
+  opacity: 0;
+  border: 0 !important;
+  background: transparent !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}

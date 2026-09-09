@@ -1,0 +1,411 @@
+.node {
+  --node-accent: var(--accent);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  padding: 0.52rem 0.55rem 0.48rem;
+  border: 1px solid color-mix(in srgb, var(--node-accent) 22%, var(--border));
+  border-radius: 1.05rem;
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--node-accent) 14%, var(--surface)),
+      var(--surface) 38%
+    );
+  color: var(--foreground);
+  box-shadow: var(--shadow-sm);
+  text-align: start;
+  cursor: grab;
+  user-select: none;
+  outline: none;
+  overflow: hidden;
+  contain: layout paint style;
+}
+
+.node::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0.85rem;
+  top: 0;
+  height: 2.5px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--node-accent) 78%, transparent),
+    transparent
+  );
+  pointer-events: none;
+}
+
+:global(.pedigree-exporting) .node {
+  contain: none;
+}
+
+.node:active {
+  cursor: grabbing;
+}
+
+.inCouple {
+  cursor: pointer;
+}
+
+.inCouple:active {
+  cursor: pointer;
+}
+
+.node:hover {
+  border-color: color-mix(in srgb, var(--node-accent) 48%, var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+.node:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.male {
+  --node-accent: var(--pedigree-male, #2f6fed);
+}
+
+.female {
+  --node-accent: var(--pedigree-female, #b84d7a);
+}
+
+.selected {
+  border-color: var(--accent);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 2px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+.highlighted {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-strong) 36%, transparent);
+}
+
+.onPath {
+  --node-accent: var(--pedigree-path);
+  border-color: var(--pedigree-path);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--pedigree-path) 22%, var(--surface)),
+      color-mix(in srgb, var(--pedigree-path-soft) 55%, var(--surface)) 48%,
+      var(--surface)
+    );
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pedigree-path) 42%, transparent);
+}
+
+.onAltPath {
+  --node-accent: var(--pedigree-path-alt);
+  border-color: var(--pedigree-path-alt);
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--pedigree-path-alt) 16%, var(--surface)),
+      color-mix(in srgb, var(--pedigree-path-alt-soft) 48%, var(--surface)) 48%,
+      var(--surface)
+    );
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pedigree-path-alt) 28%, transparent);
+}
+
+.dimmed {
+  opacity: 0.28;
+}
+
+.deceased {
+  opacity: 0.92;
+}
+
+.deceased .photo {
+  filter: grayscale(0.35);
+}
+
+.deceased.dimmed {
+  opacity: 0.22;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  min-height: 2.45rem;
+  pointer-events: none;
+}
+
+.avatar {
+  width: 2.45rem;
+  height: 2.45rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--node-accent) 16%, var(--surface));
+  color: var(--node-accent);
+  font-weight: 750;
+  font-size: 0.76rem;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--node-accent) 24%, transparent);
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarLock {
+  width: 1.15rem;
+  height: 1.15rem;
+  opacity: 0.85;
+}
+
+.lockedValue {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.identity {
+  min-width: 0;
+}
+
+.name {
+  display: block;
+  font-weight: 720;
+  font-size: 0.86rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+.ageBadge {
+  display: grid;
+  place-items: center;
+  min-width: 1.85rem;
+  height: 1.85rem;
+  padding: 0 0.38rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--node-accent) 18%, var(--surface));
+  color: var(--node-accent);
+  border: 1px solid color-mix(in srgb, var(--node-accent) 30%, transparent);
+  font-weight: 800;
+  font-size: 0.78rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.facts {
+  display: grid;
+  gap: 0.18rem;
+  flex: 1;
+  min-height: 0;
+  padding: 0.38rem 0.42rem;
+  border-radius: 0.72rem;
+  background:
+    color-mix(in srgb, var(--node-accent) 7%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--node-accent) 12%, var(--border));
+  align-content: start;
+  pointer-events: none;
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 0.9rem auto minmax(0, 1fr);
+  column-gap: 0.32rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.factIcon {
+  display: grid;
+  place-items: center;
+  color: color-mix(in srgb, var(--node-accent) 72%, var(--muted));
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.factIcon svg {
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+.factLabel {
+  color: var(--muted);
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.factValue {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.28rem;
+  text-align: end;
+  color: var(--ink-soft);
+  font-size: 0.68rem;
+  font-weight: 650;
+  line-height: 1.2;
+  overflow: hidden;
+  font-variant-numeric: tabular-nums;
+}
+
+.factEmpty {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+  font-weight: 550;
+}
+
+.deathFact .factIcon,
+.deathFact .factValue {
+  color: color-mix(in srgb, var(--danger) 72%, var(--muted));
+}
+
+.genderBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  padding: 0.06rem 0.42rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.genderBadge.male {
+  background: color-mix(in srgb, var(--pedigree-male, #2f6fed) 14%, var(--surface));
+  color: var(--pedigree-male, #2f6fed);
+}
+
+.genderBadge.female {
+  background: color-mix(in srgb, var(--pedigree-female, #b84d7a) 14%, var(--surface));
+  color: var(--pedigree-female, #b84d7a);
+}
+
+/* Folding controls sit in the spare room below the facts, out of sight until
+   the card is hovered. A folded card keeps them on screen: the "+N" chip is
+   the only sign that a line continues below this card. */
+.foldBar {
+  position: absolute;
+  inset-block-end: 0.34rem;
+  inset-inline-end: 0.4rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.22rem;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.node:hover .foldBar,
+.node:focus-within .foldBar,
+.foldBarPinned {
+  opacity: 1;
+}
+
+/* Phones have no hover: keep fold controls reachable once the card is on screen. */
+@media (hover: none), (pointer: coarse) {
+  .foldBar {
+    opacity: 1;
+  }
+
+  .foldBtn,
+  .foldChip {
+    min-height: 1.75rem;
+    min-width: 1.75rem;
+  }
+}
+
+.foldBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  height: 1.35rem;
+  min-width: 1.35rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--node-accent) 26%, var(--border));
+  background: color-mix(in srgb, var(--surface) 88%, var(--node-accent));
+  color: color-mix(in srgb, var(--node-accent) 78%, var(--muted));
+  cursor: pointer;
+  line-height: 1;
+}
+
+.foldBtn:hover {
+  border-color: var(--node-accent);
+  color: var(--node-accent);
+}
+
+.foldBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.foldBtn svg {
+  width: 0.78rem;
+  height: 0.78rem;
+}
+
+.foldChip {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--node-accent) 46%, var(--border));
+  background: color-mix(in srgb, var(--node-accent) 14%, var(--surface));
+  color: var(--node-accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.foldChip:hover {
+  border-style: solid;
+  background: color-mix(in srgb, var(--node-accent) 22%, var(--surface));
+}
+
+.foldChip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.foldChip svg {
+  width: 0.72rem;
+  height: 0.72rem;
+}
+
+.collapsed {
+  border-style: dashed;
+}
+
+.handle {
+  width: 8px !important;
+  height: 8px !important;
+  opacity: 0;
+  border: 0 !important;
+  background: transparent !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}

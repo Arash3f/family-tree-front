@@ -1,0 +1,103 @@
+.section {
+  scroll-margin-top: var(--header-stack);
+  padding-block: clamp(4rem, 9vh, 7rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+  border-block-start: 1px solid var(--border);
+  animation: rise 700ms var(--ease-out) both;
+}
+
+.seamless {
+  border-block-start: 0;
+}
+
+.inner {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(2rem, 5vh, 3.25rem);
+}
+
+.intro {
+  max-width: min(42rem, 100%);
+  display: grid;
+  gap: var(--space-3);
+}
+
+:global(html[lang="fa"]) .intro {
+  max-width: min(40rem, 100%);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+/* Vazirmatn has no uppercase, so the transform only loosens the letter joins. */
+:global(html[lang="fa"]) .eyebrow {
+  text-transform: none;
+  letter-spacing: var(--tracking-normal);
+}
+
+.ordinal {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding-inline: 0.35rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent-strong);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-normal);
+  font-variant-numeric: tabular-nums;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.025em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  max-width: 38rem;
+  text-wrap: pretty;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (max-width: 479.98px) {
+  .section {
+    padding-block: clamp(2.75rem, 8vh, 4.5rem);
+  }
+
+  .inner {
+    gap: var(--space-5);
+  }
+}

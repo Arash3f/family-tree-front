@@ -1,0 +1,378 @@
+:root {
+  --background: #fbfbfa;
+  --foreground: #14191b;
+  --muted: #667275;
+  --surface: #ffffff;
+  --surface-hover: #f1f3f2;
+  --border: #e3e7e5;
+  --accent: #0d6e67;
+  --accent-strong: #0a5751;
+  --accent-muted: #d7ebe8;
+  --accent-contrast: #ffffff;
+  --pedigree-path: #d97706;
+  --pedigree-path-soft: #fef3c7;
+  --pedigree-path-alt: #0284c7;
+  --pedigree-path-alt-soft: #e0f2fe;
+  --pedigree-male: #2f6fed;
+  --pedigree-female: #b84d7a;
+  /* Extra concurrent spouses (polygamy) — same couple chrome, warmer copper. */
+  --pedigree-spouse-alt: #8a4b2b;
+  --pedigree-spouse-alt-strong: #6e3a20;
+  --pedigree-spouse-alt-muted: #f0ddd0;
+  --ink-soft: #243033;
+  --ok: #0f7a4f;
+  --warn: #9a6700;
+  --danger: #b42318;
+  --danger-contrast: #ffffff;
+
+  /* Layered surfaces. `raised` lifts off the page, `sunken` recedes into it. */
+  --surface-raised: #ffffff;
+  --surface-sunken: #f5f7f6;
+  /* Scrim behind modals and drawers. */
+  --overlay: rgb(20 25 27 / 46%);
+
+  --radius-sm: 0.45rem;
+  --radius-md: 0.7rem;
+  --radius-lg: 1rem;
+  --radius-full: 999px;
+
+  /*
+   * Spacing scale, 4px base. Steps grow by 1 then by 2 so the small end stays
+   * fine-grained where component padding lives, and the large end covers
+   * section rhythm without needing a dozen values.
+   */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Type scale. `--text-md` is body copy; everything else steps from it. */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.0625rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.45rem, 3.5vw, 1.9rem);
+  --text-3xl: clamp(1.75rem, 4.5vw, 2.4rem);
+  --text-4xl: clamp(2.1rem, 5.5vw, 3.1rem);
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.65;
+
+  /*
+   * Persian needs no negative tracking — Vazirmatn is already tightly spaced,
+   * and squeezing it further breaks the joins between letters.
+   */
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+
+  --weight-normal: 500;
+  --weight-medium: 600;
+  --weight-semibold: 680;
+  --weight-bold: 750;
+
+  --shadow-sm: 0 1px 2px rgb(15 28 30 / 6%), 0 2px 6px -2px rgb(15 28 30 / 10%);
+  --shadow-md: 0 6px 16px -8px rgb(15 28 30 / 18%), 0 2px 5px -2px rgb(15 28 30 / 10%);
+  --shadow-lg: 0 24px 48px -28px rgb(15 28 30 / 30%), 0 6px 14px -8px rgb(15 28 30 / 14%);
+  --shadow-soft: 0 14px 36px -24px rgb(15 28 30 / 22%);
+
+  /*
+   * Stacking order. Named so a new overlay does not have to guess whether 45
+   * beats 42, which is how the old raw integers drifted apart.
+   */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 20;
+  --z-header: 30;
+  --z-drawer: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+
+  --duration-fast: 120ms;
+  --duration-md: 200ms;
+  --duration-slow: 320ms;
+  /* Decelerating: quick to start, gentle to settle. Good for entrances. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --ring: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+
+  /*
+   * One height for every form control. Inputs, selects, date pickers and the
+   * buttons beside them were each picking their own between 2.45 and 2.7rem,
+   * which is why a filter bar never quite lined up.
+   */
+  --control-h: 2.6rem;
+
+  /*
+   * Controls sit recessed against the card they are on. Containers that are
+   * themselves sunken — a quiet panel, a form section — reset this to
+   * `--surface`, otherwise the field and its background are the same colour and
+   * the box disappears into it.
+   */
+  --control-bg: var(--surface-sunken);
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --page-pad: clamp(1.25rem, 5vw, 3rem);
+  --page-pad-left: max(var(--safe-left), var(--page-pad));
+  --page-pad-right: max(var(--safe-right), var(--page-pad));
+  --page-pad-top: clamp(1.5rem, 4vh, 2.75rem);
+  --content-max: 72rem;
+  --header-h: 4rem;
+  --header-stack: calc(
+    var(--safe-top) + 0.75rem + var(--header-h) + 0.75rem
+  );
+  --font-display: var(--font-fraunces), "Georgia", serif;
+  --font-body: var(--font-source-sans), "Segoe UI", sans-serif;
+
+  /*
+   * Select chevron. The colour is baked into the data URL because background
+   * images cannot read `currentColor`, so the dark theme redefines it below.
+   */
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23667275' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.6 5 4.8 5-4.8'/%3E%3C/svg%3E");
+  --select-chevron-size: 0.7rem;
+  --select-chevron-inset: 0.8rem;
+  /* Inset on both sides of the glyph, so the value never runs under it. */
+  --select-pad-end: calc(
+    var(--select-chevron-inset) * 2 + var(--select-chevron-size)
+  );
+}
+
+/*
+ * `--page-pad-left/right` are physical because `env(safe-area-inset-*)` is.
+ * These map them onto the inline axis so components can stop writing
+ * direction-specific rules; the RTL block below swaps the pair.
+ */
+:root {
+  --page-pad-inline-start: var(--page-pad-left);
+  --page-pad-inline-end: var(--page-pad-right);
+  --safe-inline-start: var(--safe-left);
+  --safe-inline-end: var(--safe-right);
+}
+
+html[dir="rtl"] {
+  --page-pad-inline-start: var(--page-pad-right);
+  --page-pad-inline-end: var(--page-pad-left);
+  --safe-inline-start: var(--safe-right);
+  --safe-inline-end: var(--safe-left);
+}
+
+[data-theme="dark"] {
+  --background: #070d11;
+  --foreground: #e8f2f4;
+  --muted: #8aa0a9;
+  --surface: #0e171d;
+  --surface-hover: #162229;
+  --border: #1e3038;
+  --accent: #2dd4bf;
+  --accent-strong: #5eead4;
+  --accent-muted: #115e59;
+  --accent-contrast: #042f2e;
+  --pedigree-path: #fbbf24;
+  --pedigree-path-soft: #78350f;
+  --pedigree-path-alt: #38bdf8;
+  --pedigree-path-alt-soft: #0c4a6e;
+  --pedigree-male: #60a5fa;
+  --pedigree-female: #f472b6;
+  --pedigree-spouse-alt: #e8a87c;
+  --pedigree-spouse-alt-strong: #f0c4a0;
+  --pedigree-spouse-alt-muted: #5c3a28;
+  --ink-soft: #c9e0dc;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  /* Dark `--danger` is a light red, so its text must go dark to stay legible. */
+  --danger-contrast: #45101a;
+
+  --surface-raised: #131f26;
+  --surface-sunken: #0a1216;
+  --overlay: rgb(2 6 8 / 66%);
+
+  /*
+   * Dark elevation reads through shadow spread rather than darkness — a darker
+   * shadow on a near-black background is invisible, so these lean on reach.
+   */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 40%), 0 2px 8px -2px rgb(0 0 0 / 50%);
+  --shadow-md: 0 8px 24px -10px rgb(0 0 0 / 62%), 0 2px 6px -2px rgb(0 0 0 / 45%);
+  --shadow-lg: 0 32px 64px -30px rgb(0 0 0 / 78%), 0 8px 18px -10px rgb(0 0 0 / 55%);
+  --shadow-soft: 0 24px 64px -28px rgb(0 0 0 / 72%);
+
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%238aa0a9' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m1 1.6 5 4.8 5-4.8'/%3E%3C/svg%3E");
+}
+
+html[lang="fa"] {
+  --font-display: var(--font-vazirmatn), var(--font-fraunces), sans-serif;
+  --font-body: var(--font-vazirmatn), var(--font-source-sans), sans-serif;
+  /* Vazirmatn reads clearer with a touch more leading than Latin body copy. */
+  --leading-normal: 1.7;
+  --leading-relaxed: 1.85;
+  --leading-snug: 1.45;
+}
+
+html {
+  height: 100%;
+  color-scheme: light;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+  background: var(--background);
+  scroll-padding-top: var(--header-stack);
+}
+
+/* Touch flings + smooth scrolling can settle with a visible hitch at the top. */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    scroll-behavior: auto;
+    overscroll-behavior-y: none;
+  }
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-x: clip;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-wrap: break-word;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+}
+
+/*
+ * Browsers paint the native select arrow hard against the border, and it
+ * cannot be moved. Selects hide it and draw their own chevron instead; the
+ * rule is unclassed so every select gets it, but any stylesheet that sets the
+ * `background` or `padding` shorthands has to restore the two longhands.
+ */
+select {
+  appearance: none;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right var(--select-chevron-inset) center;
+  background-size: var(--select-chevron-size) auto;
+  padding-inline-end: var(--select-pad-end);
+}
+
+[dir="rtl"] select {
+  background-position: left var(--select-chevron-inset) center;
+}
+
+@media (max-width: 479.98px) {
+  /* Avoid iOS zooming focused form fields (< 16px). */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: max(1rem, 16px);
+  }
+}
+
+/* React Flow edges live in a large absolutely-positioned SVG;
+   max-width: 100% clips those paths so nodes show without links. */
+.react-flow svg {
+  max-width: none;
+}
+
+.react-flow__edge.pedigree-path-edge .react-flow__edge-path {
+  stroke: var(--pedigree-path) !important;
+  stroke-width: 3.4px !important;
+  stroke-linecap: round;
+  /* Dotted path (نقطه‌چین) — static; the traveler shows direction. */
+  stroke-dasharray: 1.5 9 !important;
+  animation: none !important;
+}
+
+.react-flow__node.pedigree-path-person {
+  animation: none;
+}
+
+.react-flow__edge.pedigree-alt-path-edge .react-flow__edge-path {
+  stroke: var(--pedigree-path-alt) !important;
+  stroke-width: 2.6px !important;
+  stroke-linecap: round;
+  stroke-dasharray: 1.5 9 !important;
+  animation: none !important;
+  opacity: 0.88;
+}
+
+.react-flow__edge.pedigree-path-edge .react-flow__edge-interaction,
+.react-flow__edge.pedigree-alt-path-edge .react-flow__edge-interaction {
+  animation: none !important;
+  stroke-dasharray: none !important;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .react-flow__edge.pedigree-path-edge .react-flow__edge-path,
+  .react-flow__edge.pedigree-alt-path-edge .react-flow__edge-path,
+  .react-flow__node.pedigree-path-person {
+    animation: none !important;
+  }
+}

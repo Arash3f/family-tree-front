@@ -1,0 +1,1688 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  animation: fadeUp var(--duration-slow) var(--ease-out) both;
+  /* Mobile long-press otherwise paints a selection highlight on chrome/canvas. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.root :is(input, textarea, select, [contenteditable="true"]) {
+  user-select: text;
+  -webkit-user-select: text;
+  -webkit-touch-callout: default;
+}
+
+/*
+ * The accent bar is a background layer rather than a pseudo-element so the
+ * border radius clips it on its own: the dropdown and search popovers hang out
+ * of this box, so it cannot use `overflow: hidden`.
+ */
+.chrome {
+  /* One height for every control on the bar: search, buttons, icon tools. */
+  --tool-h: 2.25rem;
+  position: relative;
+  z-index: var(--z-sticky);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "identity"
+    "search"
+    "actions";
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--accent) 70%, transparent),
+        color-mix(in srgb, var(--pedigree-male) 45%, transparent) 55%,
+        color-mix(in srgb, var(--pedigree-female) 40%, transparent)
+      )
+      top center / 100% 2px no-repeat,
+    var(--surface-raised);
+  box-shadow: var(--shadow-sm);
+}
+
+/*
+ * Fullscreen. The workspace steps out of the dashboard frame and covers the
+ * viewport itself, because the topbar, sidebar and page padding around it would
+ * otherwise keep the space the canvas is meant to gain. Column layout instead
+ * of the default grid so the canvas takes whatever the header leaves, with or
+ * without the permission notice between them.
+ */
+.root.immersive {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  min-height: 0;
+  overflow: hidden;
+  background: var(--background);
+  animation: none;
+}
+
+.fullscreenBtn {
+  display: inline-flex;
+}
+
+/* The viewport-relative heights below assume the dashboard frame is still
+ * there; in fullscreen the flex column already hands out the space. The side
+ * panel keeps its own height so it stays a bottom sheet on a narrow screen. */
+.root.immersive .stage,
+.root.immersive .canvasWrap {
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.chromeIdentity {
+  grid-area: identity;
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.identityBody {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.65rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  min-width: 0;
+  flex: 1 1 auto;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+}
+
+.statRow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 0 0 auto;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding: 0.1rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+/*
+ * Branch preview and folded branches sit under search so they stay reachable
+ * in immersive chrome (where the identity row is dropped) without crowding
+ * the tool buttons.
+ */
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 0.4rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 1.6rem;
+  padding: 0.1rem 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+}
+
+.chip:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.chip:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.chromeSearch {
+  grid-area: search;
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Shown only on wide chrome; narrower widths fold these into MoreMenu. */
+.phoneOnly {
+  display: none;
+}
+
+/* Phones only: full action list inside MoreMenu beside search. */
+.compactOnly {
+  display: none;
+}
+
+.chromeActions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.chromeActions > * {
+  flex-shrink: 0;
+}
+
+.searchField {
+  position: relative;
+  display: block;
+}
+
+.searchIcon,
+.searchClear {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.searchIcon {
+  inset-inline-start: 0.6rem;
+  font-size: 1.05rem;
+}
+
+.searchClear {
+  inset-inline-end: 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  font-size: 1rem;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.searchClear:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.searchClear:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.searchField input {
+  width: 100%;
+  min-height: var(--tool-h);
+  padding: var(--space-2) 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-md);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.searchField input::placeholder {
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+}
+
+.searchField input:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.searchField input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Anchor only — the list itself portals to `document.body` so a transformed
+ * ancestor (page entrance animation) cannot trap `position: fixed`. */
+.searchResultsHost {
+  display: none;
+}
+
+.searchResults {
+  position: fixed;
+  z-index: var(--z-modal);
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-shadow: var(--shadow-md);
+  /* Placement (top/left/width/max-height) is set inline from visualViewport. */
+}
+
+.searchResults button {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.12rem;
+  width: 100%;
+  text-align: start;
+  padding: 0.65rem 0.8rem;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+}
+
+.searchResults button:hover {
+  background: var(--surface-hover);
+}
+
+.searchResultName {
+  font-weight: 650;
+}
+
+.searchResultMeta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.personPicker {
+  position: relative;
+}
+
+.pickedPerson {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-height: 2.55rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 8%, var(--background));
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.clearPick {
+  flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.clearPick:hover:not(:disabled) {
+  color: var(--foreground);
+}
+
+.clearPick:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.toolGroup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Compound selector so the shared height wins over the button size class. */
+.chromeActions .toolBtn {
+  min-height: var(--tool-h);
+}
+
+.chromeActions .toolBtn svg {
+  font-size: 1.05rem;
+}
+
+/* The view controls behave as one instrument, so they are drawn as one. */
+.iconGroup {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.iconTool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--tool-h);
+  min-height: var(--tool-h);
+  padding: 0 0.45rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.iconGroup .iconTool + .iconTool {
+  border-inline-start: 1px solid var(--border);
+}
+
+/* When the first tool is folded away on compact chrome, don't leave a stray divider. */
+.iconGroup .wideOnly + .iconTool {
+  border-inline-start: 0;
+}
+
+.iconTool:hover:not(:disabled) {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.iconTool:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.iconTool:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.iconToolActive {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent-strong);
+}
+
+/* The overflow trigger stands alone, so it carries its own frame. */
+.menu > .iconTool {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.menu {
+  position: relative;
+}
+
+.menuPanel {
+  position: absolute;
+  z-index: var(--z-raised);
+  top: calc(100% + 0.35rem);
+  inset-inline-end: 0;
+  min-width: 13.5rem;
+  display: grid;
+  padding: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-md);
+}
+
+.menuLabel {
+  margin: 0.2rem 0.7rem 0.3rem;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+}
+
+.menuSep {
+  height: 1px;
+  margin: 0.35rem 0.4rem;
+  border: 0;
+  background: var(--border);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  text-align: start;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.menuItem svg {
+  flex-shrink: 0;
+  font-size: 1.05rem;
+  color: var(--ink-soft);
+}
+
+.menuItem:hover:not(:disabled) {
+  background: var(--surface-hover);
+}
+
+.menuItem:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.workspace {
+  display: grid;
+  gap: 0.85rem;
+  min-height: 0;
+  flex: 1;
+  --sheet-dock-inset: 0px;
+}
+
+.workspacePathDock {
+  --sheet-dock-inset: 13.5rem;
+}
+
+.stage {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+  min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding-bottom: var(--sheet-dock-inset);
+  transition: padding-bottom var(--duration-slow) var(--ease-out);
+}
+
+.canvasWrap {
+  position: relative;
+  min-height: 0;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  touch-action: none;
+  background-color: var(--surface-sunken);
+  background-image:
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in srgb, var(--border) 88%, transparent) 1px,
+      transparent 0
+    ),
+    radial-gradient(
+      70% 55% at 8% 0%,
+      color-mix(in srgb, var(--accent-muted) 55%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      50% 40% at 100% 100%,
+      color-mix(in srgb, var(--pedigree-female) 8%, transparent),
+      transparent 52%
+    );
+  background-size: 18px 18px, auto, auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.toolLabel {
+  display: inline;
+}
+
+.emptyState {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.emptyState p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 28rem;
+  line-height: var(--leading-normal);
+}
+
+.panelBackdrop {
+  display: none;
+}
+
+.detailOpening {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-modal) + 2);
+  display: grid;
+  place-items: center;
+  padding: max(1rem, var(--safe-top)) max(1rem, var(--safe-inline-end))
+    max(1rem, var(--safe-bottom)) max(1rem, var(--safe-inline-start));
+  background: color-mix(in srgb, var(--foreground) 28%, transparent);
+  backdrop-filter: blur(6px) saturate(1.05);
+  animation: detailOpeningIn 180ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+.detailOpeningCard {
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  min-width: min(16rem, 100%);
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-lg);
+  color: var(--foreground);
+}
+
+.detailOpeningCard p {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--ink-soft);
+}
+
+.detailOpeningSpinner {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  border: 2.5px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-top-color: var(--accent);
+  animation: detailSpin 0.7s linear infinite;
+}
+
+@keyframes detailOpeningIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes detailSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.panel {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-md);
+  max-height: min(70svh, 36rem);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.panelHeader h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.iconBtn {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.iconBtn:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.iconBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.detail {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.photoField {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+
+.photoPreview {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.photoPreview img {
+  width: 4.5rem;
+  height: 4.5rem;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.photoPreviewMeta {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+/*
+ * A bare file input renders as an unstyled OS button that ignores the theme.
+ * Styling the button part keeps it in the same family as the other controls.
+ */
+.fileInput {
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.fileInput:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.fileInput:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.fileInput::file-selector-button {
+  margin-inline-end: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.fileInput::file-selector-button:hover {
+  background: var(--surface-hover);
+}
+
+.detailActions {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.addGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.addTile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.7rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.addTile:hover:not(:disabled) {
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: var(--accent-muted);
+  color: var(--foreground);
+}
+
+.addTile:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.addTile:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.addTileIcon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: var(--radius-full);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  background: var(--accent-muted);
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.addTileIcon.male {
+  border-color: color-mix(in srgb, var(--pedigree-male) 25%, var(--border));
+  background: color-mix(in srgb, var(--pedigree-male) 18%, var(--surface));
+  color: var(--pedigree-male);
+}
+
+.addTileIcon.female {
+  border-color: color-mix(in srgb, var(--pedigree-female) 25%, var(--border));
+  background: color-mix(in srgb, var(--pedigree-female) 18%, var(--surface));
+  color: var(--pedigree-female);
+}
+
+button.ghostBtnActive {
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent-strong);
+}
+
+.detailHero {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.detailAvatar {
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: var(--radius-full);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  font-weight: var(--weight-bold);
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+}
+
+.detailAvatar svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  opacity: 0.72;
+}
+
+.detailAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detailAvatar.male {
+  background: color-mix(in srgb, var(--pedigree-male) 18%, var(--surface));
+  color: var(--pedigree-male);
+}
+
+.detailAvatar.female {
+  background: color-mix(in srgb, var(--pedigree-female) 18%, var(--surface));
+  color: var(--pedigree-female);
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.lockedInline {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  vertical-align: -0.1em;
+  color: var(--muted);
+}
+
+.age {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.notes {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  line-height: var(--leading-normal);
+  font-size: var(--text-sm);
+}
+
+.block {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.block h3 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+  font-weight: 720;
+}
+
+.descendantSummary {
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.list {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  padding-block: 0.25rem;
+}
+
+.marriageRow {
+  display: grid !important;
+  gap: 0.45rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.spouseTitle {
+  margin: 0;
+  font-weight: 650;
+}
+
+.originMarriageNote {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.linkish {
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0;
+  text-align: start;
+}
+
+.relationNote {
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface-sunken));
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
+  color: var(--foreground);
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.pathViewToggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+.pathChoices {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+  margin-block-start: var(--space-2);
+}
+
+.pathChoices :global(button) {
+  justify-content: flex-start;
+  gap: var(--space-2);
+}
+
+.pathSwatch {
+  flex-shrink: 0;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--foreground) 12%, transparent);
+}
+
+.pathSwatchActive {
+  background: var(--pedigree-path);
+}
+
+.pathSwatchAlt {
+  background: var(--pedigree-path-alt);
+}
+
+.support {
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.empty {
+  color: var(--muted);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1099.98px) {
+  .panelBackdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    border: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--foreground) 40%, transparent);
+  }
+
+  /*
+   * Bottom sheet: 80% of the viewport, then the remaining space under the app
+   * topbar. Side padding lives on the body so the scrollbar sits on the card
+   * edge instead of floating inside the padding.
+   */
+  .panel {
+    --sheet-pad-inline-start: max(1rem, var(--safe-inline-start));
+    --sheet-pad-inline-end: max(1rem, var(--safe-inline-end));
+    position: fixed;
+    z-index: var(--z-modal);
+    inset-inline: 0;
+    top: auto;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-content: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: none;
+    height: min(
+      calc(var(--vv-height, 100dvh) * 0.8),
+      var(--sheet-available, 100dvh)
+    );
+    max-height: min(
+      calc(var(--vv-height, 100dvh) * 0.8),
+      var(--sheet-available, 100dvh)
+    );
+    margin: 0;
+    padding: 0.35rem 0 0;
+    border: 1px solid var(--border);
+    border-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    transform: none;
+    transition:
+      height var(--duration-slow) var(--ease-out),
+      max-height var(--duration-slow) var(--ease-out),
+      border-radius var(--duration-slow) var(--ease-out);
+    animation: sheetUp var(--duration-slow) var(--ease-out) both;
+  }
+
+  .panelExpanded {
+    height: var(--sheet-available, var(--vv-height, 100dvh));
+    max-height: var(--sheet-available, var(--vv-height, 100dvh));
+    border-radius: 0;
+    border-inline: 0;
+    border-top: 0;
+  }
+
+  /*
+   * Path-finding peek: a short dock so the corridor (and timeline) stay on
+   * screen. Canvas interaction is free — no modal backdrop in this snap.
+   */
+  .panelPeek {
+    height: auto;
+    max-height: min(48dvh, 20rem);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    box-shadow:
+      0 -12px 40px color-mix(in srgb, var(--foreground) 14%, transparent),
+      var(--shadow-md);
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--accent) 8%, var(--surface-raised)) 0,
+        var(--surface-raised) 2.75rem
+      );
+  }
+
+  .panelPeek .panelBody {
+    overflow: auto;
+    padding-bottom: max(0.85rem, var(--safe-bottom));
+  }
+
+  .panelPeek .panelGrabber::after {
+    width: 3.25rem;
+    background: color-mix(in srgb, var(--accent) 45%, var(--muted));
+  }
+
+  .pathPeekDock {
+    display: grid;
+    gap: var(--space-3);
+    animation: pathPeekIn var(--duration-slow) var(--ease-out) both;
+  }
+
+  .pathPeekHint {
+    margin: 0;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    line-height: 1.4;
+  }
+
+  .pathPeekDock .relationNote {
+    margin: 0;
+    padding: 0.65rem 0.8rem;
+  }
+
+  .pathPeekDock .pathViewToggle,
+  .pathPeekDock .pathChoices {
+    margin-block-start: 0;
+  }
+
+  .pathPeekActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    justify-content: flex-end;
+  }
+
+  .panelBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    padding-inline: var(--sheet-pad-inline-start) var(--sheet-pad-inline-end);
+    padding-bottom: max(1rem, var(--safe-bottom), var(--keyboard-inset, 0px));
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panelGrabber {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    width: 100%;
+    height: 2rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .panelGrabber::after {
+    content: "";
+    width: 2.75rem;
+    height: 0.35rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--muted) 45%, transparent);
+  }
+
+  .panelGrabber:focus-visible {
+    outline: none;
+  }
+
+  .panelGrabber:focus-visible::after {
+    box-shadow: var(--ring);
+  }
+
+  .panel::before {
+    display: none;
+  }
+
+  .panelHeader {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0 0 0.35rem;
+    padding: 0.35rem 0 0.75rem;
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border);
+  }
+}
+
+/*
+ * Phone / narrow tablet: chrome stays dense so the canvas keeps most of the
+ * frame. Labels collapse to icon tools; search and birthdays share one row.
+ */
+@media (max-width: 919.98px) {
+  .toolLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .chromeActions .toolBtn {
+    min-width: var(--tool-h);
+    padding-inline: 0.45rem;
+    gap: 0;
+  }
+}
+
+@media (max-width: 1099.98px) {
+  /*
+   * Until the bar is wide enough for three columns, keep identity / search /
+   * tools on separate rows and tuck secondary actions into MoreMenu so nothing
+   * paints on top of the search field.
+   */
+  .wideOnly {
+    display: none !important;
+  }
+
+  .menuPanel .phoneOnly {
+    display: contents;
+  }
+}
+
+@media (max-width: 719.98px) {
+  .root {
+    gap: var(--space-2);
+  }
+
+  .chrome {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "identity identity"
+      "search actions";
+    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+    align-items: center;
+  }
+
+  .chromeIdentity {
+    gap: 0.35rem;
+  }
+
+  /*
+   * Phones: every chrome tool lives in MoreMenu, parked beside search so the
+   * bar stays one compact row instead of a scrolling action strip.
+   */
+  .chromeActions {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .chromeActions > *:not(.menu) {
+    display: none !important;
+  }
+
+  .chromeActions .menu {
+    display: block;
+  }
+
+  .menuPanel .compactOnly {
+    display: contents;
+  }
+
+  /* Avoid duplicating marriage / tidy / export already listed in compactOnly. */
+  .menuPanel .phoneOnly {
+    display: none;
+  }
+
+  /* Fullscreen drops identity so the canvas gains a row; chips live under
+   * search and stay reachable without bringing the title back. */
+  .root.immersive .chromeIdentity {
+    display: none;
+  }
+
+  .root.immersive .chrome {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "search actions";
+    padding: 0.45rem 0.55rem;
+    gap: 0.4rem;
+  }
+
+  /*
+   * Tree name is the primary chrome landmark on a phone; body-sized type
+   * made it disappear next to search and chips. Counts stay beside the name.
+   */
+  .titleRow {
+    flex-wrap: nowrap;
+    gap: 0.3rem 0.5rem;
+  }
+
+  .title {
+    font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+    line-height: 1.25;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .statRow {
+    gap: 0.25rem;
+  }
+
+  .stat {
+    min-height: 1.25rem;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.68rem;
+  }
+
+  .chipRow {
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+  }
+
+  .chip {
+    min-height: 1.45rem;
+    max-width: 100%;
+    padding: 0.15rem 0.55rem;
+  }
+
+  .searchField input {
+    min-height: 2.5rem;
+    font-size: 1rem;
+    background: var(--surface);
+  }
+
+  .iconGroup {
+    flex-shrink: 0;
+  }
+
+  .workspace {
+    gap: 0.45rem;
+  }
+
+  .stage {
+    gap: 0.4rem;
+  }
+
+  .canvasWrap {
+    min-height: min(52svh, 28rem);
+  }
+
+  .emptyState {
+    padding: var(--space-4);
+  }
+
+  .emptyState h2 {
+    font-size: var(--text-lg);
+  }
+
+  .addGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .detailHero {
+    grid-template-columns: auto 1fr;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .detailAvatar {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .detailActions {
+    gap: var(--space-2);
+  }
+}
+
+@media (min-width: 720px) and (max-width: 1099.98px) {
+  .chrome {
+    gap: 0.65rem 0.85rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .chromeActions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .chromeSearch {
+    max-width: none;
+  }
+
+  .title {
+    font-size: var(--text-xl);
+  }
+}
+
+@media (min-width: 1100px) {
+  .chrome {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 26rem) auto;
+    grid-template-areas: "identity search actions";
+    align-items: center;
+    gap: 0.9rem 1rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .chromeSearch {
+    justify-self: center;
+    width: 100%;
+    max-width: 26rem;
+  }
+
+  .chromeActions {
+    justify-self: end;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    max-width: 100%;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
+    align-items: stretch;
+  }
+
+  .panelBackdrop {
+    display: none;
+  }
+
+  .panel {
+    position: static;
+    inset: auto;
+    width: auto;
+    height: auto;
+    max-width: none;
+    max-height: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    animation: none;
+    padding: 1rem;
+    overflow: auto;
+  }
+
+  .panelBody {
+    display: contents;
+  }
+
+  .panel::before {
+    display: none;
+  }
+
+  .panelHeader {
+    position: static;
+    margin: 0;
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+  }
+
+  .panelGrabber {
+    display: none;
+  }
+
+  .canvasWrap,
+  .panel {
+    height: auto;
+    max-height: none;
+    min-height: 0;
+  }
+
+  .stage {
+    min-height: 0;
+  }
+
+  /*
+   * Fullscreen keeps the canvas the full width and floats the side panel over
+   * it. The side-by-side layout would otherwise reserve the panel column even
+   * with nothing selected, which is the one thing fullscreen is meant to avoid.
+   */
+  .root.immersive .workspace {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root.immersive .panel {
+    position: absolute;
+    z-index: var(--z-raised);
+    inset-block: 0;
+    inset-inline-end: 0;
+    width: min(24rem, 40vw);
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    transform: none;
+    animation: none;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Enter fade only — height snap is handled by --sheet-height + transition. */
+@keyframes sheetUp {
+  from {
+    opacity: 0.72;
+    transform: translateY(1.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pathPeekIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 479.98px) {
+  .chrome {
+    padding: 0.45rem 0.55rem;
+    gap: 0.4rem 0.45rem;
+  }
+
+  .titleRow {
+    flex-wrap: nowrap;
+    gap: 0.35rem 0.45rem;
+  }
+
+  .title {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: nowrap;
+    display: block;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    font-size: clamp(1rem, 4.4vw, 1.2rem);
+  }
+
+  .statRow {
+    gap: 0.25rem;
+  }
+
+  /* Keep counts beside the tree name — compact chips, never drop them. */
+  .stat {
+    display: inline-flex;
+    min-height: 1.2rem;
+    padding: 0.05rem 0.35rem;
+    font-size: 0.65rem;
+  }
+
+  .menuPanel {
+    /* Keep the overflow menu anchored to the ⋯ trigger, not a bottom sheet. */
+    max-height: min(70vh, calc(var(--vv-height, 100svh) - 6rem));
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .searchField input {
+    font-size: 1rem;
+  }
+
+  .photoPreview {
+    flex-wrap: wrap;
+  }
+
+  .photoPreview img {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+
+  .pathViewToggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+  }
+
+  .pathViewToggle :global(button) {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,210 @@
+.root {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.picker {
+  width: 100%;
+}
+
+.container {
+  width: 100%;
+}
+
+/* Geometry mirrors `Field.module.css .control` so a date sits level with the
+   text inputs beside it in the form grid. */
+.input {
+  width: 100%;
+  min-height: var(--control-h);
+  padding-block: var(--space-2);
+  padding-inline-start: var(--space-3);
+  padding-inline-end: 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  box-sizing: border-box;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.wrap:has(.clearBtn) .input {
+  padding-inline-end: 4.1rem;
+}
+
+.input:hover:not(:disabled):not(:focus) {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--ring);
+}
+
+.inputInvalid,
+.inputInvalid:hover:not(:disabled):not(:focus),
+.inputInvalid:focus {
+  border-color: var(--danger);
+}
+
+.inputInvalid:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 28%, transparent);
+}
+
+.input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.icon {
+  position: absolute;
+  inset-inline-end: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.clearBtn {
+  position: absolute;
+  inset-inline-end: 2.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--surface-hover);
+  color: var(--muted);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.clearBtn:hover {
+  color: var(--foreground);
+  background: var(--border);
+}
+
+.error {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+  color: var(--danger);
+}
+
+/*
+ * `className` lands on the calendar wrapper. The picker portals to `body`, so
+ * these rules cannot hang off `.wrap` — they would miss the popup entirely.
+ */
+.picker {
+  background: var(--surface-raised) !important;
+  color: var(--foreground);
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  max-width: min(100vw - 1.5rem, 22rem);
+}
+
+.picker :global(.rmdp-calendar),
+.picker :global(.rmdp-month-picker),
+.picker :global(.rmdp-year-picker) {
+  background: var(--surface-raised) !important;
+  color: var(--foreground);
+}
+
+.picker :global(.rmdp-header),
+.picker :global(.rmdp-panel-header),
+.picker :global(.rmdp-border-top),
+.picker :global(.rmdp-border-bottom),
+.picker :global(.rmdp-border-left),
+.picker :global(.rmdp-border-right) {
+  border-color: var(--border) !important;
+}
+
+.picker :global(.rmdp-header-values),
+.picker :global(.rmdp-day),
+.picker :global(.rmdp-day span) {
+  color: var(--foreground);
+}
+
+.picker :global(.rmdp-week-day) {
+  color: var(--muted);
+}
+
+.picker :global(.rmdp-day.rmdp-deactive),
+.picker :global(.rmdp-day.rmdp-deactive span),
+.picker :global(.rmdp-day.rmdp-disabled),
+.picker :global(.rmdp-day.rmdp-disabled span) {
+  color: color-mix(in srgb, var(--muted) 70%, transparent);
+}
+
+.picker :global(.rmdp-arrow) {
+  border: solid var(--ink-soft);
+  border-width: 0 2px 2px 0;
+}
+
+.picker :global(.rmdp-arrow-container) {
+  border-radius: var(--radius-sm);
+}
+
+.picker :global(.rmdp-arrow-container:hover) {
+  background: var(--surface-hover);
+  box-shadow: none;
+}
+
+.picker :global(.rmdp-day.rmdp-today span) {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-raised)) !important;
+  color: var(--accent-strong) !important;
+  box-shadow: none;
+}
+
+.picker :global(.rmdp-day.rmdp-selected span:not(.highlight)) {
+  background: var(--accent) !important;
+  color: var(--accent-contrast, #fff) !important;
+  box-shadow: none;
+}
+
+.picker :global(.rmdp-day:not(.rmdp-disabled):not(.rmdp-day-hidden) span:hover) {
+  background: var(--surface-hover) !important;
+  color: var(--foreground) !important;
+}
+
+.picker :global(.rmdp-day.rmdp-selected span:hover) {
+  background: var(--accent) !important;
+  color: var(--accent-contrast, #fff) !important;
+}
+
+.picker :global(.rmdp-ym .rmdp-day span) {
+  color: var(--foreground);
+}
+
+.picker :global(.rmdp-ym .rmdp-day.rmdp-selected span) {
+  background: var(--accent) !important;
+  color: var(--accent-contrast, #fff) !important;
+}
+
+@media (max-width: 479.98px) {
+  .picker :global(.rmdp-calendar) {
+    width: 100%;
+  }
+}

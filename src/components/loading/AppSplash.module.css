@@ -1,0 +1,38 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  /* Below sticky header controls so theme/locale stay reachable. */
+  z-index: 40;
+  opacity: 1;
+  background: var(--background);
+  /* Never intercept clicks — splash is decorative only. */
+  pointer-events: none;
+  animation: splashLife 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.overlay * {
+  pointer-events: none;
+}
+
+@keyframes splashLife {
+  0%,
+  45% {
+    opacity: 1;
+    visibility: visible;
+    filter: none;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+    filter: blur(4px);
+    transform: scale(1.01);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    display: none;
+  }
+}

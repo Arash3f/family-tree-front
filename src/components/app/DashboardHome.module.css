@@ -1,0 +1,123 @@
+.panel {
+  display: grid;
+  gap: 1.5rem;
+  animation: fadeUp 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.header {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.25rem);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.support {
+  max-width: 42rem;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.features {
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.feature {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.85rem 1rem;
+  align-items: start;
+  padding: 1rem 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 92%, var(--background));
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.feature:hover {
+  border-color: color-mix(in srgb, var(--accent) 38%, var(--border));
+  background: color-mix(in srgb, var(--accent-muted) 42%, var(--surface));
+  box-shadow: var(--shadow-md);
+}
+
+.feature:hover .iconWrap {
+  background: color-mix(in srgb, var(--accent) 18%, var(--accent-muted));
+  color: var(--accent-strong);
+}
+
+.iconWrap {
+  display: grid;
+  place-items: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent-muted) 78%, transparent);
+  color: var(--accent);
+  pointer-events: none;
+  transition:
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  transition: transform 180ms ease;
+}
+
+.feature:hover .icon {
+  transform: scale(1.08);
+}
+
+.copy {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.featureTitle {
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.featureBody {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+@media (min-width: 720px) {
+  .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

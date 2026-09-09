@@ -1,0 +1,196 @@
+/*
+ * Account facts as a wrapping grid of cards. Capped at 36rem in a full-width
+ * panel these were a narrow ribbon of text with half the card empty beside it;
+ * as cards they fill the row and the page gets shorter.
+ */
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-3);
+}
+
+.list > div {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+/* The user id is a long opaque string; it gets the whole row to itself rather
+   than forcing every other column as wide as a UUID. */
+.listWide {
+  grid-column: 1 / -1;
+}
+
+.list dt {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Persian has no case, so uppercasing only widens the letter joins. */
+:global(html[lang="fa"]) .list dt {
+  text-transform: none;
+  letter-spacing: var(--tracking-normal);
+}
+
+.list dd {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-medium);
+  word-break: break-word;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-md) !important;
+  font-weight: var(--weight-normal) !important;
+  color: var(--ink-soft);
+}
+
+.sectionLinks {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--space-2);
+}
+
+.sectionLinks a {
+  display: flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: var(--weight-semibold);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.sectionLinks a:hover {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.sectionLinks a:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.permModules {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.permModule {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.permModuleTitle {
+  color: var(--foreground);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.permList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.permRow {
+  display: grid;
+  grid-template-columns: minmax(9rem, 14rem) 1fr;
+  gap: var(--space-3) var(--space-5);
+  align-items: baseline;
+  padding-block: var(--space-3);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent-muted));
+}
+
+.permName {
+  color: var(--ink-soft);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.permDescription {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  font-weight: var(--weight-normal);
+}
+
+@media (max-width: 719.98px) {
+  .permRow {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+}
+
+.empty {
+  color: var(--muted);
+  font-size: var(--text-md);
+}
+
+.sessionList {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+}
+
+.sessionItem {
+  display: grid;
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-block-end: 1px solid var(--border);
+}
+
+.sessionItem:last-child {
+  border-block-end: 0;
+  padding-block-end: 0;
+}
+
+.sessionMeta {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.sessionPrimary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-semibold);
+  word-break: break-word;
+}
+
+.sessionSecondary {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+@media (min-width: 720px) {
+  .sessionItem {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+}

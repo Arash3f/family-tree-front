@@ -1,0 +1,35 @@
+# Dependencies & build output
+node_modules
+.next
+out
+coverage
+.turbo
+*.tsbuildinfo
+
+# VCS / IDE
+.git
+.gitignore
+.vscode
+.idea
+.cursor
+
+# Env & local secrets (keep example if present)
+.env
+.env.*
+!.env.example
+
+# Docs, tests, tooling not needed for production image
+*.md
+dev-err.txt
+playwright-report
+test-results
+e2e
+**/*.test.mts
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+scripts
+Dockerfile*
+docker-compose*.yml
+.dockerignore

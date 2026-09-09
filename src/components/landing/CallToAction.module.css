@@ -1,0 +1,87 @@
+.section {
+  padding-block: clamp(3rem, 7vh, 5rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+  border-block-start: 1px solid var(--border);
+}
+
+.panel {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  align-items: center;
+  padding: clamp(1.75rem, 5vw, 3rem);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
+}
+
+/*
+ * A single soft accent bloom instead of a gradient across the whole panel —
+ * a full-bleed tint fights the button, which needs to stay the brightest
+ * accent-coloured thing in the band.
+ */
+.glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(
+    60% 90% at 100% 0%,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    transparent 70%
+  );
+}
+
+.body {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+
+.support {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  max-width: 40rem;
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+@media (max-width: 479.98px) {
+  .actions {
+    display: grid;
+  }
+}
+
+@media (min-width: 920px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .actions {
+    flex-wrap: nowrap;
+  }
+}

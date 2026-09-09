@@ -1,0 +1,128 @@
+.descendants {
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+}
+
+.descendants > li {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  overflow: hidden;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
+}
+
+.descendantItemOpen {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.descendantBox {
+  display: grid;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.descendantBox:hover {
+  background: var(--surface-hover);
+}
+
+.descendantBox:focus-visible {
+  outline: none;
+  box-shadow: inset var(--ring);
+}
+
+.descendantItemOpen .descendantBox {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.descendantPeople {
+  list-style: none;
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.55rem 0.65rem 0.7rem;
+  border-top: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border));
+  background: var(--surface-sunken);
+}
+
+.descendantPeople li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-raised);
+}
+
+.descendantRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: var(--foreground);
+}
+
+.descendantTotal {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.vitalChip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.14rem 0.45rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+}
+
+.vitalChip.living {
+  background: color-mix(in srgb, var(--ok) 14%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--ok) 28%, var(--border));
+  color: color-mix(in srgb, var(--ok) 70%, var(--foreground));
+}
+
+.vitalChip.deceased {
+  background: color-mix(in srgb, var(--muted) 14%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--muted) 30%, var(--border));
+  color: var(--muted);
+}
+
+.personLink {
+  border: 0;
+  background: transparent;
+  color: var(--accent-strong);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0;
+  text-align: start;
+}
+
+.personLink:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}

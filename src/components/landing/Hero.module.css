@@ -1,0 +1,552 @@
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: min(calc(100svh - var(--header-stack, 5.5rem)), 860px);
+  display: grid;
+  align-items: start;
+  align-content: center;
+  padding-block: clamp(2.25rem, 6vh, 3.75rem) clamp(4.5rem, 10vh, 6.5rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+  overflow: hidden;
+  animation: heroIn 800ms var(--ease-out) both;
+}
+
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.graph {
+  position: absolute;
+  inset-block: 8% 12%;
+  inset-inline-end: -4%;
+  width: min(64vw, 44rem);
+  height: auto;
+  max-width: none;
+  opacity: 0.38;
+  animation: graphIn 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+:global(html[data-theme="dark"]) .graph {
+  opacity: 0.62;
+}
+
+.edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: edgeDraw 1.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.edge:nth-child(1) {
+  animation-delay: 100ms;
+}
+.edge:nth-child(2) {
+  animation-delay: 160ms;
+}
+.edge:nth-child(3) {
+  animation-delay: 220ms;
+}
+.edge:nth-child(4) {
+  animation-delay: 280ms;
+}
+.edge:nth-child(5) {
+  animation-delay: 320ms;
+}
+.edge:nth-child(6) {
+  animation-delay: 380ms;
+}
+.edge:nth-child(7) {
+  animation-delay: 440ms;
+}
+.edge:nth-child(8) {
+  animation-delay: 500ms;
+}
+.edge:nth-child(9) {
+  animation-delay: 540ms;
+}
+.edge:nth-child(10) {
+  animation-delay: 600ms;
+}
+.edge:nth-child(11) {
+  animation-delay: 660ms;
+}
+.edge:nth-child(12) {
+  animation-delay: 720ms;
+}
+.edge:nth-child(13) {
+  animation-delay: 780ms;
+}
+.edge:nth-child(14) {
+  animation-delay: 840ms;
+}
+.edge:nth-child(15) {
+  animation-delay: 900ms;
+}
+.edge:nth-child(16) {
+  animation-delay: 960ms;
+}
+
+.nodes .node {
+  fill: var(--accent);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    nodeIn 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards,
+    nodeBreathe 5.5s ease-in-out 1.2s infinite;
+}
+
+.nodes .node:nth-child(1) {
+  animation-delay: 0.5s, 1.2s;
+}
+.nodes .node:nth-child(2) {
+  animation-delay: 0.56s, 1.4s;
+}
+.nodes .node:nth-child(3) {
+  animation-delay: 0.62s, 1.55s;
+}
+.nodes .node:nth-child(4) {
+  animation-delay: 0.68s, 1.7s;
+}
+.nodes .node:nth-child(5) {
+  animation-delay: 0.74s, 1.85s;
+}
+.nodes .node:nth-child(8) {
+  animation-delay: 0.9s, 2.05s;
+}
+.nodes .node:nth-child(9) {
+  animation-delay: 0.96s, 2.2s;
+}
+.nodes .node:nth-child(10) {
+  animation-delay: 1.02s, 2.35s;
+}
+.nodes .node:nth-child(11) {
+  animation-delay: 1.08s, 2.5s;
+}
+.nodes .node:nth-child(12) {
+  animation-delay: 1.14s, 2.65s;
+}
+.nodes .node:nth-child(13) {
+  animation-delay: 1.2s, 2.8s;
+}
+.nodes .node:nth-child(14) {
+  animation-delay: 1.26s, 2.95s;
+}
+.nodes .node:nth-child(15) {
+  animation-delay: 1.32s, 3.1s;
+}
+.nodes .node:nth-child(16) {
+  animation-delay: 1.38s, 3.25s;
+}
+.nodes .node:nth-child(17) {
+  animation-delay: 1.44s, 3.4s;
+}
+.nodes .node:nth-child(18) {
+  animation-delay: 1.5s, 3.55s;
+}
+
+.nodeCore {
+  fill: url(#coreFill);
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    nodeIn 700ms cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards,
+    coreBreathe 4.8s ease-in-out 1.5s infinite;
+}
+
+.nodeRing {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ringPulse 4.8s ease-out 1.6s infinite;
+}
+
+.mesh {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      50% 42% at 80% 18%,
+      color-mix(in srgb, var(--accent) 6%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 55%,
+      var(--background) 100%
+    );
+}
+
+:global(html[data-theme="dark"]) .mesh {
+  background:
+    radial-gradient(
+      50% 42% at 80% 18%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 55%,
+      var(--background) 100%
+    );
+}
+
+.horizon {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: min(38%, 18rem);
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--background) 88%, transparent) 55%,
+    var(--background)
+  );
+}
+
+.content {
+  position: relative;
+  z-index: var(--z-base);
+  width: min(100%, 44rem);
+  max-width: 100%;
+  display: grid;
+  gap: clamp(0.9rem, 2.2vh, 1.25rem);
+  min-width: 0;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  min-width: 0;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 9vw, 4.25rem);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.03em;
+  line-height: 0.98;
+  color: var(--foreground);
+  text-wrap: balance;
+  min-width: 0;
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3.6vw, 2.2rem);
+  font-weight: var(--weight-medium);
+  letter-spacing: -0.02em;
+  line-height: var(--leading-snug);
+  color: var(--ink-soft);
+  max-width: 22ch;
+  text-wrap: balance;
+}
+
+/* Persian is already tightly set; negative tracking breaks the letter joins. */
+:global(html[lang="fa"]) .brand,
+:global(html[lang="fa"]) .headline {
+  letter-spacing: var(--tracking-normal);
+}
+
+:global(html[lang="fa"]) .headline {
+  /* Character-based measure is Latin-biased; let Persian wrap naturally. */
+  max-width: 28rem;
+}
+
+.support {
+  color: var(--muted);
+  font-size: clamp(1.02rem, 1.8vw, 1.18rem);
+  line-height: var(--leading-relaxed);
+  max-width: 38rem;
+  text-wrap: pretty;
+}
+
+:global(html[lang="fa"]) .support {
+  max-width: 36rem;
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-2);
+}
+
+/*
+ * The hero CTAs are the shared `Button` at `lg`; these are the only deviations.
+ * The lift is hero-only — repeating it on every button in the app would make
+ * the whole UI feel loose.
+ */
+.cta:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+/*
+ * On dark the accent is a bright teal on near-black, where a drop shadow is
+ * invisible. A tinted rim and glow carry the elevation instead.
+ */
+:global(html[data-theme="dark"]) .cta:first-child {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 12px 36px -12px color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+:global(html[data-theme="dark"]) .cta:first-child:hover {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent-strong) 40%, transparent),
+    0 16px 40px -10px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+
+.scrollCue {
+  position: absolute;
+  z-index: var(--z-raised);
+  left: 50%;
+  bottom: max(1.25rem, var(--safe-bottom));
+  translate: -50% 0;
+  width: 1.5rem;
+  height: 2.4rem;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.scrollLine {
+  width: 1px;
+  height: 1.5rem;
+  background: linear-gradient(180deg, var(--accent), transparent);
+  animation: scrollPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes heroIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/*
+ * `opacity` rather than `filter: opacity()`: the filter version forces a repaint
+ * of the whole SVG on every frame of the hero entrance, which is exactly when the
+ * page is busiest.
+ */
+@keyframes graphIn {
+  from {
+    transform: translate3d(3%, 2%, 0) scale(0.97);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes edgeDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nodeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+}
+
+@keyframes nodeBreathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes coreBreathe {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.75);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes scrollPulse {
+  0%,
+  100% {
+    transform: scaleY(0.65);
+    transform-origin: top;
+    opacity: 0.35;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 919.98px) {
+  .graph {
+    inset: 4% -10% 10% -10%;
+    width: auto;
+    height: auto;
+    opacity: 0.34;
+  }
+
+  :global(html[data-theme="dark"]) .graph {
+    opacity: 0.52;
+  }
+
+  .horizon {
+    height: min(28%, 12rem);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    min-height: calc(100svh - var(--header-stack, 5.5rem));
+    align-content: start;
+    padding-top: 2rem;
+    padding-bottom: max(clamp(5rem, 12vh, 7rem), calc(var(--safe-bottom) + 4rem));
+  }
+
+  .graph {
+    inset: 2% -4% 4% -4%;
+    width: auto;
+    height: auto;
+    opacity: 0.22;
+  }
+
+  :global(html[data-theme="dark"]) .graph {
+    opacity: 0.4;
+  }
+
+  .mesh {
+    background:
+      radial-gradient(
+        70% 50% at 50% 42%,
+        color-mix(in srgb, var(--accent) 7%, transparent),
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        transparent 68%,
+        var(--background) 100%
+      );
+  }
+
+  :global(html[data-theme="dark"]) .mesh {
+    background:
+      radial-gradient(
+        70% 50% at 50% 42%,
+        color-mix(in srgb, var(--accent) 12%, transparent),
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        transparent 68%,
+        var(--background) 100%
+      );
+  }
+
+  .horizon {
+    height: min(22%, 9rem);
+  }
+
+  .brand {
+    font-size: clamp(2rem, 11vw, 3.1rem);
+  }
+
+  .headline {
+    max-width: none;
+    font-size: clamp(1.28rem, 5.6vw, 1.85rem);
+  }
+
+  .support {
+    font-size: 1.02rem;
+  }
+
+  .ctas {
+    width: 100%;
+  }
+
+  .cta {
+    width: 100%;
+  }
+}
+
+@media (min-width: 1100px) {
+  .content {
+    width: min(100%, 48rem);
+  }
+
+  .graph {
+    inset-inline-end: 0%;
+    width: min(58vw, 46rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .edge,
+  .nodes .node,
+  .nodeCore,
+  .nodeRing,
+  .graph {
+    animation: none !important;
+  }
+
+  .edge {
+    stroke-dashoffset: 0;
+  }
+
+  .nodes .node,
+  .nodeCore {
+    opacity: 0.8;
+  }
+
+  .nodeRing {
+    opacity: 0.2;
+  }
+}

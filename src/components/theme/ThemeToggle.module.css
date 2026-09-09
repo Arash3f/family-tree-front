@@ -1,0 +1,41 @@
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.toggle:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.toggle:hover {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  transform: translateY(-1px);
+}
+
+:global(html[data-theme="dark"]) .toggle {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+:global(html[data-theme="dark"]) .toggle:hover {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+
+.toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}

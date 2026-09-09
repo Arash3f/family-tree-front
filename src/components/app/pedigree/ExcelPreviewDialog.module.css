@@ -1,0 +1,259 @@
+.previewOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--foreground) 42%, transparent);
+}
+
+.previewModal {
+  width: min(72rem, 100%);
+  max-height: min(90svh, 54rem);
+  overflow: auto;
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.previewSection {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.previewSection h3,
+.previewErrors h3 {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.previewErrors {
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
+  color: var(--ink-soft);
+}
+
+.previewErrors ul {
+  margin: 0.4rem 0 0;
+  padding-inline-start: 1.1rem;
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.previewErrorsLead {
+  margin: 0.25rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.previewOk {
+  margin: 0;
+  padding: 0.65rem 0.8rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: color-mix(in srgb, var(--accent-muted) 70%, var(--surface));
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
+
+.previewHint,
+.previewSelected,
+.previewNoneSelected {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  line-height: 1.45;
+}
+
+.previewToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+.previewToolbarActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Dialog footer: the confirm and cancel pair, set off from the tables above. */
+.previewActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block-start: var(--space-4);
+  border-block-start: 1px solid var(--border);
+}
+
+.previewTableWrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  max-height: 18rem;
+}
+
+.previewTable {
+  width: 100%;
+  table-layout: auto;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+}
+
+.previewTable th,
+.previewTable td {
+  display: table-cell;
+  padding-block: 0.45rem;
+  padding-inline-start: 0;
+  padding-inline-end: 0.9rem;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.previewCheckCol {
+  width: 2.6rem;
+  text-align: center;
+  padding-inline-end: 0.4rem;
+}
+
+.previewName {
+  font-weight: 650;
+}
+
+.previewMuted {
+  color: var(--ink-soft);
+}
+
+/* A referenced person: their name on top, the spreadsheet code beneath it. */
+.previewRef {
+  display: inline-grid;
+  gap: 0.05rem;
+  vertical-align: top;
+}
+
+.previewParents {
+  display: inline-grid;
+  gap: 0.3rem;
+}
+
+.previewCode {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+}
+
+.previewStatusStack {
+  display: inline-grid;
+  gap: 0.2rem;
+  max-width: 22rem;
+}
+
+.previewWarningText {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  white-space: normal;
+}
+
+.previewTable th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-hover, var(--surface));
+  font-weight: 700;
+}
+
+.previewTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.previewRowExisting td {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.previewRowDuplicate td,
+.previewRowWarning td {
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.previewBadgeExisting,
+.previewBadgeDuplicate,
+.previewBadgeWarning,
+.previewBadgeNew {
+  display: inline-block;
+  max-width: 18rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 650;
+}
+
+.previewBadgeExisting {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent);
+}
+
+.previewBadgeNew {
+  background: color-mix(in srgb, var(--accent-muted) 80%, var(--surface));
+  color: var(--ink-soft);
+}
+
+.previewBadgeDuplicate,
+.previewBadgeWarning {
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  color: var(--danger);
+}
+
+.previewNoneSelected {
+  color: var(--danger);
+}
+
+@media (max-width: 479.98px) {
+  .previewOverlay {
+    padding: max(0.5rem, var(--safe-top)) max(0.5rem, var(--safe-right))
+      max(0.5rem, var(--safe-bottom)) max(0.5rem, var(--safe-left));
+    align-items: end;
+  }
+
+  .previewModal {
+    max-height: min(92svh, 54rem);
+    padding: 0.9rem 0.85rem 1rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .previewBadgeExisting,
+  .previewBadgeDuplicate,
+  .previewBadgeWarning,
+  .previewBadgeNew {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 859.98px) {
+  .previewOverlay {
+    padding: 0.75rem;
+    align-items: center;
+  }
+
+  .previewModal {
+    max-height: min(90svh, 52rem);
+  }
+}

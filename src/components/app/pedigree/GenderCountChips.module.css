@@ -1,0 +1,32 @@
+.genderChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.genderChip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.14rem 0.45rem;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  line-height: 1.2;
+}
+
+/*
+ * Tint the fill, but keep the label close to foreground so dark/light themes
+ * stay readable instead of neon blue/pink on teal chrome.
+ */
+.genderChip.male {
+  background: color-mix(in srgb, var(--pedigree-male) 16%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--pedigree-male) 30%, var(--border));
+  color: color-mix(in srgb, var(--pedigree-male) 55%, var(--foreground));
+}
+
+.genderChip.female {
+  background: color-mix(in srgb, var(--pedigree-female) 16%, var(--surface-raised));
+  border-color: color-mix(in srgb, var(--pedigree-female) 30%, var(--border));
+  color: color-mix(in srgb, var(--pedigree-female) 55%, var(--foreground));
+}

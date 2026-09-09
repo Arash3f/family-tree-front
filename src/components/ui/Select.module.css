@@ -1,0 +1,183 @@
+.wrap {
+  position: relative;
+  display: block;
+  min-width: 0;
+}
+
+/*
+ * The real control, kept for form submission and `required` validation. It has
+ * to stay rendered — `display: none` would make the browser refuse to focus it
+ * and drop the validation message — so it hides behind zero opacity instead.
+ */
+.native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/*
+ * Element + class, because the shared `.control` class lands on the same button
+ * and CSS module order between the two files is not something to rely on.
+ */
+button.trigger {
+  display: flex;
+  align-items: center;
+  text-align: start;
+  cursor: pointer;
+  background-image: var(--select-chevron);
+  background-repeat: no-repeat;
+  background-position: right var(--select-chevron-inset) center;
+  background-size: var(--select-chevron-size) auto;
+  padding-inline-end: var(--select-pad-end);
+}
+
+/* Use the control's own direction so an LTR island (e.g. phone dial) stays LTR. */
+button.trigger:dir(rtl) {
+  background-position: left var(--select-chevron-inset) center;
+}
+
+button.triggerOpen {
+  border-color: var(--accent);
+  background-color: var(--surface);
+  box-shadow: var(--ring);
+}
+
+.value,
+.placeholder {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--muted);
+}
+
+/*
+ * Positioned from JS against the trigger and portalled to the body, so a panel
+ * or dialog with its own scrolling never clips the list.
+ */
+.panel {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: grid;
+  align-content: start;
+  gap: 1px;
+  padding: var(--space-1);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-lg);
+  color: var(--foreground);
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+  scrollbar-width: thin;
+  animation: selectIn var(--duration-fast) var(--ease-out);
+}
+
+.filterRow {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1));
+  margin-bottom: 0;
+  background: var(--surface-raised);
+}
+
+.filter {
+  width: 100%;
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--control-bg);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-md);
+  font-weight: var(--weight-normal);
+}
+
+.filter::placeholder {
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+}
+
+.filter:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--surface);
+  box-shadow: var(--ring);
+}
+
+.empty {
+  padding: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+@keyframes selectIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  line-height: var(--leading-snug);
+  cursor: pointer;
+}
+
+.optionLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.optionActive {
+  background: var(--surface-hover);
+}
+
+.optionSelected {
+  color: var(--accent-strong);
+  font-weight: var(--weight-semibold);
+}
+
+.optionSelected.optionActive {
+  background: var(--accent-muted);
+}
+
+.optionDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.check {
+  flex-shrink: 0;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+@media (max-width: 479.98px) {
+  .panel {
+    font-size: 1rem;
+  }
+}
