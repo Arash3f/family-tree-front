@@ -7,6 +7,7 @@ import { listRoles, listUsers } from "@/lib/auth/client";
 import { AuthApiError, Permissions, type AppUser } from "@/lib/auth/types";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import buttonStyles from "@/components/ui/Button.module.css";
 import styles from "./UsersView.module.css";
@@ -111,6 +112,7 @@ export function UsersListView() {
                 <tr>
                   <th scope="col">{t("username")}</th>
                   <th scope="col">{t("fullname")}</th>
+                  <th scope="col">{t("email")}</th>
                   <th scope="col">{t("role")}</th>
                   <th scope="col">{t("lastSession")}</th>
                   <th scope="col">
@@ -122,17 +124,38 @@ export function UsersListView() {
                 {users.map((user) => (
                   <tr key={user.id}>
                     <td className={styles.cellName} data-label={t("username")}>
-                      {user.username}
+                      <OverflowMarquee title={user.username}>
+                        {user.username}
+                      </OverflowMarquee>
                     </td>
-                    <td data-label={t("fullname")}>{user.fullname}</td>
+                    <td data-label={t("fullname")}>
+                      <OverflowMarquee title={user.fullname}>
+                        {user.fullname}
+                      </OverflowMarquee>
+                    </td>
+                    <td
+                      className={`${styles.cellMuted} ${styles.cellEmail}`}
+                      data-label={t("email")}
+                    >
+                      <OverflowMarquee
+                        dir="ltr"
+                        title={user.email || undefined}
+                      >
+                        {user.email || "—"}
+                      </OverflowMarquee>
+                    </td>
                     <td data-label={t("role")}>
-                      {roleLabel(user.role_id ?? null)}
+                      <OverflowMarquee>
+                        {roleLabel(user.role_id ?? null)}
+                      </OverflowMarquee>
                     </td>
                     <td
                       className={styles.cellMuted}
                       data-label={t("lastSession")}
                     >
-                      {formatDate(user.last_session_at ?? null, locale)}
+                      <OverflowMarquee>
+                        {formatDate(user.last_session_at ?? null, locale)}
+                      </OverflowMarquee>
                     </td>
                     <td className={styles.tableAction}>
                       {canUpdate ? (

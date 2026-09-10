@@ -1,9 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import {
+  DEFAULT_DIAL_CODE,
+  DIAL_CODES,
+  dialCodeLabel,
+  splitStoredPhone,
+} from "@/lib/auth/country-dial-codes";
 import {
   clearSession,
   deleteUser,
@@ -51,6 +57,7 @@ function formatDate(value: string | null, locale: string) {
 
 export function UserDetailView({ userId }: Props) {
   const t = useTranslations("users");
+  const tRegister = useTranslations("register");
   const locale = useLocale();
   const { confirm } = useFeedback();
   const { status, user: me, hasPermission } = useAuth();
@@ -60,6 +67,9 @@ export function UserDetailView({ userId }: Props) {
   const [sessions, setSessions] = useState<UserSession[]>([]);
   const [username, setUsername] = useState("");
   const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState(DEFAULT_DIAL_CODE);
+  const [phone, setPhone] = useState("");
   const [roleId, setRoleId] = useState("");
   const [accountType, setAccountType] = useState<"free" | "paid">("free");
   const [password, setPassword] = useState("");
@@ -76,6 +86,21 @@ export function UserDetailView({ userId }: Props) {
   const canReadRoles = hasPermission(Permissions.ROLE_READ);
   const isSelf = me?.id === userId;
 
+  const dialOptions = useMemo(
+    () =>
+      DIAL_CODES.map((entry) => ({
+        value: entry.code,
+        label: dialCodeLabel(entry, locale),
+      })),
+    [locale],
+  );
+
+  const applyPhoneFields = useCallback((stored: string | null | undefined) => {
+    const split = splitStoredPhone(stored);
+    setCountryCode(split.countryCode);
+    setPhone(split.national);
+  }, []);
+
   const fetchDetail = useCallback(async (): Promise<UserDetailData> => {
     // Roles do not depend on the user record, so they ride along instead of
     // waiting for it.
@@ -87,15 +112,20 @@ export function UserDetailView({ userId }: Props) {
     return { user, sessions: sessionList, roles: rolePage?.items ?? null };
   }, [userId, canUpdate, canReadRoles]);
 
-  const applyDetail = useCallback((data: UserDetailData) => {
-    setTarget(data.user);
-    setUsername(data.user.username);
-    setFullname(data.user.fullname);
-    setRoleId(data.user.role_id ?? "");
-    setAccountType(data.user.account_type === "paid" ? "paid" : "free");
-    setSessions(data.sessions);
-    if (data.roles) setRoles(data.roles);
-  }, []);
+  const applyDetail = useCallback(
+    (data: UserDetailData) => {
+      setTarget(data.user);
+      setUsername(data.user.username);
+      setFullname(data.user.fullname);
+      setEmail(data.user.email ?? "");
+      applyPhoneFields(data.user.phone);
+      setRoleId(data.user.role_id ?? "");
+      setAccountType(data.user.account_type === "paid" ? "paid" : "free");
+      setSessions(data.sessions);
+      if (data.roles) setRoles(data.roles);
+    },
+    [applyPhoneFields],
+  );
 
   // Kept awaitable so the revoke handlers can hold their busy state until the
   // refreshed record lands.
@@ -145,6 +175,9 @@ export function UserDetailView({ userId }: Props) {
         user_id: string;
         username?: string;
         fullname?: string;
+        email?: string | null;
+        phone?: string | null;
+        country_code?: string | null;
         password?: string;
         re_password?: string;
         role_id?: string | null;
@@ -156,6 +189,22 @@ export function UserDetailView({ userId }: Props) {
       }
       if (fullname.trim() && fullname.trim() !== target?.fullname) {
         payload.fullname = fullname.trim();
+      }
+      const nextEmail = email.trim() || null;
+      if (nextEmail !== (target?.email ?? null)) {
+        payload.email = nextEmail;
+      }
+      const phoneDigits = phone.replace(/\D/g, "");
+      const nextPhone = phoneDigits || null;
+      const nextCountry = phoneDigits ? countryCode : null;
+      const storedSplit = splitStoredPhone(target?.phone);
+      const phoneChanged =
+        nextPhone !== (storedSplit.national || null) ||
+        (nextPhone !== null && nextCountry !== storedSplit.countryCode) ||
+        (nextPhone === null && (target?.phone ?? null) !== null);
+      if (phoneChanged) {
+        payload.phone = nextPhone;
+        payload.country_code = nextCountry;
       }
       if (roleId !== (target?.role_id ?? "")) {
         payload.role_id = roleId || null;
@@ -172,6 +221,8 @@ export function UserDetailView({ userId }: Props) {
       setTarget(updated);
       setUsername(updated.username);
       setFullname(updated.fullname);
+      setEmail(updated.email ?? "");
+      applyPhoneFields(updated.phone);
       setRoleId(updated.role_id ?? "");
       setAccountType(updated.account_type === "paid" ? "paid" : "free");
       setPassword("");
@@ -284,6 +335,44 @@ export function UserDetailView({ userId }: Props) {
             required
             disabled={saving || deleting}
           />
+
+          <TextField
+            label={t("email")}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={saving || deleting}
+            autoComplete="email"
+          />
+
+          <div className={styles.phoneRow}>
+            <SelectField
+              label={tRegister("countryCode")}
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              disabled={saving || deleting}
+              filterable
+              filterPlaceholder={tRegister("countrySearch")}
+              filterEmptyLabel={tRegister("countryEmpty")}
+            >
+              {dialOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectField>
+
+            <TextField
+              label={t("phone")}
+              type="tel"
+              inputMode="numeric"
+              dir="ltr"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={saving || deleting}
+              placeholder={tRegister("phonePlaceholder")}
+            />
+          </div>
 
           {roles.length > 0 ? (
             <SelectField

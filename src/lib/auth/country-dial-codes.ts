@@ -86,3 +86,36 @@ export function dialCodeLabel(entry: DialCode, locale: string): string {
   const name = locale.startsWith("fa") ? entry.nameFa : entry.nameEn;
   return `${entry.code} · ${name}`;
 }
+
+/**
+ * Split a stored international phone (e.g. +98912…) into dial-code + national
+ * digits for the register-style country picker. Longest matching prefix wins.
+ */
+export function splitStoredPhone(stored: string | null | undefined): {
+  countryCode: string;
+  national: string;
+} {
+  const raw = (stored ?? "").trim();
+  if (!raw) {
+    return { countryCode: DEFAULT_DIAL_CODE, national: "" };
+  }
+
+  const withPlus = raw.startsWith("+") ? raw : `+${raw.replace(/^\+/, "")}`;
+  const digitsOnly = withPlus.replace(/\D/g, "");
+  const prefixed = `+${digitsOnly}`;
+
+  const codes = [...DIAL_CODES]
+    .map((entry) => entry.code)
+    .sort((a, b) => b.length - a.length);
+
+  for (const code of codes) {
+    if (prefixed.startsWith(code)) {
+      return {
+        countryCode: code,
+        national: prefixed.slice(code.length),
+      };
+    }
+  }
+
+  return { countryCode: DEFAULT_DIAL_CODE, national: digitsOnly };
+}

@@ -438,6 +438,9 @@ export async function createUser(input: {
   fullname: string;
   password: string;
   re_password: string;
+  email?: string | null;
+  phone?: string | null;
+  country_code?: string | null;
   role_id?: string | null;
   account_type?: "free" | "paid";
 }): Promise<AppUser> {
@@ -453,6 +456,9 @@ export async function updateUser(input: {
   user_id: string;
   username?: string;
   fullname?: string;
+  email?: string | null;
+  phone?: string | null;
+  country_code?: string | null;
   password?: string;
   re_password?: string;
   role_id?: string | null;
@@ -461,6 +467,9 @@ export async function updateUser(input: {
   const data: Record<string, unknown> = {};
   if (input.username !== undefined) data.username = input.username;
   if (input.fullname !== undefined) data.fullname = input.fullname;
+  if (input.email !== undefined) data.email = input.email;
+  if (input.phone !== undefined) data.phone = input.phone;
+  if (input.country_code !== undefined) data.country_code = input.country_code;
   if (input.password !== undefined) data.password = input.password;
   if (input.re_password !== undefined) data.re_password = input.re_password;
   if (input.role_id !== undefined) data.role_id = input.role_id;

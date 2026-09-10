@@ -42,29 +42,34 @@
 
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 19%;
+  width: 12%;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  width: 24%;
+  width: 14%;
 }
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 17%;
+  width: 28%;
 }
 
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  width: 28%;
-  white-space: nowrap;
-  overflow-wrap: normal;
+  width: 12%;
 }
 
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 12%;
+  width: 20%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.table th:nth-child(6),
+.table td:nth-child(6) {
+  width: 14%;
 }
 
 .cellName {
@@ -76,9 +81,21 @@
   font-size: var(--text-sm);
 }
 
+.cellEmail {
+  overflow: hidden;
+  max-width: 0; /* with table-layout:fixed, forces the cell to respect width % */
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+.cellEmail > * {
+  width: 100%;
+}
+
 .tableAction {
   white-space: nowrap;
   padding-inline-end: 0;
+  text-align: end;
 }
 
 .srOnly {
@@ -155,7 +172,7 @@
 }
 
 /*
- * Five columns will not fit a phone without sideways scrolling. Below the
+ * Six columns will not fit a phone without sideways scrolling. Below the
  * tablet breakpoint the table becomes a stack of labelled cards; the header
  * row is decorative once each cell names itself.
  */
@@ -207,6 +224,7 @@
 
   .tableAction {
     justify-items: start;
+    text-align: start;
     padding-block-start: var(--space-2);
   }
 
@@ -214,16 +232,13 @@
     content: none;
   }
 
-  .table th:nth-child(1),
-  .table td:nth-child(1),
-  .table th:nth-child(2),
-  .table td:nth-child(2),
-  .table th:nth-child(3),
-  .table td:nth-child(3),
-  .table th:nth-child(4),
-  .table td:nth-child(4),
-  .table th:nth-child(5),
-  .table td:nth-child(5) {
+  .cellEmail {
+    max-width: none;
+    overflow: visible;
+  }
+
+  .table th:nth-child(n),
+  .table td:nth-child(n) {
     width: 100%;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -234,5 +249,19 @@
   .sessionItem {
     grid-template-columns: 1fr auto;
     align-items: center;
+  }
+}
+
+.phoneRow {
+  display: grid;
+  grid-template-columns: minmax(8.5rem, 10.5rem) minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  direction: ltr;
+}
+
+@media (max-width: 28rem) {
+  .phoneRow {
+    grid-template-columns: 1fr;
   }
 }

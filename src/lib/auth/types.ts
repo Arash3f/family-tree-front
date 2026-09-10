@@ -39,6 +39,8 @@ export type AppUser = {
   id: string;
   username: string;
   fullname: string;
+  email?: string | null;
+  phone?: string | null;
   role_id: string | null;
   account_type?: AccountType;
   last_session_at?: string | null;

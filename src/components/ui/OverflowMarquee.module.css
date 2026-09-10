@@ -1,0 +1,53 @@
+.root {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.track {
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+/* Only clip with ellipsis when the string fits-or-not hasn't been measured as
+ * overflowing yet; once overflowing, the track must keep its full width. */
+.root:not(.overflowing) .track {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.overflowing .track {
+  max-width: none;
+  overflow: visible;
+  text-overflow: clip;
+  will-change: transform;
+  animation: marquee-pingpong var(--marquee-duration, 8s) ease-in-out infinite;
+}
+
+@keyframes marquee-pingpong {
+  0%,
+  10% {
+    transform: translateX(0);
+  }
+  45%,
+  55% {
+    transform: translateX(var(--marquee-shift, 0));
+  }
+  90%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overflowing .track {
+    animation: none;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

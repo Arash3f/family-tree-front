@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
+import {
+  DEFAULT_DIAL_CODE,
+  DIAL_CODES,
+  dialCodeLabel,
+} from "@/lib/auth/country-dial-codes";
 import { createUser, listRoles } from "@/lib/auth/client";
 import { AuthApiError, Permissions, type AppRole } from "@/lib/auth/types";
 import { useRouter } from "@/i18n/navigation";
@@ -11,13 +16,19 @@ import { Field, SelectField, TextField } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Feedback";
 import { Form, FormActions, FormRow } from "@/components/ui/Form";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
+import styles from "./UsersView.module.css";
 
 export function UserCreateView() {
   const t = useTranslations("users");
+  const tRegister = useTranslations("register");
+  const locale = useLocale();
   const { hasPermission } = useAuth();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [fullname, setFullname] = useState("");
+  const [email, setEmail] = useState("");
+  const [countryCode, setCountryCode] = useState(DEFAULT_DIAL_CODE);
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [roleId, setRoleId] = useState("");
@@ -29,6 +40,15 @@ export function UserCreateView() {
   const canReadRoles = hasPermission(Permissions.ROLE_READ);
   // Without read access no request is ever made, so nothing is pending.
   const loadingRoles = canReadRoles && rolesPending;
+
+  const dialOptions = useMemo(
+    () =>
+      DIAL_CODES.map((entry) => ({
+        value: entry.code,
+        label: dialCodeLabel(entry, locale),
+      })),
+    [locale],
+  );
 
   useEffect(() => {
     if (!hasPermission(Permissions.USER_CREATE)) {
@@ -63,11 +83,15 @@ export function UserCreateView() {
     setBusy(true);
     setError(null);
     try {
+      const phoneDigits = phone.replace(/\D/g, "");
       const user = await createUser({
         username: username.trim(),
         fullname: fullname.trim(),
         password,
         re_password: rePassword,
+        email: email.trim() || null,
+        phone: phoneDigits || null,
+        country_code: phoneDigits ? countryCode : null,
         role_id: roleId || null,
         account_type: accountType,
       });
@@ -105,6 +129,47 @@ export function UserCreateView() {
             disabled={busy}
             autoComplete="off"
           />
+
+          <TextField
+            label={t("email")}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={busy}
+            autoComplete="email"
+            aside={tRegister("optional")}
+          />
+
+          <div className={styles.phoneRow}>
+            <SelectField
+              label={tRegister("countryCode")}
+              value={countryCode}
+              onChange={(e) => setCountryCode(e.target.value)}
+              disabled={busy}
+              filterable
+              filterPlaceholder={tRegister("countrySearch")}
+              filterEmptyLabel={tRegister("countryEmpty")}
+              aside={tRegister("optional")}
+            >
+              {dialOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </SelectField>
+
+            <TextField
+              label={t("phone")}
+              type="tel"
+              inputMode="numeric"
+              dir="ltr"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              disabled={busy}
+              placeholder={tRegister("phonePlaceholder")}
+              aside={tRegister("optional")}
+            />
+          </div>
 
           <TextField
             label={t("password")}
