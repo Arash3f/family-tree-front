@@ -6,6 +6,7 @@ import { Author } from "@/components/landing/Author";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
+import { Updates } from "@/components/landing/Updates";
 import { AppSplash } from "@/components/loading/AppSplash";
 import {
   absoluteLocaleUrl,
@@ -89,6 +90,7 @@ export default async function HomePage({ params }: Props) {
       <main id="main">
         <Hero />
         <Features />
+        <Updates />
         <Suspense fallback={null}>
           <Architecture />
         </Suspense>

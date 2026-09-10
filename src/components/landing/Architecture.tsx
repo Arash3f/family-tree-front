@@ -14,7 +14,7 @@ export async function Architecture() {
   return (
     <Section
       id="architecture"
-      ordinal={formatLocaleDigits("02", locale)}
+      ordinal={formatLocaleDigits("03", locale)}
       eyebrow={tNav("architecture")}
       title={t("title")}
       subtitle={t("subtitle")}

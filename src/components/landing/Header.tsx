@@ -10,7 +10,7 @@ import { Link } from "@/i18n/navigation";
 import styles from "./Header.module.css";
 
 const DESKTOP_MQ = "(min-width: 920px)";
-const SECTION_IDS = ["features", "architecture", "author"] as const;
+const SECTION_IDS = ["features", "updates", "architecture", "author"] as const;
 type SectionId = (typeof SECTION_IDS)[number];
 const emptySubscribe = () => () => {};
 

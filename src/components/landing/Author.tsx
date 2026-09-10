@@ -27,7 +27,7 @@ export async function Author() {
   return (
     <Section
       id="author"
-      ordinal={formatLocaleDigits("03", locale)}
+      ordinal={formatLocaleDigits("04", locale)}
       eyebrow={t("title")}
       title={name}
       delay={160}
