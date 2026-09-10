@@ -19,6 +19,7 @@ import {
   HiOutlineUser,
 } from "react-icons/hi2";
 import { formatLocaleDigits } from "@/lib/localeDigits";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { ageInYearsAtYear, formatDateForLocale } from "@/lib/pedigree/dates";
 import {
   personDisplayName,
@@ -216,7 +217,9 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
           )}
         </span>
         <span className={styles.identity}>
-          <span className={styles.name}>{label}</span>
+          <OverflowMarquee className={styles.name} title={label}>
+            {label}
+          </OverflowMarquee>
         </span>
         {age !== null ? (
           <span className={styles.ageBadge} title={t("fields.age")}>

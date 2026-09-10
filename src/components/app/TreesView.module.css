@@ -102,10 +102,10 @@
 
 .treeName {
   margin: 0;
+  min-width: 0;
   font-weight: var(--weight-bold);
   font-size: var(--text-md);
   line-height: var(--leading-snug);
-  word-break: break-word;
 }
 
 .treeAction {

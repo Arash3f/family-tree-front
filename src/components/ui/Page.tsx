@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react";
 
 import { Link } from "@/i18n/navigation";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import styles from "./Page.module.css";
 
 export function Page({
@@ -57,7 +60,13 @@ export function PageHeader({
       ) : null}
       {eyebrow ? <span className={styles.eyebrow}>{eyebrow}</span> : null}
       <div className={styles.headerRow}>
-        <h1 className={styles.title}>{title}</h1>
+        <h1 className={styles.title}>
+          <OverflowMarquee
+            title={typeof title === "string" ? title : undefined}
+          >
+            {title}
+          </OverflowMarquee>
+        </h1>
         {actions ? <div className={styles.actions}>{actions}</div> : null}
       </div>
       {support ? <p className={styles.support}>{support}</p> : null}

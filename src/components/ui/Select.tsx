@@ -18,6 +18,7 @@ import {
 import { createPortal } from "react-dom";
 import { FiCheck } from "react-icons/fi";
 
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import styles from "./Select.module.css";
 
 export type SelectOption = {
@@ -457,9 +458,13 @@ export function Select({
         }}
       >
         <span className={selected ? styles.value : styles.placeholder}>
-          {selected
-            ? (selected.triggerLabel ?? selected.label)
-            : (placeholder ?? "")}
+          {selected ? (
+            <OverflowMarquee title={selected.text}>
+              {selected.triggerLabel ?? selected.label}
+            </OverflowMarquee>
+          ) : (
+            (placeholder ?? "")
+          )}
         </span>
       </button>
       {open && position

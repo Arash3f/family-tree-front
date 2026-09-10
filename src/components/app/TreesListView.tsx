@@ -10,6 +10,7 @@ import { AuthApiError, Permissions, type FamilyTree } from "@/lib/auth/types";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Feedback";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import styles from "./TreesView.module.css";
 
@@ -172,7 +173,9 @@ export function TreesListView() {
                       draggable={false}
                       onContextMenu={(event) => event.preventDefault()}
                     >
-                      <p className={styles.treeName}>{tree.name}</p>
+                      <p className={styles.treeName}>
+                        <OverflowMarquee title={tree.name}>{tree.name}</OverflowMarquee>
+                      </p>
                       <div className={styles.badgeRow}>
                         <span
                           className={`${styles.badge} ${

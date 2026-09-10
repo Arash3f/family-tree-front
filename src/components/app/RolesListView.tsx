@@ -7,6 +7,7 @@ import { listRoles } from "@/lib/auth/client";
 import { AuthApiError, Permissions, type AppRole } from "@/lib/auth/types";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import buttonStyles from "@/components/ui/Button.module.css";
 import styles from "./RolesView.module.css";
@@ -78,7 +79,9 @@ export function RolesListView() {
             {roles.map((role) => (
               <li key={role.id} className={styles.row}>
                 <div>
-                  <p className={styles.name}>{role.name}</p>
+                  <p className={styles.name}>
+                    <OverflowMarquee title={role.name}>{role.name}</OverflowMarquee>
+                  </p>
                   <p className={styles.meta}>
                     {t("permissionCount", { count: role.permission_ids.length })}
                     {" · "}

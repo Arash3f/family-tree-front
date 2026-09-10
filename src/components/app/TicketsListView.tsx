@@ -17,6 +17,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { ButtonLink } from "@/components/ui/Button";
 import { SelectField } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Feedback";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import styles from "./TicketsView.module.css";
 
@@ -319,7 +320,11 @@ export function TicketsListView() {
                   >
                     <div className={styles.ticketBody}>
                       <div className={styles.ticketTop}>
-                        <p className={styles.ticketTitle}>{ticket.title}</p>
+                        <p className={styles.ticketTitle}>
+                          <OverflowMarquee title={ticket.title}>
+                            {ticket.title}
+                          </OverflowMarquee>
+                        </p>
                         <span className={styles.ticketAction}>{actionLabel}</span>
                       </div>
 
