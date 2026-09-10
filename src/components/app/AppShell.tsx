@@ -18,6 +18,8 @@ import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
 import { Permissions } from "@/lib/auth/types";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { DashboardBackdrop } from "./DashboardBackdrop";
+import { HelpGuide } from "./HelpGuide";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import styles from "./AppShell.module.css";
 
 type Props = {
@@ -144,13 +146,16 @@ export function AppShell({ children }: Props) {
         </button>
 
         <Link className={styles.brand} href="/dashboard" onClick={closeMenu}>
-          {t("brand")}
+          <OverflowMarquee>{t("brand")}</OverflowMarquee>
         </Link>
 
         <div className={styles.topControls}>
-          <span className={styles.userChip} title={user?.fullname}>
-            {user?.fullname}
+          <span className={styles.userChip}>
+            <OverflowMarquee title={user?.fullname}>
+              {user?.fullname}
+            </OverflowMarquee>
           </span>
+          <HelpGuide />
           <LocaleSwitcher />
           <ThemeToggle />
         </div>

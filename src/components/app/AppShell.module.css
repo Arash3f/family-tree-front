@@ -38,9 +38,6 @@
   font-family: var(--font-display);
   font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .menuBtn {
@@ -81,15 +78,13 @@
 .userChip {
   display: none;
   max-width: 9rem;
+  min-width: 0;
   padding: 0.35rem 0.65rem;
   border-radius: var(--radius-sm);
   background: var(--accent-muted);
   color: var(--ink-soft);
   font-size: 0.82rem;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* The scrim sits under the drawer it dims, and over everything else. */

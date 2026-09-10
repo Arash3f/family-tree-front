@@ -116,9 +116,6 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 :global(html[lang="fa"]) .title {
@@ -414,6 +411,12 @@
 
 .chromeActions .toolBtn svg {
   font-size: 1.05rem;
+}
+
+.helpBtn {
+  flex-shrink: 0;
+  width: var(--tool-h, 2.5rem);
+  height: var(--tool-h, 2.5rem);
 }
 
 /* The view controls behave as one instrument, so they are drawn as one. */

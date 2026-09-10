@@ -24,6 +24,8 @@ import {
 import type { Person } from "@/lib/auth/types";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Button } from "@/components/ui/Button";
+import { HelpGuide } from "@/components/app/HelpGuide";
+import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { BirthdayCalendarButton } from "./LazyBirthdayCalendar";
 import { MoreMenu } from "./MoreMenu";
 import { PersonSearchResults } from "./PersonSearchResults";
@@ -162,8 +164,10 @@ export function PedigreeHeader({
       <div className={styles.chromeIdentity}>
         <div className={styles.identityBody}>
           <div className={styles.titleRow}>
-            <h1 className={styles.title} title={treeName || t("title")}>
-              {treeName || t("title")}
+            <h1 className={styles.title}>
+              <OverflowMarquee title={treeName || t("title")}>
+                {treeName || t("title")}
+              </OverflowMarquee>
             </h1>
             <div
               className={styles.statRow}
@@ -343,6 +347,8 @@ export function PedigreeHeader({
         >
           <span className={styles.toolLabel}>{t("export")}</span>
         </Button>
+
+        <HelpGuide focusPedigree className={styles.helpBtn} />
 
         <MoreMenu
           treeId={treeId}
