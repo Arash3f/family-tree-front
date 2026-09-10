@@ -4,6 +4,7 @@ import { isBornByYear, isReachedByYear } from "@/lib/pedigree/dates";
 import {
   buildTreeIndex,
   childrenOf,
+  marriagesOf,
   neighborhoodOf,
   type TreeIndex,
 } from "@/lib/pedigree/index-tree";
@@ -327,14 +328,22 @@ function unitMembers(unit: Unit): string[] {
   return unit.kind === "single" ? [unit.personId] : [unit.leftId, unit.rightId];
 }
 
-/** People and marriages needed to render only a relationship path.
- *  Co-parents are included so parental couples stay paired in the minimal view.
+/**
+ * People and marriages needed to render only a relationship path.
+ *
+ * Co-parents are pulled in when a path child hangs under a marriage and the
+ * other spouse is not already on the path — so parental couples stay paired.
+ *
+ * When both spouses already appear on the path, keep the marriage only if some
+ * consecutive hop is that SPOUSE_OF link. Otherwise (e.g. A → child → B) the
+ * couple chrome draws a horizontal chord that is not part of the selected path.
  */
 export function subsetForPath(
   persons: Person[],
   marriages: Marriage[],
   pathIds: Set<string>,
   index?: TreeIndex,
+  pathOrders?: string[][],
 ): { persons: Person[]; marriages: Marriage[] } {
   if (pathIds.size === 0) return { persons: [], marriages: [] };
 
@@ -342,22 +351,43 @@ export function subsetForPath(
   const keepIds = new Set(pathIds);
   const keepMarriages: Marriage[] = [];
 
+  const spouseHopMarriageIds = new Set<string>();
+  for (const order of pathOrders ?? []) {
+    for (let i = 0; i < order.length - 1; i += 1) {
+      const fromId = order[i]!;
+      const toId = order[i + 1]!;
+      const hop = marriagesOf(treeIndex, fromId).find(
+        (marriage) =>
+          marriage.spouse_a_id === toId || marriage.spouse_b_id === toId,
+      );
+      if (hop) spouseHopMarriageIds.add(hop.id);
+    }
+  }
+
   for (const marriage of marriages) {
     const aOnPath = pathIds.has(marriage.spouse_a_id);
     const bOnPath = pathIds.has(marriage.spouse_b_id);
     if (!aOnPath && !bOnPath) continue;
 
-    const hasPathChild = childrenOf(treeIndex, marriage.id).some((child) =>
-      pathIds.has(child.id),
-    );
-
-    // Keep couples when both spouses are on the path, or when a path
-    // child hangs under this marriage (show both parents together).
-    if ((aOnPath && bOnPath) || hasPathChild) {
+    if (spouseHopMarriageIds.has(marriage.id)) {
       keepIds.add(marriage.spouse_a_id);
       keepIds.add(marriage.spouse_b_id);
       keepMarriages.push(marriage);
+      continue;
     }
+
+    // Both spouses already on the corridor without a spouse hop — keeping the
+    // marriage would paint an extra couple line across the path.
+    if (aOnPath && bOnPath) continue;
+
+    const hasPathChild = childrenOf(treeIndex, marriage.id).some((child) =>
+      pathIds.has(child.id),
+    );
+    if (!hasPathChild) continue;
+
+    keepIds.add(marriage.spouse_a_id);
+    keepIds.add(marriage.spouse_b_id);
+    keepMarriages.push(marriage);
   }
 
   return {

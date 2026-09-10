@@ -32,7 +32,13 @@ export function computePedigreeLayout(job: PedigreeLayoutJob): PedigreeGraph {
   if (job.pathPersonIds && job.pathPersonIds.length > 0) {
     const pathIds = new Set(job.pathPersonIds);
     const index = buildTreeIndex(job.persons, job.marriages);
-    const subset = subsetForPath(job.persons, job.marriages, pathIds, index);
+    const subset = subsetForPath(
+      job.persons,
+      job.marriages,
+      pathIds,
+      index,
+      job.pathLayout?.orders,
+    );
     return buildPedigreeGraph({
       ...subset,
       pathLayout: job.pathLayout ?? undefined,
