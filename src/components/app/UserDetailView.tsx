@@ -85,6 +85,7 @@ export function UserDetailView({ userId }: Props) {
   const canDelete = hasPermission(Permissions.USER_DELETE);
   const canReadRoles = hasPermission(Permissions.ROLE_READ);
   const isSelf = me?.id === userId;
+  const isInactive = target?.is_active === false;
 
   const dialOptions = useMemo(
     () =>
@@ -236,7 +237,7 @@ export function UserDetailView({ userId }: Props) {
   };
 
   const handleDelete = async () => {
-    if (isSelf) return;
+    if (isSelf || isInactive) return;
     const ok = await confirm(t("deleteConfirm"), {
       confirmLabel: t("delete"),
     });
@@ -316,6 +317,11 @@ export function UserDetailView({ userId }: Props) {
         back={{ href: "/dashboard/users", label: t("back") }}
         title={t("editTitle", { name: target.fullname })}
         support={t("editSupport")}
+        actions={
+          <Badge tone={isInactive ? "warning" : "success"}>
+            {isInactive ? t("statusInactive") : t("statusActive")}
+          </Badge>
+        }
       />
 
       <Panel delay={1}>
@@ -433,19 +439,22 @@ export function UserDetailView({ userId }: Props) {
             disabled={saving || deleting}
           />
 
-          {error || message || (canDelete && isSelf) ? (
+          {error || message || (canDelete && isSelf) || isInactive ? (
             <FormRow>
               {error ? <Alert tone="error">{error}</Alert> : null}
               {message ? <Alert tone="success">{message}</Alert> : null}
               {canDelete && isSelf ? (
                 <span className={styles.hint}>{t("selfDeleteHint")}</span>
               ) : null}
+              {isInactive ? (
+                <span className={styles.hint}>{t("alreadyInactive")}</span>
+              ) : null}
             </FormRow>
           ) : null}
 
           <FormActions
             secondary={
-              canDelete && !isSelf ? (
+              canDelete && !isSelf && !isInactive ? (
                 <Button
                   variant="danger"
                   loading={deleting}

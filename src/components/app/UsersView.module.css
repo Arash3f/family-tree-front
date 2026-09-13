@@ -40,6 +40,7 @@
   border-block-end: 0;
 }
 
+/* 7 cols: username | fullname | email | role | status | lastSession | action */
 .table th:nth-child(1),
 .table td:nth-child(1) {
   width: 12%;
@@ -52,7 +53,7 @@
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 28%;
+  width: 22%;
 }
 
 .table th:nth-child(4),
@@ -62,13 +63,20 @@
 
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 20%;
+  width: 8%;
   white-space: nowrap;
   overflow-wrap: normal;
 }
 
 .table th:nth-child(6),
 .table td:nth-child(6) {
+  width: 18%;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.table th:nth-child(7),
+.table td:nth-child(7) {
   width: 14%;
 }
 
@@ -81,14 +89,18 @@
   font-size: var(--text-sm);
 }
 
-.cellEmail {
+/*
+ * With table-layout:fixed, max-width:0 forces the cell to honor its % width
+ * so OverflowMarquee can clip instead of expanding the table past the panel.
+ */
+.cellClip {
   overflow: hidden;
-  max-width: 0; /* with table-layout:fixed, forces the cell to respect width % */
+  max-width: 0;
   overflow-wrap: normal;
   word-break: normal;
 }
 
-.cellEmail > * {
+.cellClip > * {
   width: 100%;
 }
 
@@ -172,7 +184,7 @@
 }
 
 /*
- * Six columns will not fit a phone without sideways scrolling. Below the
+ * Seven columns will not fit a phone without sideways scrolling. Below the
  * tablet breakpoint the table becomes a stack of labelled cards; the header
  * row is decorative once each cell names itself.
  */
@@ -232,7 +244,7 @@
     content: none;
   }
 
-  .cellEmail {
+  .cellClip {
     max-width: none;
     overflow: visible;
   }

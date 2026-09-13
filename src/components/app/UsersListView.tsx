@@ -114,6 +114,7 @@ export function UsersListView() {
                   <th scope="col">{t("fullname")}</th>
                   <th scope="col">{t("email")}</th>
                   <th scope="col">{t("role")}</th>
+                  <th scope="col">{t("status")}</th>
                   <th scope="col">{t("lastSession")}</th>
                   <th scope="col">
                     <span className={styles.srOnly}>{t("manage")}</span>
@@ -123,18 +124,21 @@ export function UsersListView() {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
-                    <td className={styles.cellName} data-label={t("username")}>
+                    <td
+                      className={`${styles.cellName} ${styles.cellClip}`}
+                      data-label={t("username")}
+                    >
                       <OverflowMarquee title={user.username}>
                         {user.username}
                       </OverflowMarquee>
                     </td>
-                    <td data-label={t("fullname")}>
+                    <td className={styles.cellClip} data-label={t("fullname")}>
                       <OverflowMarquee title={user.fullname}>
                         {user.fullname}
                       </OverflowMarquee>
                     </td>
                     <td
-                      className={`${styles.cellMuted} ${styles.cellEmail}`}
+                      className={`${styles.cellMuted} ${styles.cellClip}`}
                       data-label={t("email")}
                     >
                       <OverflowMarquee
@@ -144,13 +148,18 @@ export function UsersListView() {
                         {user.email || "—"}
                       </OverflowMarquee>
                     </td>
-                    <td data-label={t("role")}>
+                    <td className={styles.cellClip} data-label={t("role")}>
                       <OverflowMarquee>
                         {roleLabel(user.role_id ?? null)}
                       </OverflowMarquee>
                     </td>
+                    <td data-label={t("status")}>
+                      {user.is_active === false
+                        ? t("statusInactive")
+                        : t("statusActive")}
+                    </td>
                     <td
-                      className={styles.cellMuted}
+                      className={`${styles.cellMuted} ${styles.cellClip}`}
                       data-label={t("lastSession")}
                     >
                       <OverflowMarquee>
