@@ -1,0 +1,8 @@
+.empty {
+  margin: 0;
+  max-width: 36rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  font-style: italic;
+}

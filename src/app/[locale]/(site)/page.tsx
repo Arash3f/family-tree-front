@@ -6,6 +6,7 @@ import { Author } from "@/components/landing/Author";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
+import { Research } from "@/components/landing/Research";
 import { Updates } from "@/components/landing/Updates";
 import { AppSplash } from "@/components/loading/AppSplash";
 import {
@@ -94,6 +95,7 @@ export default async function HomePage({ params }: Props) {
         <Suspense fallback={null}>
           <Architecture />
         </Suspense>
+        <Research />
         <Author />
         <CallToAction />
       </main>

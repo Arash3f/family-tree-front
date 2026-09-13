@@ -20,7 +20,8 @@
     "menuClose": "Close menu",
     "language": "Language",
     "skipToContent": "Skip to content",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "research": "Research / WIP"
   },
   "hero": {
     "brand": "Family Tree",
@@ -1159,5 +1160,10 @@
     "tree_read": "View family trees",
     "tree_update": "Update family trees",
     "tree_delete": "Delete family trees"
+  },
+  "research": {
+    "title": "Research & ideas",
+    "subtitle": "A quiet shelf for investigations and future sketches — nothing listed yet.",
+    "empty": "No research notes here for now. Ideas will land in this section later."
   }
 }
