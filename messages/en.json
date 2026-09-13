@@ -1080,7 +1080,10 @@
       "marriedAt": "Married on",
       "divorcedAt": "Divorced on",
       "relateTo": "Related to"
-    }
+    },
+    "runRelationMaleOnly": "Male-line path",
+    "relationFoundMaleOnly": "Closest male-line path distance: {distance}",
+    "relationNotFoundMaleOnly": "No male-line path found between these people."
   },
   "roles": {
     "metaTitle": "Roles — Family Tree",

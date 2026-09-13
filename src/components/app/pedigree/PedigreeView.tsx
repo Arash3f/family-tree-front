@@ -700,7 +700,7 @@ export function PedigreeView({ treeId }: Props) {
     if (removed) relayoutKeeping([]);
   };
 
-  const runRelation = async () => {
+  const runRelation = async (maleOnly = false) => {
     if (!selectedId || !relateToId) return;
     const seq = ++relationRequestSeq.current;
     tree.setBusy(true);
@@ -710,16 +710,19 @@ export function PedigreeView({ treeId }: Props) {
         treeId,
         selectedId,
         relateToId,
+        { maleOnly },
       );
       if (seq !== relationRequestSeq.current) return;
       if (!result.found) {
-        focus.showRelationMiss(t("relationNotFound"));
+        focus.showRelationMiss(
+          t(maleOnly ? "relationNotFoundMaleOnly" : "relationNotFound"),
+        );
         return;
       }
       const shortestPaths = relationshipToPathViews(result);
       focus.showRelationPaths(
         shortestPaths,
-        t("relationFound", {
+        t(maleOnly ? "relationFoundMaleOnly" : "relationFound", {
           distance: formatLocaleDigits(shortestPaths[0]?.distance ?? 0, locale),
         }),
       );
@@ -739,6 +742,7 @@ export function PedigreeView({ treeId }: Props) {
         treeId,
         selectedId,
         relateToId,
+        { maleOnly },
       );
       if (seq !== relationRequestSeq.current) return;
       if (!alternatives.found) return;
@@ -746,7 +750,7 @@ export function PedigreeView({ treeId }: Props) {
       if (paths.length <= 1) return;
       focus.showRelationPaths(
         paths,
-        t("relationFound", {
+        t(maleOnly ? "relationFoundMaleOnly" : "relationFound", {
           distance: formatLocaleDigits(paths[0]?.distance ?? 0, locale),
         }),
       );
@@ -915,6 +919,9 @@ export function PedigreeView({ treeId }: Props) {
                 focusIds={focusIds}
                 pathIds={focus.highlightIds}
                 pathOrder={focus.highlightPathOrder}
+                altPathOrders={focus.relationPaths
+                  .filter((_, index) => index !== focus.activePathIndex)
+                  .map((path) => path.ids)}
                 altPathIds={canvasAltPathIds}
                 pathLaneById={focus.pathLaneById}
                 visiblePersonIds={timeline.visiblePersonIds}
@@ -1145,6 +1152,7 @@ export function PedigreeView({ treeId }: Props) {
                 onPickRelate={setRelateToId}
                 onClearRelatePick={() => setRelateToId("")}
                 onSubmitRelate={() => void runRelation()}
+                onSubmitRelateMaleOnly={() => void runRelation(true)}
                 onCancelRelate={() => {
                   relationRequestSeq.current += 1;
                   setAlternativesLoading(false);

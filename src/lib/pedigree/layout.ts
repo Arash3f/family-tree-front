@@ -748,6 +748,11 @@ export function marriageClusterFollowerStarts(
   return followers;
 }
 
+/**
+ * Marriages whose couple box should light for a relation path.
+ * Inclusive on purpose: parent→child corridors still paint the parental frame
+ * (not only the one spouse card nested inside it).
+ */
 function collectPathMarriages(
   nodes: Node[],
   edges: Edge[],
@@ -767,6 +772,63 @@ function collectPathMarriages(
     if (node.type !== "couple" && node.type !== "union") continue;
     const data = node.data as UnionNodeData;
     if (ids.has(data.leftId) && ids.has(data.rightId)) {
+      marriages.add(data.marriageId);
+    }
+  }
+  return marriages;
+}
+
+/** Map sorted "spouseA|spouseB" → marriageId from couple/union nodes and spouse edges. */
+function spousePairMarriageIds(nodes: Node[], edges: Edge[]): Map<string, string> {
+  const pairs = new Map<string, string>();
+  const keyFor = (a: string, b: string) => (a < b ? `${a}|${b}` : `${b}|${a}`);
+  for (const node of nodes) {
+    if (node.type !== "couple" && node.type !== "union") continue;
+    const data = node.data as UnionNodeData;
+    pairs.set(keyFor(data.leftId, data.rightId), data.marriageId);
+  }
+  for (const edge of edges) {
+    const data = (edge.data ?? {}) as PedigreeEdgeData;
+    if (data.kind !== "spouse" || !data.marriageId) continue;
+    pairs.set(keyFor(edge.source, edge.target), data.marriageId);
+  }
+  return pairs;
+}
+
+/**
+ * Marriages that appear as a real SPOUSE_OF hop on a path corridor.
+ * Used only for horizontal spouse chords — via-child routes must not gold that
+ * orphan line even when the couple box / drop stem are lit for the traveler.
+ */
+function collectSpouseHopMarriages(
+  nodes: Node[],
+  edges: Edge[],
+  ids: Set<string>,
+  pathOrders: string[][] = [],
+): Set<string> {
+  const marriages = new Set<string>();
+  if (ids.size === 0) return marriages;
+
+  const pairs = spousePairMarriageIds(nodes, edges);
+  if (pathOrders.length > 0) {
+    for (const order of pathOrders) {
+      for (let i = 0; i < order.length - 1; i += 1) {
+        const fromId = order[i]!;
+        const toId = order[i + 1]!;
+        if (!ids.has(fromId) || !ids.has(toId)) continue;
+        const marriageId = pairs.get(
+          fromId < toId ? `${fromId}|${toId}` : `${toId}|${fromId}`,
+        );
+        if (marriageId) marriages.add(marriageId);
+      }
+    }
+    return marriages;
+  }
+
+  for (const edge of edges) {
+    const data = (edge.data ?? {}) as PedigreeEdgeData;
+    if (data.kind !== "spouse" || !data.marriageId) continue;
+    if (ids.has(edge.source) && ids.has(edge.target)) {
       marriages.add(data.marriageId);
     }
   }
@@ -798,6 +860,8 @@ export function stylePedigreeGraph(input: {
   pathIds?: Set<string>;
   /** Ordered active path (origin → destination) for travel animation. */
   pathOrder?: string[];
+  /** Alternative corridor orders (same hop rule as the active path). */
+  altPathOrders?: string[][];
   altPathIds?: Set<string>;
   /** Person id → color lane (0 selected gold, 1 alternative blue). */
   pathLaneById?: Map<string, number>;
@@ -806,6 +870,7 @@ export function stylePedigreeGraph(input: {
   const { selectedId, focusIds, visiblePersonIds } = input;
   const pathIds = input.pathIds ?? new Set<string>();
   const pathOrder = input.pathOrder ?? [];
+  const altPathOrders = input.altPathOrders ?? [];
   const altPathIds = input.altPathIds ?? new Set<string>();
   const pathLaneById = input.pathLaneById ?? new Map<string, number>();
   const hasFocus = focusIds.size > 0;
@@ -833,11 +898,29 @@ export function stylePedigreeGraph(input: {
     return best;
   };
 
+  // Couple boxes: inclusive (parent→child still lights the parental frame).
   const pathMarriages = collectPathMarriages(input.nodes, input.edges, pathIds);
   const altMarriages = new Set(
     [...collectPathMarriages(input.nodes, input.edges, altPathIds)].filter(
       (id) => !pathMarriages.has(id),
     ),
+  );
+  // Spouse/drop chords: only real SPOUSE_OF hops (avoids orphan via-child lines).
+  const pathSpouseHops = collectSpouseHopMarriages(
+    input.nodes,
+    input.edges,
+    pathIds,
+    pathOrder.length > 0 ? [pathOrder] : [],
+  );
+  const altSpouseHops = new Set(
+    [
+      ...collectSpouseHopMarriages(
+        input.nodes,
+        input.edges,
+        altPathIds,
+        altPathOrders,
+      ),
+    ].filter((id) => !pathSpouseHops.has(id)),
   );
   const displayPathIds = expandPathIds(input.nodes, pathIds, pathMarriages);
   const displayAltIds = expandPathIds(input.nodes, altPathIds, altMarriages);
@@ -969,27 +1052,38 @@ export function stylePedigreeGraph(input: {
   const edges = input.edges.map((edge) => {
     const data = (edge.data ?? {}) as PedigreeEdgeData;
     const touchIds = data.personIds ?? [];
-    const marriageOnPath = Boolean(
-      data.marriageId && pathMarriages.has(data.marriageId),
+    const marriageOnSpouseHop = Boolean(
+      data.marriageId && pathSpouseHops.has(data.marriageId),
     );
-    const marriageOnAlt = Boolean(
-      data.marriageId && altMarriages.has(data.marriageId),
+    const marriageOnAltSpouseHop = Boolean(
+      data.marriageId && altSpouseHops.has(data.marriageId),
     );
+    const marriageOnDrop =
+      Boolean(data.marriageId && pathMarriages.has(data.marriageId));
+    const marriageOnAltDrop =
+      Boolean(data.marriageId && altMarriages.has(data.marriageId));
 
+    // Spouse chords only for real SPOUSE_OF hops (avoids orphan via-child lines).
+    // Drop stems follow the couple box so PathTraveler can still walk couple→kids.
+    const isCoupleChrome = data.kind === "spouse" || data.kind === "drop";
     const structuralOnPath =
       relationMode &&
+      !isCoupleChrome &&
       touchIds.filter((id) => pathIds.has(id)).length >= 2;
     const structuralOnAlt =
       relationMode &&
       !structuralOnPath &&
+      !isCoupleChrome &&
       touchIds.filter((id) => altPathIds.has(id)).length >= 2;
     const onPath =
       structuralOnPath ||
-      (marriageOnPath && (data.kind === "spouse" || data.kind === "drop"));
+      (data.kind === "spouse" && marriageOnSpouseHop) ||
+      (data.kind === "drop" && marriageOnDrop);
     const onAltPath =
       !onPath &&
       (structuralOnAlt ||
-        (marriageOnAlt && (data.kind === "spouse" || data.kind === "drop")));
+        (data.kind === "spouse" && marriageOnAltSpouseHop) ||
+        (data.kind === "drop" && marriageOnAltDrop));
     const pathLane = onPath
       ? 0
       : onAltPath

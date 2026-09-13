@@ -85,6 +85,7 @@ const USERS = [
     username: "abdolrahman.mohammadi",
     fullname: "عبدالرحمان محمدی‌نژاد اصفهانی",
     role_id: ROLE_ID,
+    is_active: true,
     last_session_at: "2026-08-14T21:05:00Z",
   },
   {
@@ -92,6 +93,7 @@ const USERS = [
     username: "a.very.long.username.for.overflow.testing",
     fullname: "Bartholomew Fitzgerald-Montgomery III",
     role_id: null,
+    is_active: true,
     last_session_at: null,
   },
   {
@@ -99,6 +101,7 @@ const USERS = [
     username: "zahra.k",
     fullname: "زهرا کریمی",
     role_id: ROLE_ID,
+    is_active: false,
     last_session_at: "2026-08-10T07:00:00Z",
   },
 ];

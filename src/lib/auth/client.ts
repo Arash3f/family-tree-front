@@ -869,9 +869,15 @@ export async function getClosestRelationship(
   treeId: string,
   fromPersonId: string,
   toPersonId: string,
+  options?: { maleOnly?: boolean },
 ): Promise<ClosestRelationship> {
+  const params = new URLSearchParams();
+  if (options?.maleOnly) params.set("male_only", "true");
+  const query = params.toString();
   const response = await apiFetch(
-    `/family-trees/${treeId}/persons/${fromPersonId}/relation/${toPersonId}`,
+    `/family-trees/${treeId}/persons/${fromPersonId}/relation/${toPersonId}${
+      query ? `?${query}` : ""
+    }`,
   );
   const data = await jsonOrThrow<ClosestRelationship>(response);
   return {
@@ -885,10 +891,15 @@ export async function getAlternativeRelationshipPaths(
   treeId: string,
   fromPersonId: string,
   toPersonId: string,
-  options?: { signal?: AbortSignal },
+  options?: { signal?: AbortSignal; maleOnly?: boolean },
 ): Promise<ClosestRelationship> {
+  const params = new URLSearchParams();
+  if (options?.maleOnly) params.set("male_only", "true");
+  const query = params.toString();
   const response = await apiFetch(
-    `/family-trees/${treeId}/persons/${fromPersonId}/relation/${toPersonId}/alternatives`,
+    `/family-trees/${treeId}/persons/${fromPersonId}/relation/${toPersonId}/alternatives${
+      query ? `?${query}` : ""
+    }`,
     { signal: options?.signal },
   );
   const data = await jsonOrThrow<ClosestRelationship>(response);

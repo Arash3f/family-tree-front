@@ -228,6 +228,8 @@ type CanvasProps = {
   pathIds: Set<string>;
   /** Ordered selected path for origin→destination travel animation. */
   pathOrder: string[];
+  /** Alternative corridor orders for spouse-hop edge highlighting. */
+  altPathOrders?: string[][];
   altPathIds: Set<string>;
   /** Person id → color lane (0 selected, 1..N alternatives). */
   pathLaneById: Map<string, number>;
@@ -250,6 +252,7 @@ function CanvasInner({
   focusIds,
   pathIds,
   pathOrder,
+  altPathOrders = [],
   altPathIds,
   pathLaneById,
   visiblePersonIds,
@@ -314,6 +317,7 @@ function CanvasInner({
   const focusRef = useRef(focusIds);
   const pathRef = useRef(pathIds);
   const pathOrderRef = useRef(pathOrder);
+  const altPathOrdersRef = useRef(altPathOrders);
   const altPathRef = useRef(altPathIds);
   const pathLaneRef = useRef(pathLaneById);
   const visibleRef = useRef(visiblePersonIds);
@@ -332,6 +336,7 @@ function CanvasInner({
     focusRef.current = focusIds;
     pathRef.current = pathIds;
     pathOrderRef.current = pathOrder;
+    altPathOrdersRef.current = altPathOrders;
     altPathRef.current = altPathIds;
     pathLaneRef.current = pathLaneById;
     visibleRef.current = visiblePersonIds;
@@ -358,6 +363,7 @@ function CanvasInner({
         focusIds: focusRef.current,
         pathIds: pathRef.current,
         pathOrder: pathOrderRef.current,
+        altPathOrders: altPathOrdersRef.current,
         altPathIds: altPathRef.current,
         pathLaneById: pathLaneRef.current,
         visiblePersonIds: visibleRef.current,
@@ -540,6 +546,7 @@ function CanvasInner({
         focusIds,
         pathIds,
         pathOrder,
+        altPathOrders,
         altPathIds,
         pathLaneById,
         visiblePersonIds: visibleRef.current,
@@ -547,7 +554,18 @@ function CanvasInner({
       setEdges(styled.edges);
       return styled.nodes;
     });
-  }, [selectedId, focusIds, pathIds, pathOrder, altPathIds, pathLaneById, layoutToken, setNodes, setEdges]);
+  }, [
+    selectedId,
+    focusIds,
+    pathIds,
+    pathOrder,
+    altPathOrders,
+    altPathIds,
+    pathLaneById,
+    layoutToken,
+    setNodes,
+    setEdges,
+  ]);
 
   // Timeline visibility — fast path, coalesced to one update per frame.
   useEffect(() => {
@@ -697,6 +715,7 @@ function CanvasInner({
         focusIds: focusRef.current,
         pathIds: pathRef.current,
         pathOrder: pathOrderRef.current,
+        altPathOrders: altPathOrdersRef.current,
         altPathIds: altPathRef.current,
         pathLaneById: pathLaneRef.current,
         visiblePersonIds: visibleRef.current,

@@ -5,6 +5,7 @@ import type { Marriage, Person } from "@/lib/auth/types";
 import { buildTreeIndex } from "@/lib/pedigree/index-tree.ts";
 import {
   buildPedigreeGraph,
+  stylePedigreeGraph,
   subsetForPath,
 } from "@/lib/pedigree/layout.ts";
 
@@ -118,4 +119,106 @@ test("all-paths orders keep a marriage when any corridor uses the spouse hop", (
     ["a", "kid", "b"],
   ]);
   assert.equal(subset.marriages.length, 1);
+});
+
+test("full-tree via-child lights the couple box but not spouse chords", () => {
+  const { persons, marriages } = spouseChildFixture();
+  const graph = buildPedigreeGraph({ persons, marriages });
+  const pathOrder = ["a", "kid", "b"];
+  const pathIds = new Set(pathOrder);
+  const styled = stylePedigreeGraph({
+    nodes: graph.nodes,
+    edges: graph.edges,
+    selectedId: null,
+    focusIds: new Set(),
+    pathIds,
+    pathOrder,
+  });
+
+  const pathEdgeIds = styled.edges
+    .filter((edge) => edge.className?.includes("pedigree-path-edge"))
+    .map((edge) => edge.id);
+  assert.equal(
+    pathEdgeIds.some((id) => id.startsWith("spouse-")),
+    false,
+    "via-child corridor must not gold the couple chord",
+  );
+  assert.ok(
+    pathEdgeIds.some((id) => id.startsWith("drop-")),
+    "drop stem must stay on-path so the traveler can leave the couple box",
+  );
+  assert.ok(
+    pathEdgeIds.some((id) => id.startsWith("child-")),
+    "parent→child links on the corridor should still highlight",
+  );
+
+  const couple = styled.nodes.find((node) => node.id === "couple-m1");
+  assert.equal(
+    (couple?.data as { onPath?: boolean } | undefined)?.onPath,
+    true,
+    "couple frame should still highlight when both spouses sit on the corridor",
+  );
+});
+
+test("one parent on path still lights the couple box", () => {
+  const { persons, marriages } = spouseChildFixture();
+  const graph = buildPedigreeGraph({ persons, marriages });
+  const pathOrder = ["a", "kid"];
+  const styled = stylePedigreeGraph({
+    nodes: graph.nodes,
+    edges: graph.edges,
+    selectedId: null,
+    focusIds: new Set(),
+    pathIds: new Set(pathOrder),
+    pathOrder,
+  });
+
+  const couple = styled.nodes.find((node) => node.id === "couple-m1");
+  assert.equal(
+    (couple?.data as { onPath?: boolean } | undefined)?.onPath,
+    true,
+    "parental couple box must light — not only the one parent card",
+  );
+  assert.equal(
+    styled.edges.some(
+      (edge) =>
+        edge.id.startsWith("spouse-") &&
+        edge.className?.includes("pedigree-path-edge"),
+    ),
+    false,
+  );
+  assert.ok(
+    styled.edges.some(
+      (edge) =>
+        edge.id.startsWith("drop-") &&
+        edge.className?.includes("pedigree-path-edge"),
+    ),
+  );
+});
+
+test("full-tree spouse hop still highlights the couple chord", () => {
+  const { persons, marriages } = spouseChildFixture();
+  const graph = buildPedigreeGraph({ persons, marriages });
+  const pathOrder = ["a", "b"];
+  const styled = stylePedigreeGraph({
+    nodes: graph.nodes,
+    edges: graph.edges,
+    selectedId: null,
+    focusIds: new Set(),
+    pathIds: new Set(pathOrder),
+    pathOrder,
+  });
+
+  const couple = styled.nodes.find((node) => node.id === "couple-m1");
+  assert.equal(
+    (couple?.data as { onPath?: boolean } | undefined)?.onPath,
+    true,
+  );
+  assert.ok(
+    styled.edges.some(
+      (edge) =>
+        (edge.id.startsWith("spouse-") || edge.id.startsWith("drop-")) &&
+        edge.className?.includes("pedigree-path-edge"),
+    ),
+  );
 });

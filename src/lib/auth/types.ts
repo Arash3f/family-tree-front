@@ -43,6 +43,7 @@ export type AppUser = {
   phone?: string | null;
   role_id: string | null;
   account_type?: AccountType;
+  is_active?: boolean;
   last_session_at?: string | null;
 };
 

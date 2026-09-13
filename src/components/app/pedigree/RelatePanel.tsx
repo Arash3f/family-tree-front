@@ -20,6 +20,8 @@ type Props = {
   onPick: (personId: string) => void;
   onClearPick: () => void;
   onSubmit: () => void;
+  /** Trace a path that only walks through male intermediates. */
+  onSubmitMaleOnly: () => void;
   onCancel: () => void;
   onClose: () => void;
   relationResult: ReactNode;
@@ -35,6 +37,7 @@ export function RelatePanel({
   onPick,
   onClearPick,
   onSubmit,
+  onSubmitMaleOnly,
   onCancel,
   onClose,
   relationResult,
@@ -119,6 +122,15 @@ export function RelatePanel({
       <FormActions>
         <Button type="submit" loading={busy} disabled={!pickedId}>
           {t("runRelation")}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          loading={busy}
+          disabled={!pickedId}
+          onClick={onSubmitMaleOnly}
+        >
+          {t("runRelationMaleOnly")}
         </Button>
         <Button variant="ghost" onClick={onCancel}>
           {t("cancel")}

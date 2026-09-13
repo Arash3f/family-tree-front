@@ -1080,7 +1080,10 @@
       "marriedAt": "تاریخ ازدواج",
       "divorcedAt": "تاریخ طلاق",
       "relateTo": "نسبت با"
-    }
+    },
+    "runRelationMaleOnly": "مسیر فقط از مردها",
+    "relationFoundMaleOnly": "فاصله نزدیک‌ترین مسیر مردانه: {distance}",
+    "relationNotFoundMaleOnly": "مسیر فقط‌مردانه‌ای بین این دو نفر پیدا نشد."
   },
   "roles": {
     "metaTitle": "نقش‌ها — شجره‌نامه",

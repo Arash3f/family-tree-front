@@ -78,6 +78,7 @@ type Props = {
   onPickRelate: (personId: string) => void;
   onClearRelatePick: () => void;
   onSubmitRelate: () => void;
+  onSubmitRelateMaleOnly: () => void;
   onCancelRelate: () => void;
 };
 
@@ -145,6 +146,7 @@ export function PedigreeSidePanels({
   onPickRelate,
   onClearRelatePick,
   onSubmitRelate,
+  onSubmitRelateMaleOnly,
   onCancelRelate,
 }: Props) {
   return (
@@ -242,6 +244,7 @@ export function PedigreeSidePanels({
           onPick={onPickRelate}
           onClearPick={onClearRelatePick}
           onSubmit={onSubmitRelate}
+          onSubmitMaleOnly={onSubmitRelateMaleOnly}
           onCancel={onCancelRelate}
           onClose={onClosePanel}
           relationResult={relationResult}
