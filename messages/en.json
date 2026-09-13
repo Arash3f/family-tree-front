@@ -8,6 +8,7 @@
     "features": "Features",
     "updates": "Updates",
     "architecture": "Under the hood",
+    "research": "Research / WIP",
     "author": "Built by",
     "apiDocs": "API docs",
     "langEn": "EN",
@@ -20,8 +21,7 @@
     "menuClose": "Close menu",
     "language": "Language",
     "skipToContent": "Skip to content",
-    "signIn": "Sign in",
-    "research": "Research / WIP"
+    "signIn": "Sign in"
   },
   "hero": {
     "brand": "Family Tree",
@@ -95,6 +95,11 @@
       "jobs": "Background jobs keep the graph in sync and run scheduled backups"
     },
     "stackTitle": "Built with"
+  },
+  "research": {
+    "title": "Research & ideas",
+    "subtitle": "A quiet shelf for investigations and future sketches — nothing listed yet.",
+    "empty": "No research notes here for now. Ideas will land in this section later."
   },
   "stack": {
     "fastapi": "FastAPI",
@@ -976,10 +981,13 @@
     "divorce": "Divorce",
     "findRelation": "Find relation",
     "runRelation": "Trace path",
+    "runRelationMaleOnly": "Male-line path",
     "relationFrom": "From {name}",
     "relationFound": "Closest path distance: {distance}",
+    "relationFoundMaleOnly": "Closest male-line path distance: {distance}",
     "relationAlternativesLoading": "Looking for other paths…",
     "relationNotFound": "No path found between these people.",
+    "relationNotFoundMaleOnly": "No male-line path found between these people.",
     "relationError": "Could not compute the relationship.",
     "relationPathsLabel": "Relationship paths",
     "relationPathClosest": "Closest · {distance} steps",
@@ -1081,10 +1089,7 @@
       "marriedAt": "Married on",
       "divorcedAt": "Divorced on",
       "relateTo": "Related to"
-    },
-    "runRelationMaleOnly": "Male-line path",
-    "relationFoundMaleOnly": "Closest male-line path distance: {distance}",
-    "relationNotFoundMaleOnly": "No male-line path found between these people."
+    }
   },
   "roles": {
     "metaTitle": "Roles — Family Tree",
@@ -1160,10 +1165,5 @@
     "tree_read": "View family trees",
     "tree_update": "Update family trees",
     "tree_delete": "Delete family trees"
-  },
-  "research": {
-    "title": "Research & ideas",
-    "subtitle": "A quiet shelf for investigations and future sketches — nothing listed yet.",
-    "empty": "No research notes here for now. Ideas will land in this section later."
   }
 }

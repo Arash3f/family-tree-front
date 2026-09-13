@@ -8,6 +8,7 @@
     "features": "ویژگی‌ها",
     "updates": "به‌روزرسانی‌ها",
     "architecture": "زیر پوست سیستم",
+    "research": "تحقیقات / WIP",
     "author": "سازنده",
     "apiDocs": "مستندات API",
     "langEn": "EN",
@@ -20,8 +21,7 @@
     "menuClose": "بستن منو",
     "language": "زبان",
     "skipToContent": "رفتن به محتوای اصلی",
-    "signIn": "ورود",
-    "research": "تحقیقات / WIP"
+    "signIn": "ورود"
   },
   "hero": {
     "brand": "شجره‌نامه",
@@ -95,6 +95,11 @@
       "jobs": "کارهای پس‌زمینه گراف را همگام و بکاپ زمان‌بندی‌شده را اجرا می‌کنند"
     },
     "stackTitle": "ساخته‌شده با"
+  },
+  "research": {
+    "title": "تحقیقات و ایده‌ها",
+    "subtitle": "قفسه‌ای برای بررسی‌ها و طرح‌های آینده — هنوز چیزی اینجا نیست.",
+    "empty": "فعلاً یادداشت تحقیقی نیست. ایده‌ها بعداً به این بخش اضافه می‌شوند."
   },
   "stack": {
     "fastapi": "FastAPI",
@@ -976,10 +981,13 @@
     "divorce": "ثبت طلاق",
     "findRelation": "یافتن نسبت",
     "runRelation": "ردیابی مسیر",
+    "runRelationMaleOnly": "مسیر فقط از مردها",
     "relationFrom": "از {name}",
     "relationFound": "فاصله نزدیک‌ترین مسیر: {distance}",
+    "relationFoundMaleOnly": "فاصله نزدیک‌ترین مسیر مردانه: {distance}",
     "relationAlternativesLoading": "در حال یافتن مسیرهای دیگر…",
     "relationNotFound": "مسیری بین این دو نفر پیدا نشد.",
+    "relationNotFoundMaleOnly": "مسیر فقط‌مردانه‌ای بین این دو نفر پیدا نشد.",
     "relationError": "محاسبه نسبت ممکن نشد.",
     "relationPathsLabel": "مسیرهای رابطه",
     "relationPathClosest": "نزدیک‌ترین · {distance} گام",
@@ -1081,10 +1089,7 @@
       "marriedAt": "تاریخ ازدواج",
       "divorcedAt": "تاریخ طلاق",
       "relateTo": "نسبت با"
-    },
-    "runRelationMaleOnly": "مسیر فقط از مردها",
-    "relationFoundMaleOnly": "فاصله نزدیک‌ترین مسیر مردانه: {distance}",
-    "relationNotFoundMaleOnly": "مسیر فقط‌مردانه‌ای بین این دو نفر پیدا نشد."
+    }
   },
   "roles": {
     "metaTitle": "نقش‌ها — شجره‌نامه",
@@ -1160,10 +1165,5 @@
     "tree_read": "مشاهده شجره‌نامه‌ها",
     "tree_update": "ویرایش شجره‌نامه",
     "tree_delete": "حذف شجره‌نامه"
-  },
-  "research": {
-    "title": "تحقیقات و ایده‌ها",
-    "subtitle": "قفسه‌ای برای بررسی‌ها و طرح‌های آینده — هنوز چیزی اینجا نیست.",
-    "empty": "فعلاً یادداشت تحقیقی نیست. ایده‌ها بعداً به این بخش اضافه می‌شوند."
   }
 }
