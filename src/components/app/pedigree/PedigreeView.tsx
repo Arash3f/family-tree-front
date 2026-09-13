@@ -135,6 +135,9 @@ export function PedigreeView({ treeId }: Props) {
 
   const canvasApiRef = useRef<PedigreeCanvasHandle | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [layoutDensity, setLayoutDensity] = useState<"layered" | "compact">(
+    "layered",
+  );
   const [panel, setPanel] = useState<PanelMode>({ kind: "none" });
   /** Matches the CSS sheet breakpoint: detail covers the canvas instead of sitting beside it. */
   const [sheetLayout, setSheetLayout] = useState(false);
@@ -428,6 +431,7 @@ export function PedigreeView({ treeId }: Props) {
       branchRootId:
         focus.pathMinimal && pathSubsetKey ? null : focus.branchRootId,
       pathLayout,
+      density: layoutDensity,
     };
   }, [
     unfolded.persons,
@@ -439,6 +443,7 @@ export function PedigreeView({ treeId }: Props) {
     focus.highlightPathOrder,
     focus.relationPaths,
     focus.activePathIndex,
+    layoutDensity,
   ]);
 
   const graph = usePedigreeLayout({
@@ -852,6 +857,13 @@ export function PedigreeView({ treeId }: Props) {
         onAddPerson={() => openCreatePerson()}
         onAddMarriage={() => openCreateMarriage()}
         onTidyLayout={bumpLayout}
+        layoutDensity={layoutDensity}
+        onToggleLayoutDensity={() => {
+          setLayoutDensity((mode) =>
+            mode === "layered" ? "compact" : "layered",
+          );
+          bumpLayout();
+        }}
         onFitView={handleFitView}
         onToggleFullscreen={fullscreen.toggle}
         onExport={() => exportDialog.openTreeExport()}

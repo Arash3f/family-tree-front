@@ -1,0 +1,112 @@
+"use client";
+
+import { useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
+import { HiOutlineSparkles } from "react-icons/hi2";
+import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
+import themeStyles from "@/components/theme/ThemeToggle.module.css";
+import styles from "./HelpGuide.module.css";
+
+const UPDATES = ["u1", "u2", "u3", "u4"] as const;
+
+type Props = {
+  /** Extra class on the trigger button (e.g. pedigree toolbar). */
+  className?: string;
+};
+
+export function UpdatesGuide({ className }: Props) {
+  const t = useTranslations("help");
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
+
+  useFocusTrap(dialogRef, open, () => setOpen(false));
+  useScrollLock(open);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
+  const panel =
+    mounted &&
+    open &&
+    createPortal(
+      <div className={styles.root} role="presentation">
+        <button
+          type="button"
+          className={styles.backdrop}
+          aria-label={t("close")}
+          onClick={() => setOpen(false)}
+        />
+        <div
+          ref={dialogRef}
+          className={styles.dialog}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+        >
+          <header className={styles.header}>
+            <h2 id={titleId} className={styles.title}>
+              {t("updatesTitle")}
+            </h2>
+            <button
+              type="button"
+              className={styles.close}
+              onClick={() => setOpen(false)}
+            >
+              {t("close")}
+            </button>
+          </header>
+
+          <p className={styles.lead}>{t("updatesLead")}</p>
+
+          <ul className={styles.updates}>
+            {UPDATES.map((key) => (
+              <li key={key} className={styles.item}>
+                <span className={styles.updateDate}>
+                  {t(`updates.${key}.date`)}
+                </span>
+                <p className={styles.itemTitle}>{t(`updates.${key}.title`)}</p>
+                <p className={styles.itemBody}>{t(`updates.${key}.body`)}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>,
+      document.body,
+    );
+
+  const triggerClass = [
+    themeStyles.toggle,
+    styles.triggerUpdates,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <>
+      <button
+        type="button"
+        className={triggerClass}
+        aria-label={t("openUpdates")}
+        title={t("openUpdates")}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+      >
+        <HiOutlineSparkles aria-hidden />
+      </button>
+      {panel}
+    </>
+  );
+}

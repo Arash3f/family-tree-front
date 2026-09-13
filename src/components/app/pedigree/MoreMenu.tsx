@@ -15,6 +15,8 @@ import {
   HiOutlineEyeSlash,
   HiOutlineHeart,
   HiOutlineRectangleGroup,
+  HiOutlineRectangleStack,
+  HiOutlineSquares2X2,
   HiOutlineTableCells,
   HiOutlineTicket,
   HiOutlineUserPlus,
@@ -44,10 +46,12 @@ type Props = {
   canReadPersons: boolean;
   /** True when marriage create is allowed by count (needs ≥2 people). */
   marriageReady: boolean;
+  layoutDensity: "layered" | "compact";
   onDownloadSample: () => void;
   onExportExcel: () => void;
   onPickFile: (file: File | null) => void;
   onTidyLayout: () => void;
+  onToggleLayoutDensity: () => void;
   onExport: () => void;
   onAddMarriage: () => void;
   onAddPerson: () => void;
@@ -101,10 +105,12 @@ export function MoreMenu({
   canCreateMarriage,
   canReadPersons,
   marriageReady,
+  layoutDensity,
   onDownloadSample,
   onExportExcel,
   onPickFile,
   onTidyLayout,
+  onToggleLayoutDensity,
   onExport,
   onAddMarriage,
   onAddPerson,
@@ -255,6 +261,19 @@ export function MoreMenu({
             </MenuItem>
             <MenuItem
               disabled={busy || empty}
+              onClick={() => closeThen(onToggleLayoutDensity)}
+            >
+              {layoutDensity === "compact" ? (
+                <HiOutlineSquares2X2 aria-hidden />
+              ) : (
+                <HiOutlineRectangleStack aria-hidden />
+              )}
+              {layoutDensity === "compact"
+                ? t("layoutDensityLayered")
+                : t("layoutDensityCompact")}
+            </MenuItem>
+            <MenuItem
+              disabled={busy || empty}
               onClick={() => closeThen(onExport)}
             >
               <HiOutlineArrowDownTray aria-hidden />
@@ -280,6 +299,19 @@ export function MoreMenu({
             >
               <HiOutlineRectangleGroup aria-hidden />
               {t("tidyLayout")}
+            </MenuItem>
+            <MenuItem
+              disabled={busy || empty}
+              onClick={() => closeThen(onToggleLayoutDensity)}
+            >
+              {layoutDensity === "compact" ? (
+                <HiOutlineSquares2X2 aria-hidden />
+              ) : (
+                <HiOutlineRectangleStack aria-hidden />
+              )}
+              {layoutDensity === "compact"
+                ? t("layoutDensityLayered")
+                : t("layoutDensityCompact")}
             </MenuItem>
             <MenuItem
               disabled={busy || empty}

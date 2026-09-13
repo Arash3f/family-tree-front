@@ -24,6 +24,8 @@ export type PedigreeLayoutJob = {
   /** Branch preview root; ignored while a path clip is active. */
   branchRootId: string | null;
   pathLayout: PedigreePathLayout | null;
+  /** Full-tree spacing; ignored while pathLayout.compact is active. */
+  density?: "layered" | "compact";
 };
 
 export function computePedigreeLayout(job: PedigreeLayoutJob): PedigreeGraph {
@@ -42,18 +44,21 @@ export function computePedigreeLayout(job: PedigreeLayoutJob): PedigreeGraph {
     return buildPedigreeGraph({
       ...subset,
       pathLayout: job.pathLayout ?? undefined,
+      density: job.density,
     });
   }
 
   if (job.branchRootId) {
-    return buildPedigreeGraph(
-      subsetForBranch(job.persons, job.marriages, job.branchRootId),
-    );
+    return buildPedigreeGraph({
+      ...subsetForBranch(job.persons, job.marriages, job.branchRootId),
+      density: job.density,
+    });
   }
 
   return buildPedigreeGraph({
     persons: job.persons,
     marriages: job.marriages,
     pathLayout: job.pathLayout ?? undefined,
+    density: job.density,
   });
 }

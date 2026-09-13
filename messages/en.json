@@ -324,17 +324,19 @@
     }
   },
   "help": {
-    "open": "Help and updates",
+    "open": "Help guide",
+    "openUpdates": "Recent updates",
     "close": "Close",
     "title": "Guide",
-    "lead": "How the dashboard and family-tree workspace fit together. Skim a section, or jump below — you can flesh these notes out later.",
+    "lead": "How the dashboard and family-tree workspace fit together. Open a section, then tap a topic to read it.",
+    "updatesTitle": "Recent updates",
+    "updatesLead": "What landed lately in the product — skim the list anytime.",
     "jumpLabel": "Jump to section",
     "sections": {
       "app": "Dashboard & account",
       "appLead": "Signed-in navigation, trees list, profile, tickets, and admin tools when your role allows.",
       "pedigree": "Family tree canvas",
-      "pedigreeLead": "Everything inside an open tree: people, marriages, paths, timeline, Excel, and exports.",
-      "updates": "Recent updates"
+      "pedigreeLead": "Everything inside an open tree: people, marriages, paths, timeline, Excel, and exports."
     },
     "app": {
       "dashboard": {
@@ -416,8 +418,8 @@
         "body": "Export the visible tree as image or PDF, or generate a lineage / info card for a selected person. Use fit view first if you want the full graph in frame."
       },
       "viewTools": {
-        "title": "Fit, tidy, fullscreen",
-        "body": "Fit view frames everyone. Tidy layout re-spaces nodes. Fullscreen hides chrome for a larger canvas — exit with the same control or Escape where supported."
+        "title": "Fit, tidy, layout density, fullscreen",
+        "body": "Fit view frames everyone. Tidy layout re-spaces nodes on the generation grid. Compact packing tightens gaps so people sit closer (default stays the roomy layered layout). Fullscreen hides chrome for a larger canvas — exit with the same control or Escape where supported."
       },
       "treeTicket": {
         "title": "Ticket from this tree",
@@ -771,6 +773,10 @@
     "fullscreenHint": "Give the whole screen to the tree — press Esc to leave",
     "tidyLayout": "Tidy layout",
     "tidyLayoutHint": "Reset cards to the default generation layout",
+    "layoutDensityCompact": "Compact packing",
+    "layoutDensityCompactHint": "Pull people closer — same generation order, tighter gaps",
+    "layoutDensityLayered": "Layered layout",
+    "layoutDensityLayeredHint": "Roomy generation rows (the default principled layout)",
     "export": "Export",
     "exportHint": "Preview the tree, then pick an image or a PDF",
     "searchClear": "Clear search",

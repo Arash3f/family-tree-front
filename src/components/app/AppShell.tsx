@@ -19,6 +19,7 @@ import { Permissions } from "@/lib/auth/types";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { DashboardBackdrop } from "./DashboardBackdrop";
 import { HelpGuide } from "./HelpGuide";
+import { UpdatesGuide } from "./UpdatesGuide";
 import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import styles from "./AppShell.module.css";
 
@@ -156,6 +157,7 @@ export function AppShell({ children }: Props) {
             </OverflowMarquee>
           </span>
           <HelpGuide />
+          <UpdatesGuide />
           <LocaleSwitcher />
           <ThemeToggle />
         </div>

@@ -1169,6 +1169,11 @@ export function buildPedigreeGraph(input: {
   /** Reuse a caller's index; one is built on demand when omitted. */
   index?: TreeIndex;
   /**
+   * Full-tree packing density. `layered` keeps generation bands roomy;
+   * `compact` tightens gaps so people sit closer without changing kinship order.
+   */
+  density?: "layered" | "compact";
+  /**
    * Path-only views: order siblings along relation paths and tighten spacing
    * so the corridor reads left→right / top→bottom without empty generation gaps.
    */
@@ -1184,10 +1189,13 @@ export function buildPedigreeGraph(input: {
   const byId = treeIndex.personById;
   const marriagesById = treeIndex.marriageById;
   const rawGenerations = computeGenerations(persons, marriages);
+  const packCompact =
+    input.density === "compact" || Boolean(input.pathLayout?.compact);
 
-  // Collapse skipped generations so a clipped path does not leave empty bands.
+  // Collapse skipped generations so a clipped path (or compact full tree)
+  // does not leave empty bands.
   const generations = (() => {
-    if (!input.pathLayout?.compact) return rawGenerations;
+    if (!packCompact) return rawGenerations;
     const used = [
       ...new Set(
         persons.map((person) => rawGenerations.get(person.id) ?? 0),
@@ -1212,9 +1220,9 @@ export function buildPedigreeGraph(input: {
     });
   }
 
-  const hGap = input.pathLayout?.compact ? 56 : H_GAP;
-  const vGap = input.pathLayout?.compact ? 200 : V_GAP;
-  const familyGap = input.pathLayout?.compact ? 72 : FAMILY_GAP;
+  const hGap = packCompact ? (input.pathLayout?.compact ? 56 : 40) : H_GAP;
+  const vGap = packCompact ? (input.pathLayout?.compact ? 200 : 148) : V_GAP;
+  const familyGap = packCompact ? (input.pathLayout?.compact ? 72 : 48) : FAMILY_GAP;
   const paired = new Set<string>();
 
   const allUnits: Unit[] = [];

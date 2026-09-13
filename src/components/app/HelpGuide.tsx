@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
-import { HiOutlineQuestionMarkCircle } from "react-icons/hi2";
+import { HiOutlineBookOpen } from "react-icons/hi2";
 import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
 import themeStyles from "@/components/theme/ThemeToggle.module.css";
 import styles from "./HelpGuide.module.css";
@@ -37,8 +37,6 @@ const PEDIGREE_TOPICS = [
   "treeTicket",
 ] as const;
 
-const UPDATES = ["u1", "u2", "u3", "u4"] as const;
-
 type Props = {
   /** Opens scrolled to the pedigree block when true. */
   focusPedigree?: boolean;
@@ -52,7 +50,7 @@ export function HelpGuide({ focusPedigree = false, className }: Props) {
   const [mounted, setMounted] = useState(false);
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const pedigreeRef = useRef<HTMLElement>(null);
+  const pedigreeRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -71,7 +69,10 @@ export function HelpGuide({ focusPedigree = false, className }: Props) {
   useEffect(() => {
     if (!open || !focusPedigree) return;
     const frame = window.requestAnimationFrame(() => {
-      pedigreeRef.current?.scrollIntoView({ block: "start" });
+      if (pedigreeRef.current) {
+        pedigreeRef.current.open = true;
+        pedigreeRef.current.scrollIntoView({ block: "start" });
+      }
     });
     return () => window.cancelAnimationFrame(frame);
   }, [open, focusPedigree]);
@@ -80,6 +81,7 @@ export function HelpGuide({ focusPedigree = false, className }: Props) {
     const root = dialogRef.current;
     if (!root) return;
     const target = root.querySelector(`#${id}`);
+    if (target instanceof HTMLDetailsElement) target.open = true;
     target?.scrollIntoView({ block: "start", behavior: "smooth" });
   };
 
@@ -131,80 +133,66 @@ export function HelpGuide({ focusPedigree = false, className }: Props) {
             >
               {t("sections.pedigree")}
             </button>
-            <button
-              type="button"
-              className={styles.jumpLink}
-              onClick={() => scrollToSection("help-section-updates")}
-            >
-              {t("sections.updates")}
-            </button>
           </nav>
 
-          <section
+          <details
             id="help-section-app"
             className={styles.section}
-            aria-labelledby={`${titleId}-app-title`}
+            open={!focusPedigree}
           >
-            <h3 id={`${titleId}-app-title`} className={styles.sectionTitle}>
-              {t("sections.app")}
-            </h3>
-            <p className={styles.sectionLead}>{t("sections.appLead")}</p>
-            <ul className={styles.list}>
+            <summary className={styles.sectionSummary}>
+              <span className={styles.sectionTitle}>{t("sections.app")}</span>
+              <span className={styles.sectionHint}>{t("sections.appLead")}</span>
+            </summary>
+            <div className={styles.accordionList}>
               {APP_TOPICS.map((key) => (
-                <li key={key} className={styles.item}>
-                  <p className={styles.itemTitle}>{t(`app.${key}.title`)}</p>
+                <details key={key} className={styles.topic}>
+                  <summary className={styles.topicSummary}>
+                    {t(`app.${key}.title`)}
+                  </summary>
                   <p className={styles.itemBody}>{t(`app.${key}.body`)}</p>
-                </li>
+                </details>
               ))}
-            </ul>
-          </section>
+            </div>
+          </details>
 
-          <section
+          <details
             id="help-section-pedigree"
             ref={pedigreeRef}
             className={styles.section}
-            aria-labelledby={`${titleId}-pedigree-title`}
+            open={focusPedigree}
           >
-            <h3 id={`${titleId}-pedigree-title`} className={styles.sectionTitle}>
-              {t("sections.pedigree")}
-            </h3>
-            <p className={styles.sectionLead}>{t("sections.pedigreeLead")}</p>
-            <ul className={styles.list}>
+            <summary className={styles.sectionSummary}>
+              <span className={styles.sectionTitle}>
+                {t("sections.pedigree")}
+              </span>
+              <span className={styles.sectionHint}>
+                {t("sections.pedigreeLead")}
+              </span>
+            </summary>
+            <div className={styles.accordionList}>
               {PEDIGREE_TOPICS.map((key) => (
-                <li key={key} className={styles.item}>
-                  <p className={styles.itemTitle}>{t(`pedigree.${key}.title`)}</p>
+                <details key={key} className={styles.topic}>
+                  <summary className={styles.topicSummary}>
+                    {t(`pedigree.${key}.title`)}
+                  </summary>
                   <p className={styles.itemBody}>{t(`pedigree.${key}.body`)}</p>
-                </li>
+                </details>
               ))}
-            </ul>
-          </section>
-
-          <section
-            id="help-section-updates"
-            className={styles.section}
-            aria-labelledby={`${titleId}-updates-title`}
-          >
-            <h3 id={`${titleId}-updates-title`} className={styles.sectionTitle}>
-              {t("sections.updates")}
-            </h3>
-            <ul className={styles.updates}>
-              {UPDATES.map((key) => (
-                <li key={key} className={styles.item}>
-                  <span className={styles.updateDate}>
-                    {t(`updates.${key}.date`)}
-                  </span>
-                  <p className={styles.itemTitle}>{t(`updates.${key}.title`)}</p>
-                  <p className={styles.itemBody}>{t(`updates.${key}.body`)}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
+            </div>
+          </details>
         </div>
       </div>,
       document.body,
     );
 
-  const triggerClass = [themeStyles.toggle, className].filter(Boolean).join(" ");
+  const triggerClass = [
+    themeStyles.toggle,
+    styles.triggerHelp,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
@@ -217,7 +205,7 @@ export function HelpGuide({ focusPedigree = false, className }: Props) {
         aria-expanded={open}
         onClick={() => setOpen(true)}
       >
-        <HiOutlineQuestionMarkCircle aria-hidden />
+        <HiOutlineBookOpen aria-hidden />
       </button>
       {panel}
     </>

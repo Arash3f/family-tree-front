@@ -17,6 +17,8 @@ import {
   HiOutlineHeart,
   HiOutlineMagnifyingGlass,
   HiOutlineRectangleGroup,
+  HiOutlineRectangleStack,
+  HiOutlineSquares2X2,
   HiOutlineUserPlus,
   HiOutlineViewfinderCircle,
   HiOutlineXMark,
@@ -58,6 +60,8 @@ type Props = {
   onAddPerson: () => void;
   onAddMarriage: () => void;
   onTidyLayout: () => void;
+  layoutDensity: "layered" | "compact";
+  onToggleLayoutDensity: () => void;
   onFitView: () => void;
   onToggleFullscreen: () => void;
   onExport: () => void;
@@ -139,6 +143,8 @@ export function PedigreeHeader({
   onAddPerson,
   onAddMarriage,
   onTidyLayout,
+  layoutDensity,
+  onToggleLayoutDensity,
   onFitView,
   onToggleFullscreen,
   onExport,
@@ -314,6 +320,27 @@ export function PedigreeHeader({
             <HiOutlineRectangleGroup aria-hidden />
           </ToolButton>
           <ToolButton
+            label={
+              layoutDensity === "compact"
+                ? t("layoutDensityLayered")
+                : t("layoutDensityCompact")
+            }
+            hint={
+              layoutDensity === "compact"
+                ? t("layoutDensityLayeredHint")
+                : t("layoutDensityCompactHint")
+            }
+            pressed={layoutDensity === "compact"}
+            disabled={busy || empty}
+            onClick={onToggleLayoutDensity}
+          >
+            {layoutDensity === "compact" ? (
+              <HiOutlineSquares2X2 aria-hidden />
+            ) : (
+              <HiOutlineRectangleStack aria-hidden />
+            )}
+          </ToolButton>
+          <ToolButton
             label={t("fitView")}
             disabled={busy || empty}
             onClick={onFitView}
@@ -348,7 +375,9 @@ export function PedigreeHeader({
           <span className={styles.toolLabel}>{t("export")}</span>
         </Button>
 
-        <HelpGuide focusPedigree className={styles.helpBtn} />
+        <div className={styles.guideGroup}>
+          <HelpGuide focusPedigree className={styles.helpBtn} />
+        </div>
 
         <MoreMenu
           treeId={treeId}
@@ -366,10 +395,12 @@ export function PedigreeHeader({
           canCreateMarriage={canCreateMarriage}
           canReadPersons={canReadPersons}
           marriageReady={personCount >= 2}
+          layoutDensity={layoutDensity}
           onDownloadSample={onDownloadSample}
           onExportExcel={onExportExcel}
           onPickFile={onPickFile}
           onTidyLayout={onTidyLayout}
+          onToggleLayoutDensity={onToggleLayoutDensity}
           onExport={onExport}
           onAddMarriage={onAddMarriage}
           onAddPerson={onAddPerson}
