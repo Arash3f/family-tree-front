@@ -22,7 +22,7 @@ import styles from "./RolesView.module.css";
 
 export function RoleCreateView() {
   const t = useTranslations("roles");
-  const { hasPermission } = useAuth();
+  const { status, hasPermission } = useAuth();
   const router = useRouter();
   const [name, setName] = useState("");
   const [permissions, setPermissions] = useState<AppPermission[]>([]);
@@ -35,6 +35,7 @@ export function RoleCreateView() {
   const loadingPerms = canReadPermissions && permsPending;
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     if (!hasPermission(Permissions.ROLE_CREATE)) {
       router.replace("/dashboard/roles");
       return;
@@ -66,7 +67,7 @@ export function RoleCreateView() {
     return () => {
       cancelled = true;
     };
-  }, [hasPermission, canReadPermissions, router, t]);
+  }, [status, hasPermission, canReadPermissions, router, t]);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();

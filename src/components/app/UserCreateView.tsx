@@ -22,7 +22,7 @@ export function UserCreateView() {
   const t = useTranslations("users");
   const tRegister = useTranslations("register");
   const locale = useLocale();
-  const { hasPermission } = useAuth();
+  const { status, hasPermission } = useAuth();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [fullname, setFullname] = useState("");
@@ -51,6 +51,7 @@ export function UserCreateView() {
   );
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     if (!hasPermission(Permissions.USER_CREATE)) {
       router.replace("/dashboard/users");
       return;
@@ -76,7 +77,7 @@ export function UserCreateView() {
     return () => {
       cancelled = true;
     };
-  }, [hasPermission, canReadRoles, router, t]);
+  }, [status, hasPermission, canReadRoles, router, t]);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();

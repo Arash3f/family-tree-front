@@ -17,7 +17,7 @@ import styles from "./TreesView.module.css";
 
 export function TreeCreateView() {
   const t = useTranslations("trees");
-  const { user, hasPermission } = useAuth();
+  const { status, user, hasPermission } = useAuth();
   const { showFreeAccountNotice, handleMaybeFreeLimit } = useFreeAccountNotice();
   const router = useRouter();
   const [name, setName] = useState("");
@@ -26,6 +26,7 @@ export function TreeCreateView() {
   const canSubmit = name.trim().length > 0;
 
   useEffect(() => {
+    if (status !== "authenticated") return;
     if (!hasPermission(Permissions.TREE_CREATE)) {
       router.replace("/dashboard/trees");
       return;
@@ -48,7 +49,7 @@ export function TreeCreateView() {
     return () => {
       cancelled = true;
     };
-  }, [hasPermission, router, user, showFreeAccountNotice]);
+  }, [status, hasPermission, router, user, showFreeAccountNotice]);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
