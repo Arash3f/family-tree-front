@@ -25,6 +25,7 @@
 - [Configuration](#configuration)
 - [Talking to the API](#talking-to-the-api)
 - [Testing and quality](#testing-and-quality)
+- [CI](#ci)
 - [Commits](#commits)
 - [Project layout](#project-layout)
 - [Docker](#docker)
@@ -40,7 +41,7 @@ relationship query is scoped to that tree through the backend.
 
 You can:
 
-- Sign in with JWT access + refresh tokens, rotate sessions, and change your password
+- Sign up (username, full name, optional email / phone) or sign in with JWT access + refresh tokens, rotate sessions, and change your password
 - Create and manage **family trees**, memberships and per-tree access
 - Edit **persons** and **marriages**, upload photos, and ask for the **closest relationship path**
 - Explore the tree on an interactive **pedigree canvas** (pan, zoom, collapse, export)
@@ -70,7 +71,7 @@ always`). Copy lives in `messages/en.json` and `messages/fa.json`.
 ```
   Browser (Next.js App Router)
   ├── Landing / marketing  (locale site routes)
-  ├── Auth screens         (login)
+  ├── Auth screens         (login, register)
   ├── Dashboard            (trees, users, roles, tickets, profile)
   └── Pedigree canvas      (@xyflow/react + pedigree layout helpers)
            │
@@ -262,6 +263,14 @@ pre-commit hook.
 
 ---
 
+## CI
+
+[.github/workflows/ci.yml](.github/workflows/ci.yml) runs on every push and PR to `main`:
+`pnpm install --frozen-lockfile` → `pnpm lint` → `pnpm test` → `pnpm build`. Lint warnings are
+allowed; any ESLint **error** fails the build, so run `pnpm lint` before pushing.
+
+---
+
 ## Commits
 
 Husky wires three hooks (same idea as the backend’s Commitizen + gitmoji flow):
@@ -299,7 +308,7 @@ Scopes include `ui`, `auth`, `pedigree`, `landing`, `i18n`, `theme`, `api`, `lib
 family-tree-front/
 ├── src/
 │   ├── app/
-│   │   ├── [locale]/           # (site) landing · (auth) login · (app) dashboard
+│   │   ├── [locale]/           # (site) landing · (auth) login, register · (app) dashboard
 │   │   └── backend/[...path]/ # Same-origin API proxy
 │   ├── components/             # app · auth · landing · pedigree · ui · theme · pwa …
 │   ├── lib/
@@ -365,6 +374,15 @@ docker run --rm -p 3000:3000 \
 
 Open **http://localhost:3000**. Browser requests hit `/backend/health`; the container
 forwards them to `API_PROXY_TARGET`.
+
+### Next to the backend stack
+
+When the API runs from the backend's `docker/compose.yml`, join its network and point the proxy at
+the `api` service instead of a public host:
+
+```bash
+docker run --rm -p 3000:3000 --network family-tree-net   -e API_PROXY_TARGET=http://api:8001   familytree-frontend
+```
 
 ### Image notes
 
