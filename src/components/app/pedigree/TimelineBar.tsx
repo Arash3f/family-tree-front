@@ -12,6 +12,9 @@ import styles from "./TimelineBar.module.css";
 const TIMELINE_DEBOUNCE_MS = 72;
 /** Too many birth ticks slows layout on large trees. */
 const MAX_BIRTH_TICKS = 96;
+/** Track width one year label needs so neighbouring labels never touch. */
+const LABEL_SLOT_PX = 48;
+const TICK_STEPS = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500];
 
 type Props = {
   bounds: TimelineBounds;
@@ -21,15 +24,25 @@ type Props = {
   onYearChange: (year: number) => void;
 };
 
-function yearTicks(minYear: number, maxYear: number): number[] {
+function yearTicks(
+  minYear: number,
+  maxYear: number,
+  trackWidth: number,
+): number[] {
   const span = maxYear - minYear;
   if (span <= 0) return [minYear];
+  const maxLabels = Math.max(2, Math.floor(trackWidth / LABEL_SLOT_PX));
   const step =
-    span <= 12 ? 1 : span <= 40 ? 5 : span <= 100 ? 10 : span <= 200 ? 20 : 50;
+    TICK_STEPS.find((candidate) => span / candidate + 1 <= maxLabels) ??
+    TICK_STEPS[TICK_STEPS.length - 1];
   const ticks: number[] = [minYear];
   const start = Math.ceil((minYear + 1) / step) * step;
-  for (let y = start; y < maxYear; y += step) ticks.push(y);
-  if (ticks[ticks.length - 1] !== maxYear) ticks.push(maxYear);
+  for (let y = start; y < maxYear; y += step) {
+    // A round year right beside either end would print over the end label.
+    if (y - minYear < step * 0.75 || maxYear - y < step * 0.75) continue;
+    ticks.push(y);
+  }
+  ticks.push(maxYear);
   return ticks;
 }
 
@@ -54,6 +67,8 @@ export function TimelineBar({
   const [narrow, setNarrow] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const labelsRef = useRef<HTMLDivElement | null>(null);
+  const [labelsWidth, setLabelsWidth] = useState(0);
 
   // The thumb leads while dragging and `year` only catches up when the debounce
   // fires, so an outside change is adopted solely when the prop itself moves.
@@ -78,6 +93,16 @@ export function TimelineBar({
       if (debounceRef.current != null) clearTimeout(debounceRef.current);
     };
   }, []);
+
+  const collapsed = narrow && !expanded;
+
+  useEffect(() => {
+    const node = labelsRef.current;
+    if (!node) return;
+    const ro = new ResizeObserver(() => setLabelsWidth(node.clientWidth));
+    ro.observe(node);
+    return () => ro.disconnect();
+  }, [collapsed]);
 
   const commitYear = useCallback(
     (nextYear: number) => {
@@ -104,13 +129,12 @@ export function TimelineBar({
   );
 
   const ticks = useMemo(
-    () => yearTicks(minYear, maxYear),
-    [minYear, maxYear],
+    () => yearTicks(minYear, maxYear, labelsWidth),
+    [minYear, maxYear, labelsWidth],
   );
   const birthTicks = useMemo(() => sampleBirthYears(birthYears), [birthYears]);
   const span = Math.max(1, maxYear - minYear);
   const atPresent = displayYear >= maxYear;
-  const collapsed = narrow && !expanded;
   const yearText = formatLocaleDigits(displayYear, locale);
   const visibleText = t("timelineVisible", {
     visible: formatLocaleDigits(visibleCount, locale),
@@ -187,7 +211,7 @@ export function TimelineBar({
               aria-label={t("timelineScrub")}
             />
 
-            <div className={styles.labels} aria-hidden>
+            <div ref={labelsRef} className={styles.labels} aria-hidden>
               {ticks.map((tick) => (
                 <span
                   key={tick}

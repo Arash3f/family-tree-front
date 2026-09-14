@@ -1758,7 +1758,8 @@ export function buildPedigreeGraph(input: {
         tone: "primary",
         chromeAt,
       } satisfies CoupleNodeData,
-      draggable: true,
+      // Left unset so the canvas `nodesDraggable` (off on phones) decides; an
+      // explicit `true` would override it and turn touch pans into card drags.
       selectable: false,
       connectable: false,
       // Above secondary marriage chrome so the primary ring/date stay visible.
@@ -1793,7 +1794,7 @@ export function buildPedigreeGraph(input: {
       ...(parentId
         ? { parentId, extent: "parent" as const }
         : {}),
-      draggable: !inCouple,
+      draggable: inCouple ? false : undefined,
       selectable: true,
       zIndex: 2,
     };

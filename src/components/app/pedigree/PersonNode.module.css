@@ -324,8 +324,18 @@
 
   .foldBtn,
   .foldChip {
+    position: relative;
     min-height: 1.75rem;
     min-width: 1.75rem;
+  }
+
+  /* Cards open zoomed out, so the drawn button is small on screen; the hit
+     area reaches past it without changing how it looks. */
+  .foldBtn::after,
+  .foldChip::after {
+    content: "";
+    position: absolute;
+    inset: -0.6rem -0.11rem;
   }
 }
 

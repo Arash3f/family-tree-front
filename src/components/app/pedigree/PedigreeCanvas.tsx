@@ -17,6 +17,7 @@ import {
   useEdgesState,
   useNodesInitialized,
   useNodesState,
+  getViewportForBounds,
   useReactFlow,
   type Edge,
   type InternalNode,
@@ -82,6 +83,15 @@ const FIT_ALL_VIEW = {
  * a fixed zoom keeps the 220px person cards legible instead.
  */
 const OPEN_ZOOM = 0.6;
+
+/**
+ * Smallest zoom at which the opening shot may fit the whole tree (or its full
+ * width) instead of anchoring on a root at `OPEN_ZOOM`.
+ */
+const OPEN_MIN_FIT_ZOOM = 0.24;
+
+/** Slim side margin when the opening shot spans the tree's width only. */
+const OPEN_ACROSS_PADDING = 0.04;
 
 /** How far down the canvas the oldest generation sits on open. */
 const OPEN_TOP_INSET = 0.18;
@@ -262,8 +272,16 @@ function CanvasInner({
   branchActions,
   exportApiRef,
 }: CanvasProps) {
-  const { fitView, setCenter, setViewport, getNodes, getEdges, getInternalNode, getViewport } =
-    useReactFlow();
+  const {
+    fitView,
+    setCenter,
+    setViewport,
+    getNodes,
+    getNodesBounds,
+    getEdges,
+    getInternalNode,
+    getViewport,
+  } = useReactFlow();
   const locale = useLocale();
   const t = useTranslations("pedigree");
   const rootRef = useRef<HTMLDivElement>(null);
@@ -480,6 +498,36 @@ function CanvasInner({
       void fitView({ ...FIT_ALL_VIEW, duration: 560 });
       return;
     }
+    const width = canvas?.width ?? 0;
+    const height = canvas?.height ?? 0;
+    const bounds = getNodesBounds(nodes.filter((node) => !node.hidden));
+    const { minZoom, maxZoom, padding } = FIT_ALL_VIEW;
+    const whole = getViewportForBounds(bounds, width, height, minZoom, maxZoom, padding);
+    if (whole.zoom >= OPEN_MIN_FIT_ZOOM) {
+      void fitView({ ...FIT_ALL_VIEW, duration: 560 });
+      return;
+    }
+    // Too tall to fit legibly but not too wide: span the width, oldest
+    // generation at the top, and let the user scroll down the generations.
+    const across = getViewportForBounds(
+      { ...bounds, height: 1 },
+      width,
+      height,
+      minZoom,
+      maxZoom,
+      OPEN_ACROSS_PADDING,
+    );
+    if (across.zoom >= OPEN_MIN_FIT_ZOOM) {
+      void setViewport(
+        {
+          x: across.x,
+          y: height * OPEN_ACROSS_PADDING - bounds.y * across.zoom,
+          zoom: across.zoom,
+        },
+        { duration: 560 },
+      );
+      return;
+    }
     // Sit the oldest generation near the top edge rather than the middle, so
     // the canvas fills with the descendants below it.
     const centerY =
@@ -494,6 +542,8 @@ function CanvasInner({
     fitPass,
     fitView,
     setCenter,
+    setViewport,
+    getNodesBounds,
     getInternalNode,
     getViewport,
   ]);

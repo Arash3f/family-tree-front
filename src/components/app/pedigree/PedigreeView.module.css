@@ -1506,9 +1506,13 @@ button.ghostBtnActive {
 }
 
 @media (min-width: 1100px) {
+  /* The tool strip alone is ~40rem, so it gets its own row until the bar can
+   * hold title, search and tools side by side (see the 1680px block). */
   .chrome {
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 26rem) auto;
-    grid-template-areas: "identity search actions";
+    grid-template-columns: minmax(12rem, 1fr) minmax(16rem, 26rem);
+    grid-template-areas:
+      "identity search"
+      "actions actions";
     align-items: center;
     gap: 0.9rem 1rem;
     padding: 0.9rem 1rem;
@@ -1523,13 +1527,19 @@ button.ghostBtnActive {
   .chromeActions {
     justify-self: end;
     justify-content: flex-end;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     max-width: 100%;
   }
 
+  /* The side column exists only while a panel is open; otherwise the canvas
+   * takes the full width. */
   .workspace {
-    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
+    grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
+  }
+
+  .workspace:has(> .panel) {
+    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
   }
 
   .panelBackdrop {
@@ -1585,8 +1595,8 @@ button.ghostBtnActive {
 
   /*
    * Fullscreen keeps the canvas the full width and floats the side panel over
-   * it. The side-by-side layout would otherwise reserve the panel column even
-   * with nothing selected, which is the one thing fullscreen is meant to avoid.
+   * it. The side-by-side layout would otherwise take a column away from the
+   * canvas, which is the one thing fullscreen is meant to avoid.
    */
   .root.immersive .workspace {
     position: relative;
@@ -1605,6 +1615,17 @@ button.ghostBtnActive {
     transform: none;
     animation: none;
     box-shadow: var(--shadow-lg);
+  }
+}
+
+@media (min-width: 1680px) {
+  .chrome {
+    grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 26rem) auto;
+    grid-template-areas: "identity search actions";
+  }
+
+  .chromeActions {
+    flex-wrap: nowrap;
   }
 }
 
