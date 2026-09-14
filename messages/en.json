@@ -6,9 +6,8 @@
   "nav": {
     "primary": "Primary",
     "features": "Features",
-    "updates": "Updates",
+    "updates": "What's new",
     "architecture": "Under the hood",
-    "research": "Research / WIP",
     "author": "Built by",
     "apiDocs": "API docs",
     "langEn": "EN",
@@ -27,13 +26,13 @@
     "brand": "Family Tree",
     "headline": "Your family, mapped with care.",
     "support": "Create private trees, add people and marriages, walk the timeline, and see the closest path — then explore other routes between relatives.",
-    "ctaDocs": "Open API docs",
     "ctaLogin": "Sign in to dashboard",
     "scroll": "Scroll to features",
     "apiChecking": "Checking API…",
     "apiOnline": "API online",
     "apiDegraded": "API degraded",
-    "apiOffline": "API offline"
+    "apiOffline": "API offline",
+    "ctaRegister": "Create a free account"
   },
   "features": {
     "title": "Everything you need to tend a living tree",
@@ -62,26 +61,38 @@
     }
   },
   "updates": {
-    "title": "What is new",
-    "subtitle": "Short notes on recent product work. Expand this list as you ship.",
+    "title": "What's new",
+    "subtitle": "The latest improvements to Family Tree.",
     "items": {
       "u1": {
-        "iso": "2026-09-10",
+        "iso": "2026-09-14",
         "date": "Sep 2026",
-        "title": "Registration contact fields",
-        "body": "Email and phone from signup are stored and available in admin user view and edit."
+        "title": "Compact layout and a clearer tree view",
+        "body": "A compact layout for large families, a tree that opens fully in frame on desktop, and timeline years that never overlap."
       },
       "u2": {
-        "iso": "2026-09-01",
+        "iso": "2026-09-13",
         "date": "Sep 2026",
-        "title": "Relation alternatives",
-        "body": "After the closest path loads, the pedigree can fetch other diverse routes in the background."
+        "title": "Relationship through the male line",
+        "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
       "u3": {
-        "iso": "2026-08-15",
-        "date": "Aug 2026",
-        "title": "Excel import and export",
-        "body": "Admin-friendly sample, preview, import, and export flows for whole trees."
+        "iso": "2026-09-10",
+        "date": "Sep 2026",
+        "title": "Excel import with a preview",
+        "body": "Before anything is saved, see every problem with its row number, spot people already in the tree, and import only the rows you choose."
+      },
+      "u4": {
+        "iso": "2026-09-07",
+        "date": "Sep 2026",
+        "title": "More than one way to be related",
+        "body": "After the closest relationship appears, other distinct paths between the same two people load in the background so you can compare them."
+      },
+      "u5": {
+        "iso": "2026-09-07",
+        "date": "Sep 2026",
+        "title": "Free sign-up with sample trees",
+        "body": "Anyone can create a free account and start right away with two ready-made family trees to explore."
       }
     }
   },
@@ -95,11 +106,6 @@
       "jobs": "Background jobs keep the graph in sync and run scheduled backups"
     },
     "stackTitle": "Built with"
-  },
-  "research": {
-    "title": "Research & ideas",
-    "subtitle": "A quiet shelf for investigations and future sketches — nothing listed yet.",
-    "empty": "No research notes here for now. Ideas will land in this section later."
   },
   "stack": {
     "fastapi": "FastAPI",
@@ -123,16 +129,16 @@
   },
   "cta": {
     "title": "Start mapping your family",
-    "body": "Sign in to create a private tree, add people and marriages, and see how anyone connects.",
-    "primary": "Sign in to dashboard",
-    "secondary": "Read the API docs"
+    "body": "Create a free account to build a private tree, add people and marriages, and see how anyone connects.",
+    "primary": "Create a free account",
+    "secondary": "I already have an account"
   },
   "footer": {
     "tagline": "Private family trees with clear relationships — in English and Persian.",
     "rights": "Family Tree",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "legalNav": "Legal"
+    "legalNav": "Account",
+    "signIn": "Sign in",
+    "signUp": "Sign up"
   },
   "privacy": {
     "metaTitle": "Privacy policy",
@@ -229,16 +235,16 @@
     "submitting": "Signing in…",
     "invalidCredentials": "Username or password is incorrect.",
     "genericError": "Something went wrong. Please try again.",
-    "forgotPassword": "Forgot your password? Email <email>arash.alfooneh@gmail.com</email>.",
     "noAccount": "Don't have an account?",
-    "goRegister": "Sign up",
-    "backHome": "Back to home"
+    "backHome": "Back to home",
+    "createAccount": "Create a free account"
   },
   "register": {
     "metaTitle": "Sign up — Family Tree",
     "brand": "Family Tree",
     "title": "Sign up",
     "support": "Create an account to manage your family tree.",
+    "fullname": "Full name",
     "username": "Username",
     "password": "Password",
     "confirmPassword": "Confirm password",
@@ -251,6 +257,7 @@
     "countryEmpty": "No countries found.",
     "submit": "Sign up",
     "submitting": "Creating account…",
+    "fullnameTooLong": "Full name can be at most 100 characters.",
     "usernameTooShort": "Username must be at least 3 characters.",
     "usernameInvalid": "Use only letters, numbers, and _ . -",
     "passwordTooShort": "Password must be at least 8 characters.",
@@ -258,10 +265,13 @@
     "invalidEmail": "Enter a valid email address.",
     "usernameTaken": "That username is already taken.",
     "emailTaken": "That email is already registered.",
+    "phoneTaken": "That phone number is already registered.",
     "genericError": "Something went wrong. Please try again.",
     "hasAccount": "Already have an account?",
-    "goLogin": "Sign in",
-    "backHome": "Back to home"
+    "goLogin": "Sign in to your account",
+    "backHome": "Back to home",
+    "contactTitle": "Contact details (optional)",
+    "contactHint": "Helps support reach you if you ever need to recover your account."
   },
   "app": {
     "brand": "Family Tree",
@@ -331,127 +341,132 @@
   },
   "help": {
     "open": "Help guide",
-    "openUpdates": "Recent updates",
+    "openUpdates": "What's new",
     "close": "Close",
     "title": "Guide",
-    "lead": "How the dashboard and family-tree workspace fit together. Open a section, then tap a topic to read it.",
-    "updatesTitle": "Recent updates",
-    "updatesLead": "What landed lately in the product — skim the list anytime.",
+    "lead": "A quick tour of the dashboard and the family tree view. Open a section, then pick a topic.",
+    "updatesTitle": "What's new",
+    "updatesLead": "The latest improvements to Family Tree, newest first.",
     "jumpLabel": "Jump to section",
     "sections": {
       "app": "Dashboard & account",
-      "appLead": "Signed-in navigation, trees list, profile, tickets, and admin tools when your role allows.",
-      "pedigree": "Family tree canvas",
-      "pedigreeLead": "Everything inside an open tree: people, marriages, paths, timeline, Excel, and exports."
+      "appLead": "Everything around your trees after you sign in: the tree list, your account, support tickets, and admin tools if your role allows.",
+      "pedigree": "Family tree view",
+      "pedigreeLead": "Everything inside an open tree: people, marriages, relationships, the timeline, Excel and downloads."
     },
     "app": {
       "dashboard": {
-        "title": "Home / dashboard",
-        "body": "The welcome page summarises what you can do. Open Family trees from the sidebar to start working; admin links (Users, Roles) appear only if your permissions allow."
+        "title": "Home",
+        "body": "The home page gives you an overview of what you can do. Open Family trees from the side menu to get started. Admin pages such as Users and Roles only appear if your role includes them."
       },
       "profile": {
-        "title": "My profile",
-        "body": "See username, email, phone, role, and account type. Sub-pages cover permissions (read-only list), password change, and active sessions you can revoke."
+        "title": "My account",
+        "body": "See your username, full name, email, phone, role and account type. From here you can also review your permissions, change your password, and sign out of other devices."
       },
       "trees": {
-        "title": "Family trees list",
-        "body": "Create a new private tree or open an existing one. Each tree is a tenant boundary — people and marriages never leak across trees."
+        "title": "Your family trees",
+        "body": "Create a new tree or open one you belong to. Every tree is fully separate — its people and marriages are never shared with other trees. New free accounts start with two sample trees you can explore and edit."
       },
       "treeSettings": {
-        "title": "Tree settings",
-        "body": "From a tree’s settings page rename the tree, manage members, and adjust who can view or edit. Access is per tree, not global."
+        "title": "Tree settings & members",
+        "body": "In a tree's settings you can rename it, add or remove members, and choose exactly what each member may do — for example view only, add people, or see birth dates and photos. Access is set separately for every tree."
       },
       "tickets": {
         "title": "Support tickets",
-        "body": "Open a ticket for account or product issues. Optionally link a family tree. Staff with ticket permissions can reply and change status."
+        "body": "Open a ticket for any account or app issue, and link a tree if it is about one. Replies arrive in the same conversation, and support can update the ticket's status."
       },
       "users": {
-        "title": "Users (admin)",
-        "body": "List, create, and edit accounts: full name, username, optional email and phone (with country code), role, account type, password reset, and session revoke."
+        "title": "Users (admins)",
+        "body": "Search, create and edit accounts: full name, username, optional email and phone with country code, role, account type and password. A deactivated user can no longer sign in."
       },
       "roles": {
-        "title": "Roles & permissions (admin)",
-        "body": "Roles bundle named permissions. Assign a role to a user so they only see the menus and tree actions they are allowed to use."
+        "title": "Roles & permissions (admins)",
+        "body": "A role is a named set of permissions. Give a user a role and they only see the menus and actions that role allows."
       },
       "limits": {
         "title": "Free account limits",
-        "body": "Free accounts may hit quotas on trees, people, or marriages. Paid (or admin-granted) accounts lift those caps. The app shows a notice when a free limit blocks an action."
+        "body": "A free account can own up to 2 trees, each with up to 20 people and 8 marriages. Paid accounts have no such limits. If a limit stops an action, the app tells you why."
       }
     },
     "pedigree": {
       "canvas": {
-        "title": "Canvas basics",
-        "body": "Pan by dragging the background and zoom with the wheel or pinch. The graph shows people and marriage links. Empty trees prompt you to add the first person."
+        "title": "Moving around the tree",
+        "body": "Drag the background to move and use the mouse wheel or pinch to zoom. On phones, cards stay in place so a swipe always moves the whole tree. An empty tree guides you to add the first person."
       },
       "search": {
         "title": "Search",
-        "body": "Use the header search to find people by name. Picking a result focuses and frames that person on the canvas."
+        "body": "Type a name in the search box at the top. Choosing a result brings that person to the centre of the view. Namesakes show their parents so you can tell them apart."
       },
       "people": {
         "title": "People",
-        "body": "Add a person from the header or tools menu. Open a person to edit names, gender, dates, places, notes, photo, and parent links. Delete carefully — linked marriages may block removal."
+        "body": "Add someone with Add person, or add a father, mother, child or spouse straight from a person's card. Open a person to edit their name, gender, dates, places, notes, photo and parents. A person who still has marriages or children can't be deleted until those links are removed."
       },
       "marriages": {
         "title": "Marriages",
-        "body": "Add a marriage between two people (needs at least two persons). Record marriage or divorce dates. Marriages appear as links on the graph."
+        "body": "Record a marriage between two people with its date, and add a divorce date later if needed. A couple is shown together in one box, with their children below."
       },
       "parents": {
         "title": "Parents & children",
-        "body": "On a person, attach parents with a type: biological, adoptive, or step. Children show under the right marriage or parent pair when data allows."
+        "body": "When you link a parent, choose the type: biological, adoptive or step. Children are drawn under the marriage they were born from."
       },
       "fold": {
-        "title": "Fold / expand branches",
-        "body": "Collapse busy branches to reduce clutter, then expand again from the chip in the header. Branch preview can focus a subtree; exit returns to the full tree."
+        "title": "Folding branches",
+        "body": "Fold a crowded branch from the button on a card to hide its descendants, and bring every folded branch back from the counter at the top. Preview branch shows only one person's line; Back to full tree shows everyone again."
       },
       "timeline": {
-        "title": "Timeline by year",
-        "body": "Slide or pick a year to see who was alive (or present) at that time. Useful for historical snapshots of the same tree."
+        "title": "Timeline",
+        "body": "Drag the timeline at the bottom to a year to see only the people born by then — a snapshot of the family at that time. Choose Present to see everyone again."
       },
       "relations": {
-        "title": "Find relation (paths)",
-        "body": "From a person, choose Find relation and pick another person. The closest path loads first. A moment later alternative routes may appear — switch among them and choose full / all / active view to control highlighting."
+        "title": "Finding a relationship",
+        "body": "Open a person, choose Find relation and pick the second person. The closest relationship appears first; other paths follow a moment later and you can switch between them. The male-line option only follows the men of the family. Use the path view to show the full tree, all paths, or only the selected one."
       },
       "birthdays": {
         "title": "Birthday calendar",
-        "body": "Open the calendar tool to see upcoming birthdays from people who have a birth date you are allowed to view. Selecting a day jumps to that person."
+        "body": "The calendar marks the days when people in the tree were born. Pick a day to see who was born on it. Birth dates only appear if your access to the tree includes them."
       },
       "excel": {
-        "title": "Excel sample, import, export",
-        "body": "Download a sample workbook, import with a preview of what will change, or export the whole tree. Large imports may take a few seconds — wait for the preview confirm step."
+        "title": "Excel: sample, import, export",
+        "body": "Download the sample file to see the expected columns, then import your own. Before anything is saved you get a preview: problems are listed with their row numbers, people already in the tree are marked, and only the rows you tick are imported. You can also export the whole tree to Excel."
       },
       "export": {
-        "title": "Image, PDF, lineage card",
-        "body": "Export the visible tree as image or PDF, or generate a lineage / info card for a selected person. Use fit view first if you want the full graph in frame."
+        "title": "Image, PDF & info card",
+        "body": "Export opens a preview where you choose PNG or PDF, a colour theme, the paper size and how the tree fits the page. Large trees can be printed across several pages. From a person's card you can also download their info card."
       },
       "viewTools": {
-        "title": "Fit, tidy, layout density, fullscreen",
-        "body": "Fit view frames everyone. Tidy layout re-spaces nodes on the generation grid. Compact packing tightens gaps so people sit closer (default stays the roomy layered layout). Fullscreen hides chrome for a larger canvas — exit with the same control or Escape where supported."
+        "title": "View tools",
+        "body": "Fit view brings the whole tree into frame. Tidy layout puts cards back into neat generation rows. Compact packing moves people closer together, and Fullscreen hides everything but the tree — press Esc to leave."
       },
       "treeTicket": {
-        "title": "Ticket from this tree",
-        "body": "From the tools menu you can open a support ticket already linked to the current tree so staff see the right context."
+        "title": "Ticket about this tree",
+        "body": "In the More menu, Create ticket opens a support ticket that is already linked to this tree, so support sees the right context."
       }
     },
     "updates": {
       "u1": {
         "date": "Sep 2026",
-        "title": "Email and phone on users",
-        "body": "Signup contact fields appear in user list, detail, and edit (with country code on create/edit)."
+        "title": "Compact layout and a clearer tree view",
+        "body": "A compact layout for large families, a tree that opens fully in frame on desktop, and timeline years that never overlap."
       },
       "u2": {
         "date": "Sep 2026",
-        "title": "Alternative relation paths",
-        "body": "After the closest path, the pedigree loads other diverse kinship routes."
+        "title": "Relationship through the male line",
+        "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
       "u3": {
-        "date": "Aug 2026",
-        "title": "Excel workflows",
-        "body": "Sample, preview, import, and export for whole trees."
+        "date": "Sep 2026",
+        "title": "Excel import with a preview",
+        "body": "Before anything is saved, see every problem with its row number, spot people already in the tree, and import only the rows you choose."
       },
       "u4": {
         "date": "Sep 2026",
-        "title": "In-app guide",
-        "body": "Help icon on the dashboard and pedigree explains each area and recent updates."
+        "title": "More than one way to be related",
+        "body": "After the closest relationship appears, other distinct paths between the same two people load in the background so you can compare them."
+      },
+      "u5": {
+        "date": "Sep 2026",
+        "title": "Free sign-up with sample trees",
+        "body": "Anyone can create a free account and start right away with two ready-made family trees to explore."
       }
     }
   },
@@ -511,7 +526,7 @@
     "createMetaTitle": "New user — Family Tree",
     "editMetaTitle": "Manage user — Family Tree",
     "title": "Users",
-    "support": "Accounts visible with your user_read permission.",
+    "support": "All accounts you are allowed to view.",
     "new": "New user",
     "loading": "Loading users…",
     "loadError": "Could not load users.",
@@ -1165,5 +1180,13 @@
     "tree_read": "View family trees",
     "tree_update": "Update family trees",
     "tree_delete": "Delete family trees"
+  },
+  "authSupport": {
+    "loginTitle": "Forgot your password?",
+    "loginText": "Email us at the address below and include your username — we'll help you get back into your account.",
+    "registerTitle": "Need help signing up?",
+    "registerText": "Email us at the address below and we'll get back to you.",
+    "mailSubject": "Family Tree account help",
+    "mailBody": "Username: {username}\n\nPlease describe the problem:\n"
   }
 }
