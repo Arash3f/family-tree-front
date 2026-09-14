@@ -120,38 +120,164 @@
   gap: var(--space-2);
 }
 
+/* Register carries two-up rows, so it needs more room than the sign-in card. */
+.formWide {
+  width: min(100%, 36rem);
+  container-type: inline-size;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-3);
+}
+
+@container (max-width: 30rem) {
+  .pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.group {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--control-bg) 45%, transparent);
+}
+
+.groupHead {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.groupTitle {
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.groupHint {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  text-wrap: pretty;
+}
+
+.phoneField {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.phoneLabel {
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
 /*
- * Dial code must stay on the physical left in both LTR and RTL locales —
- * phone numbers are always read +CC then national digits.
+ * Dial code stays on the physical left in both locales — numbers are read
+ * +CC then national digits. The shared heading above replaces the per-control
+ * labels, which stay available to assistive tech only.
  */
 .phoneRow {
   display: grid;
-  grid-template-columns: minmax(8.5rem, 10.5rem) minmax(0, 1fr);
-  gap: var(--space-3);
+  grid-template-columns: minmax(6rem, 7.5rem) minmax(0, 1fr);
+  gap: var(--space-2);
   align-items: start;
   direction: ltr;
 }
 
-@media (max-width: 28rem) {
-  .phoneRow {
-    grid-template-columns: 1fr;
-  }
+.phoneRow > div > span:first-child {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.submit {
-  margin-block-start: var(--space-2);
+:global(html[dir="rtl"]) .phoneRow [role="alert"] {
+  direction: rtl;
 }
 
-.forgot {
+.switch {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   color: var(--muted);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.helpCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent-muted) 55%, transparent);
+}
+
+.helpIcon {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 1.15rem;
+}
+
+.helpBody {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.helpTitle {
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+
+.helpText {
+  color: var(--muted);
+  font-size: var(--text-sm);
   line-height: var(--leading-normal);
-  text-align: center;
   text-wrap: pretty;
 }
 
 .mailLink {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  direction: ltr;
+  unicode-bidi: isolate;
+  overflow-wrap: anywhere;
   color: var(--accent);
   font-weight: var(--weight-semibold);
   text-decoration: underline;
@@ -160,23 +286,6 @@
 
 .mailLink:hover {
   color: color-mix(in srgb, var(--accent) 80%, var(--ink));
-}
-
-.altAction {
-  color: var(--muted);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  text-align: center;
-}
-
-.altLink {
-  color: var(--accent);
-  font-weight: var(--weight-semibold);
-}
-
-.altLink:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
 }
 
 .gate {

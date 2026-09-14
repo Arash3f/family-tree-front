@@ -33,6 +33,7 @@ import { SelectField, TextField } from "@/components/ui/Field";
 import { Alert, Badge } from "@/components/ui/Feedback";
 import { Form, FormActions, FormRow } from "@/components/ui/Form";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
+import { toLatinDigits } from "@/lib/localeDigits";
 import styles from "./UsersView.module.css";
 
 type Props = {
@@ -195,7 +196,7 @@ export function UserDetailView({ userId }: Props) {
       if (nextEmail !== (target?.email ?? null)) {
         payload.email = nextEmail;
       }
-      const phoneDigits = phone.replace(/\D/g, "");
+      const phoneDigits = toLatinDigits(phone).replace(/\D/g, "");
       const nextPhone = phoneDigits || null;
       const nextCountry = phoneDigits ? countryCode : null;
       const storedSplit = splitStoredPhone(target?.phone);

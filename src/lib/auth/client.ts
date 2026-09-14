@@ -323,6 +323,7 @@ export async function loginRequest(
 
 export async function registerRequest(input: {
   username: string;
+  fullname: string;
   password: string;
   re_password: string;
   email?: string | null;
@@ -335,6 +336,7 @@ export async function registerRequest(input: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       username: input.username,
+      fullname: input.fullname,
       password: input.password,
       re_password: input.re_password,
       email: input.email || null,

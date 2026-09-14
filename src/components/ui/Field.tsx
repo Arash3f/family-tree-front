@@ -163,12 +163,14 @@ export function SelectField({
   filterable,
   filterPlaceholder,
   filterEmptyLabel,
+  minPanelWidth,
   ...rest
 }: Common &
   Omit<SelectHTMLAttributes<HTMLSelectElement>, "className" | "id"> & {
     filterable?: boolean;
     filterPlaceholder?: string;
     filterEmptyLabel?: string;
+    minPanelWidth?: number;
   }) {
   return (
     <Field
@@ -191,6 +193,7 @@ export function SelectField({
           filterable={filterable}
           filterPlaceholder={filterPlaceholder}
           filterEmptyLabel={filterEmptyLabel}
+          minPanelWidth={minPanelWidth}
         >
           {children}
         </Select>

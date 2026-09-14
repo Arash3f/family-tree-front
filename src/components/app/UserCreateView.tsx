@@ -16,6 +16,7 @@ import { Field, SelectField, TextField } from "@/components/ui/Field";
 import { Alert } from "@/components/ui/Feedback";
 import { Form, FormActions, FormRow } from "@/components/ui/Form";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
+import { toLatinDigits } from "@/lib/localeDigits";
 import styles from "./UsersView.module.css";
 
 export function UserCreateView() {
@@ -84,7 +85,7 @@ export function UserCreateView() {
     setBusy(true);
     setError(null);
     try {
-      const phoneDigits = phone.replace(/\D/g, "");
+      const phoneDigits = toLatinDigits(phone).replace(/\D/g, "");
       const user = await createUser({
         username: username.trim(),
         fullname: fullname.trim(),

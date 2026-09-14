@@ -17,6 +17,7 @@ export type AuthStatus = "loading" | "authenticated" | "anonymous";
 
 type RegisterInput = {
   username: string;
+  fullname: string;
   password: string;
   re_password: string;
   email?: string | null;

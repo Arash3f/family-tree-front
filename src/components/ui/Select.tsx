@@ -75,12 +75,14 @@ export function optionsFromChildren(children: ReactNode): SelectOption[] {
       if (child.type !== "option") return;
       const props = child.props as OptionHTMLAttributes<HTMLOptionElement> & {
         children?: ReactNode;
+        "data-trigger"?: string;
       };
       const text = props.label ?? textOf(props.children);
       out.push({
         value: props.value === undefined ? text : String(props.value),
         label: props.children ?? text,
         text,
+        triggerLabel: props["data-trigger"],
         disabled: props.disabled,
       });
     });

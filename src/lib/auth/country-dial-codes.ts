@@ -84,7 +84,8 @@ export const DIAL_CODES: DialCode[] = [
 
 export function dialCodeLabel(entry: DialCode, locale: string): string {
   const name = locale.startsWith("fa") ? entry.nameFa : entry.nameEn;
-  return `${entry.code} · ${name}`;
+  // Isolate the code so RTL text cannot move its "+" to the wrong side.
+  return `\u2066${entry.code}\u2069 · ${name}`;
 }
 
 /**
