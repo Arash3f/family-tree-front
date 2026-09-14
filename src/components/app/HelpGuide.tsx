@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 import { HiOutlineBookOpen } from "react-icons/hi2";
 import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
 import themeStyles from "@/components/theme/ThemeToggle.module.css";
 import styles from "./HelpGuide.module.css";
+
+const emptySubscribe = () => () => {};
 
 /** Dashboard / account areas. */
 const APP_TOPICS = [
@@ -47,12 +55,10 @@ type Props = {
 export function HelpGuide({ focusPedigree = false, className }: Props) {
   const t = useTranslations("help");
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const titleId = useId();
   const dialogRef = useRef<HTMLDivElement>(null);
   const pedigreeRef = useRef<HTMLDetailsElement>(null);
-
-  useEffect(() => setMounted(true), []);
 
   useFocusTrap(dialogRef, open, () => setOpen(false));
   useScrollLock(open);
