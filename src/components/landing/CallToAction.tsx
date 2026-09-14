@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { getApiDocsUrl } from "@/lib/api";
 import { Link } from "@/i18n/navigation";
 import buttonStyles from "@/components/ui/Button.module.css";
 import styles from "./CallToAction.module.css";
@@ -22,17 +21,12 @@ export async function CallToAction() {
           <p className={styles.support}>{t("body")}</p>
         </div>
         <div className={styles.actions}>
-          <Link className={primaryCta} href="/login">
+          <Link className={primaryCta} href="/register">
             {t("primary")}
           </Link>
-          <a
-            className={secondaryCta}
-            href={getApiDocsUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <Link className={secondaryCta} href="/login">
             {t("secondary")}
-          </a>
+          </Link>
         </div>
       </div>
     </section>

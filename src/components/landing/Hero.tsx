@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { getApiDocsUrl } from "@/lib/api";
 import { Link } from "@/i18n/navigation";
 import buttonStyles from "@/components/ui/Button.module.css";
 import { ApiStatus } from "./ApiStatus";
@@ -158,17 +157,12 @@ export async function Hero() {
         <h1 className={styles.headline}>{t("headline")}</h1>
         <p className={styles.support}>{t("support")}</p>
         <div className={styles.ctas}>
-          <Link className={`${primaryCta} ${styles.cta}`} href="/login">
+          <Link className={`${primaryCta} ${styles.cta}`} href="/register">
+            {t("ctaRegister")}
+          </Link>
+          <Link className={`${secondaryCta} ${styles.cta}`} href="/login">
             {t("ctaLogin")}
           </Link>
-          <a
-            className={`${secondaryCta} ${styles.cta}`}
-            href={getApiDocsUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("ctaDocs")}
-          </a>
         </div>
       </div>
 

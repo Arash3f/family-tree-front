@@ -18,8 +18,8 @@ export async function Footer() {
           <p className={styles.tagline}>{t("tagline")}</p>
         </div>
         <nav className={styles.legal} aria-label={t("legalNav")}>
-          <Link href="/privacy">{t("privacy")}</Link>
-          <Link href="/terms">{t("terms")}</Link>
+          <Link href="/login">{t("signIn")}</Link>
+          <Link href="/register">{t("signUp")}</Link>
         </nav>
       </div>
     </footer>
