@@ -897,7 +897,9 @@ function CanvasInner({
         nodesConnectable={false}
         elementsSelectable
         selectNodesOnDrag={false}
-        onlyRenderVisibleElements
+        // Keep every path edge mounted so PathTraveler can read SVG geometry;
+        // culling short off-screen hops left the orb stuck mid-corridor.
+        onlyRenderVisibleElements={pathOrder.length < 2}
         // Camera framing is owned by layout/camera tokens; RF's focus pan would
         // otherwise yank the viewport onto a card that gained focus later.
         autoPanOnNodeFocus={false}

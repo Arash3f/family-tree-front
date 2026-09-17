@@ -17,7 +17,11 @@ import styles from "./PathTraveler.module.css";
 type Point = { x: number; y: number };
 
 type PathSegment = {
-  path: SVGPathElement;
+  /** Drawn edge geometry when the SVG path is mounted. */
+  path?: SVGPathElement;
+  /** Straight fallback when the edge SVG is culled or not ready yet. */
+  from?: Point;
+  to?: Point;
   reverse: boolean;
   length: number;
 };
@@ -172,6 +176,16 @@ function segmentReverse(
   return backward < forward;
 }
 
+function edgeEndpointCenters(
+  edge: Edge,
+  getInternalNode: (id: string) => InternalNode | undefined,
+): { start: Point; end: Point } | null {
+  const source = nodeCenter(getInternalNode(edge.source));
+  const target = nodeCenter(getInternalNode(edge.target));
+  if (!source || !target) return null;
+  return { start: source, end: target };
+}
+
 function buildSegments(
   pathOrder: string[],
   pathEdges: Edge[],
@@ -180,7 +194,7 @@ function buildSegments(
   const pathPeople = new Set(pathOrder);
   const origin = nodeCenter(getInternalNode(pathOrder[0]));
   const segments: PathSegment[] = [];
-  const used = new Set<string>();
+  const edgeById = new Map(pathEdges.map((edge) => [edge.id, edge]));
   let cursor: Point | null = origin;
 
   for (let i = 0; i < pathOrder.length - 1; i += 1) {
@@ -196,21 +210,54 @@ function buildSegments(
       getInternalNode,
     );
 
+    let hopAdded = false;
     for (const edgeId of hopIds) {
-      if (used.has(edgeId)) continue;
       const path = edgeSvgPath(edgeId);
-      if (!path) continue;
-      const length = path.getTotalLength();
+      if (path) {
+        const length = path.getTotalLength();
+        if (length <= 0) continue;
+        const { start, end } = pathEndpoints(path, length);
+        const from = cursor ?? fromCenter ?? start;
+        const toward = hopGoal ?? end;
+        const reverse = segmentReverse(start, end, from, toward);
+        cursor = reverse ? start : end;
+        segments.push({ path, reverse, length });
+        hopAdded = true;
+        continue;
+      }
+
+      // Edge SVG may be culled off-screen — still walk a straight chord so the
+      // orb keeps moving (via-child hops reuse the same child/drop edges).
+      const edge = edgeById.get(edgeId);
+      if (!edge) continue;
+      const ends = edgeEndpointCenters(edge, getInternalNode);
+      if (!ends) continue;
+      const length = dist(ends.start, ends.end);
       if (length <= 0) continue;
+      const from = cursor ?? fromCenter ?? ends.start;
+      const toward = hopGoal ?? ends.end;
+      const reverse = segmentReverse(ends.start, ends.end, from, toward);
+      cursor = reverse ? ends.start : ends.end;
+      segments.push({
+        from: ends.start,
+        to: ends.end,
+        reverse,
+        length,
+      });
+      hopAdded = true;
+    }
 
-      const { start, end } = pathEndpoints(path, length);
-      const from = cursor ?? fromCenter ?? start;
-      const toward = hopGoal ?? end;
-      const reverse = segmentReverse(start, end, from, toward);
-
-      cursor = reverse ? start : end;
-      segments.push({ path, reverse, length });
-      used.add(edgeId);
+    // No topology edges (e.g. couple virtual hop only) — chord person→person.
+    if (!hopAdded && fromCenter && hopGoal) {
+      const length = dist(fromCenter, hopGoal);
+      if (length > 0) {
+        segments.push({
+          from: fromCenter,
+          to: hopGoal,
+          reverse: false,
+          length,
+        });
+      }
     }
 
     // Snap cursor to the hop's person so the next hop starts cleanly.
@@ -218,6 +265,23 @@ function buildSegments(
   }
 
   return segments;
+}
+
+function pointAlongSegment(seg: PathSegment, along: number): Point | null {
+  // `along` is distance in the walk direction (0 = enter, length = leave).
+  if (seg.path) {
+    const len = seg.reverse ? seg.length - along : along;
+    const p = seg.path.getPointAtLength(len);
+    return { x: p.x, y: p.y };
+  }
+  if (!seg.from || !seg.to || seg.length <= 0) return null;
+  const t = Math.max(0, Math.min(1, along / seg.length));
+  const start = seg.reverse ? seg.to : seg.from;
+  const end = seg.reverse ? seg.from : seg.to;
+  return {
+    x: start.x + (end.x - start.x) * t,
+    y: start.y + (end.y - start.y) * t,
+  };
 }
 
 function pointOnSegments(
@@ -235,9 +299,7 @@ function pointOnSegments(
     const last = i === segments.length - 1;
     if (remain <= seg.length || last) {
       const along = Math.max(0, Math.min(seg.length, remain));
-      const len = seg.reverse ? seg.length - along : along;
-      const p = seg.path.getPointAtLength(len);
-      return { x: p.x, y: p.y };
+      return pointAlongSegment(seg, along) ?? origin;
     }
     remain -= seg.length;
   }
