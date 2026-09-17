@@ -82,10 +82,14 @@
 
 .dismiss {
   appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   width: 1.7rem;
   height: 1.7rem;
   margin: -0.15rem;
+  padding: 0;
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
