@@ -2,11 +2,12 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
-import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaGlobe, FaLinkedin } from "react-icons/fa";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Section } from "./Section";
 import styles from "./Author.module.css";
 
+const WEBSITE = "https://arash-alfooneh.ir/";
 const LINKEDIN = "https://www.linkedin.com/in/arash-alfooneh/";
 const GITHUB = "https://github.com/Arash3f";
 const PHOTO = "/arash-alfooneh.webp";
@@ -54,6 +55,15 @@ export async function Author() {
           <p className={styles.role}>{t("role")}</p>
           <p className={styles.bio}>{t("bio")}</p>
           <div className={styles.links}>
+            <a
+              className={styles.link}
+              href={WEBSITE}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaGlobe className={styles.icon} aria-hidden />
+              {t("website")}
+            </a>
             <a
               className={styles.link}
               href={LINKEDIN}

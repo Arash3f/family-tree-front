@@ -65,30 +65,12 @@
     "subtitle": "The latest improvements to Family Tree.",
     "items": {
       "u1": {
-        "iso": "2026-09-14",
-        "date": "Sep 2026",
-        "title": "Compact layout and a clearer tree view",
-        "body": "A compact layout for large families, a tree that opens fully in frame on desktop, and timeline years that never overlap."
-      },
-      "u2": {
         "iso": "2026-09-13",
         "date": "Sep 2026",
         "title": "Relationship through the male line",
         "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
-      "u3": {
-        "iso": "2026-09-10",
-        "date": "Sep 2026",
-        "title": "Excel import with a preview",
-        "body": "Before anything is saved, see every problem with its row number, spot people already in the tree, and import only the rows you choose."
-      },
-      "u4": {
-        "iso": "2026-09-07",
-        "date": "Sep 2026",
-        "title": "More than one way to be related",
-        "body": "After the closest relationship appears, other distinct paths between the same two people load in the background so you can compare them."
-      },
-      "u5": {
+      "u2": {
         "iso": "2026-09-07",
         "date": "Sep 2026",
         "title": "Free sign-up with sample trees",
@@ -122,8 +104,9 @@
   "author": {
     "title": "Built by",
     "name": "Arash Alfooneh",
-    "role": "Senior Backend Developer · NestJS · FastAPI · Clean Architecture",
-    "bio": "Backend engineer focused on scalable, maintainable systems — clean, testable code that lasts.",
+    "role": "Senior Backend Engineer · NestJS & FastAPI",
+    "bio": "I build backends that last — from clean domain models to production-ready APIs with NestJS, FastAPI and Clean Architecture. Based in Shiraz, working remotely worldwide.",
+    "website": "Website",
     "linkedin": "LinkedIn",
     "github": "GitHub"
   },
@@ -445,25 +428,10 @@
     "updates": {
       "u1": {
         "date": "Sep 2026",
-        "title": "Compact layout and a clearer tree view",
-        "body": "A compact layout for large families, a tree that opens fully in frame on desktop, and timeline years that never overlap."
-      },
-      "u2": {
-        "date": "Sep 2026",
         "title": "Relationship through the male line",
         "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
-      "u3": {
-        "date": "Sep 2026",
-        "title": "Excel import with a preview",
-        "body": "Before anything is saved, see every problem with its row number, spot people already in the tree, and import only the rows you choose."
-      },
-      "u4": {
-        "date": "Sep 2026",
-        "title": "More than one way to be related",
-        "body": "After the closest relationship appears, other distinct paths between the same two people load in the background so you can compare them."
-      },
-      "u5": {
+      "u2": {
         "date": "Sep 2026",
         "title": "Free sign-up with sample trees",
         "body": "Anyone can create a free account and start right away with two ready-made family trees to explore."

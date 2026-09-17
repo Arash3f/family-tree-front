@@ -16,7 +16,7 @@ import styles from "./HelpGuide.module.css";
 
 const emptySubscribe = () => () => {};
 
-const UPDATES = ["u1", "u2", "u3", "u4", "u5"] as const;
+const UPDATES = ["u1", "u2"] as const;
 
 type Props = {
   /** Extra class on the trigger button (e.g. pedigree toolbar). */

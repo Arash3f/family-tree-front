@@ -3,7 +3,7 @@ import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Section } from "./Section";
 import styles from "./Updates.module.css";
 
-const UPDATE_KEYS = ["u1", "u2", "u3", "u4", "u5"] as const;
+const UPDATE_KEYS = ["u1", "u2"] as const;
 
 export async function Updates() {
   const locale = await getLocale();
