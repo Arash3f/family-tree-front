@@ -314,10 +314,14 @@ select {
   }
 }
 
-/* React Flow edges live in a large absolutely-positioned SVG;
-   max-width: 100% clips those paths so nodes show without links. */
-.react-flow svg {
-  max-width: none;
+/* React Flow edges live in large absolutely-positioned SVGs with no width/
+   height attrs; the global `svg { max-width: 100% }` rule otherwise shrinks
+   their CSS box and long parent→child strokes stop short of the cards. */
+.react-flow svg,
+.react-flow .react-flow__edges > svg {
+  max-width: none !important;
+  max-height: none !important;
+  overflow: visible !important;
 }
 
 .react-flow__edge.pedigree-path-edge .react-flow__edge-path {
