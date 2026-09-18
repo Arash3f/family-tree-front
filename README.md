@@ -8,7 +8,7 @@
 
 | | |
 |---|---|
-| Version | `0.1.0` |
+| Version | `1.0.0` |
 | Node | `22` (Alpine in Docker) |
 | Package manager | [pnpm](https://pnpm.io) `10.34.5` |
 | Companion API | [family-tree-backend](https://github.com/Arash3f/family-tree-backend) |
