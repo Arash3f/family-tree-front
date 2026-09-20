@@ -297,6 +297,8 @@ async function jsonOrThrow<T>(response: Response): Promise<T> {
   return (await response.json()) as T;
 }
 
+const AUTH_REQUEST_TIMEOUT_MS = 20_000;
+
 export async function loginRequest(
   username: string,
   password: string,
@@ -312,6 +314,7 @@ export async function loginRequest(
     skipAuth: true,
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
+    signal: AbortSignal.timeout(AUTH_REQUEST_TIMEOUT_MS),
   });
 
   const tokens = await jsonOrThrow<AuthTokens>(response);

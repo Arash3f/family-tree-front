@@ -48,11 +48,15 @@ RUN pnpm build
 FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
 
+# API_PROXY_TARGET must be overridden at runtime for real deployments
+# (`-e API_PROXY_TARGET=https://family-api…`). The localhost default only
+# works when the API shares the container network namespace.
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
     HOSTNAME=0.0.0.0 \
-    API_PROXY_TARGET=http://127.0.0.1:8001
+    API_PROXY_TARGET=http://127.0.0.1:8001 \
+    API_PROXY_TIMEOUT_MS=15000
 
 ARG NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
