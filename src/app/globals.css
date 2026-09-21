@@ -94,6 +94,8 @@
   --z-drawer: 40;
   --z-overlay: 50;
   --z-modal: 60;
+  /* Full-screen app dialogs (export/excel/ticket) above mobile sheets & immersive workspace. */
+  --z-app-dialog: calc(var(--z-modal) + 2);
   --z-toast: 70;
 
   --duration-fast: 120ms;

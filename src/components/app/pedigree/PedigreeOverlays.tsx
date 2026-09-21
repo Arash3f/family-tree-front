@@ -4,6 +4,7 @@ import type { RefObject } from "react";
 import type { Marriage, Person } from "@/lib/auth/types";
 import type { TreeExcelPreviewResult } from "@/lib/auth/client";
 import { TicketCreateDialog } from "@/components/app/TicketCreateDialog";
+import { DocumentPortal } from "@/components/ui/DocumentPortal";
 import { ExcelPreviewDialog } from "./ExcelPreviewDialog";
 import { ExportDialogHost } from "./ExportDialogHost";
 import type { ExportFlow } from "./useExportFlow";
@@ -52,7 +53,7 @@ type Props = {
  */
 export function PedigreeOverlays({ excel, exportHost, ticket }: Props) {
   return (
-    <>
+    <DocumentPortal>
       {excel ? (
         <ExcelPreviewDialog
           preview={excel.preview}
@@ -87,6 +88,6 @@ export function PedigreeOverlays({ excel, exportHost, ticket }: Props) {
         open={ticket.open}
         onClose={ticket.onClose}
       />
-    </>
+    </DocumentPortal>
   );
 }

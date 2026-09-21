@@ -518,6 +518,17 @@
   box-shadow: var(--shadow-md);
 }
 
+/* Portaled to document.body — escapes chrome (--z-sticky) under the path sheet. */
+.menuPanelPortaled {
+  position: fixed;
+  z-index: var(--z-app-dialog);
+  top: auto;
+  inset-inline-end: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
 .menuLabel {
   margin: 0.2rem 0.7rem 0.3rem;
   color: var(--muted);
@@ -652,7 +663,7 @@
 .detailOpening {
   position: fixed;
   inset: 0;
-  z-index: calc(var(--z-modal) + 2);
+  z-index: var(--z-app-dialog);
   display: grid;
   place-items: center;
   padding: max(1rem, var(--safe-top)) max(1rem, var(--safe-inline-end))

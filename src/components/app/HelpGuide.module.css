@@ -1,7 +1,7 @@
 .root {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal, 80);
+  z-index: var(--z-app-dialog);
   display: grid;
   place-items: center;
   padding: max(1rem, var(--safe-top)) max(1rem, var(--safe-right))
