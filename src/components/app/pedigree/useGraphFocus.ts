@@ -56,6 +56,8 @@ export type GraphFocus = {
   applyPathView: (mode: PathViewMode) => void;
   openBranchPreview: (personId: string) => void;
   clearBranchPreview: () => void;
+  /** Leave path/branch clips, restore the full tree, then frame this person. */
+  revealPerson: (personId: string) => void;
   showRelationPath: (pathIds: string[], label: string) => void;
   showRelationPaths: (paths: RelationPathView[], label: string) => void;
   selectRelationPath: (index: number) => void;
@@ -239,6 +241,33 @@ export function useGraphFocus(): GraphFocus {
     relayout(null);
   }, [relayout]);
 
+  const revealPerson = useCallback(
+    (personId: string) => {
+      const needsFullRebuild =
+        pathViewMode !== "full" || branchRootId !== null;
+
+      setBranchRootId(null);
+      setHighlightIds(new Set());
+      setHighlightPathOrder([]);
+      setAltPathIds(new Set());
+      setCoverPathIds(new Set());
+      setPathLaneById(new Map());
+      setRelationPaths([]);
+      setActivePathIndex(0);
+      setRelationLabel(null);
+      setPathViewMode("full");
+
+      if (needsFullRebuild) {
+        // Clipped path/branch graphs omit other people — rebuild the full
+        // tree first, then frame the search hit after layout settles.
+        relayoutFraming([personId]);
+        return;
+      }
+      focusCameraOn([personId]);
+    },
+    [pathViewMode, branchRootId, relayoutFraming, focusCameraOn],
+  );
+
   const showRelationPath = useCallback(
     (pathIds: string[], label: string) => {
       const paths = [{ ids: pathIds, distance: Math.max(0, pathIds.length - 1) }];
@@ -316,6 +345,7 @@ export function useGraphFocus(): GraphFocus {
     applyPathView,
     openBranchPreview,
     clearBranchPreview,
+    revealPerson,
     showRelationPath,
     showRelationPaths,
     selectRelationPath,

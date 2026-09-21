@@ -116,6 +116,7 @@ export function PedigreeView({ treeId }: Props) {
     relayoutFraming,
     clearRelationHighlight,
     focusCameraOn,
+    revealPerson,
   } = focus;
   /**
    * Opening-shot fit runs once per tree. Later reloads (auth refresh, manual
@@ -836,15 +837,16 @@ export function PedigreeView({ treeId }: Props) {
         hint={personSearchHint}
         onPickSearchResult={(person) => {
           // Sheet layout covers the canvas — search only frames the person;
-          // tapping the node still opens the detail page.
+          // tapping the node still opens the detail page. Leave path/branch
+          // clips first so the hit is actually on the rebuilt full tree.
           if (sheetLayout) {
             setSelectedId(null);
             setPanel({ kind: "none" });
-            focusCameraOn([person.id]);
+            revealPerson(person.id);
             return;
           }
           onSelect(person.id);
-          focusCameraOn([person.id]);
+          revealPerson(person.id);
         }}
         canReadPersons={permissions.canReadPersons}
         canCreatePerson={permissions.canCreatePerson}
@@ -880,7 +882,7 @@ export function PedigreeView({ treeId }: Props) {
         canViewBirthDate={permissions.canViewBirthDate}
         onSelectBirthdayPerson={(personId) => {
           onSelect(personId);
-          focusCameraOn([personId]);
+          revealPerson(personId);
         }}
       />
 
