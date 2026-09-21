@@ -71,6 +71,7 @@ export type TreeData = {
    */
   setBusy: (busy: boolean) => void;
   hasTreeAccess: (permission: string) => boolean;
+  treeMeta: FamilyTree | null;
   reload: () => Promise<void>;
   savePerson: (input: SavePersonInput) => Promise<Person | null>;
   removePerson: (person: Person) => Promise<boolean>;
@@ -440,6 +441,7 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
     busy,
     setBusy,
     hasTreeAccess,
+    treeMeta,
     reload,
     savePerson,
     removePerson,

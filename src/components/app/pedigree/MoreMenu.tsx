@@ -41,6 +41,7 @@ type Props = {
   canImportExcel: boolean;
   canExportExcel: boolean;
   canCreateTicket: boolean;
+  canAccessSettings: boolean;
   canCreatePerson: boolean;
   canCreateMarriage: boolean;
   canReadPersons: boolean;
@@ -101,6 +102,7 @@ export function MoreMenu({
   canImportExcel,
   canExportExcel,
   canCreateTicket,
+  canAccessSettings,
   canCreatePerson,
   canCreateMarriage,
   canReadPersons,
@@ -368,15 +370,17 @@ export function MoreMenu({
               {t("createTicket")}
             </MenuItem>
           ) : null}
-          <Link
-            role="menuitem"
-            className={styles.menuItem}
-            href={`/dashboard/trees/${treeId}/settings`}
-            onClick={() => setOpen(false)}
-          >
-            <HiOutlineCog6Tooth aria-hidden />
-            {t("settings")}
-          </Link>
+          {canAccessSettings ? (
+            <Link
+              role="menuitem"
+              className={styles.menuItem}
+              href={`/dashboard/trees/${treeId}/settings`}
+              onClick={() => setOpen(false)}
+            >
+              <HiOutlineCog6Tooth aria-hidden />
+              {t("settings")}
+            </Link>
+          ) : null}
         </div>
       ) : null}
     </div>

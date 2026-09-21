@@ -209,3 +209,56 @@ export function treeAccessSetsEqual(
   }
   return true;
 }
+
+/**
+ * Capabilities that mean the member can change the tree (not view-only extras).
+ * Keep in sync with `TreeAccessPermissions.MANAGEMENT` on the backend.
+ */
+export const TREE_MANAGEMENT_ACCESS: readonly TreeAccessPermission[] = [
+  TreeAccess.PERSON_CREATE,
+  TreeAccess.PERSON_UPDATE,
+  TreeAccess.PERSON_DELETE,
+  TreeAccess.MARRIAGE_CREATE,
+  TreeAccess.MARRIAGE_UPDATE,
+  TreeAccess.MARRIAGE_DELETE,
+  TreeAccess.MARRIAGE_DIVORCE,
+  TreeAccess.UPLOAD_PHOTO,
+  TreeAccess.MEMBER_ADD,
+  TreeAccess.MEMBER_REMOVE,
+  TreeAccess.TICKET_MANAGE,
+];
+
+export function isTreeOwner(
+  tree: { owner_user_id: string } | null | undefined,
+  userId: string | null | undefined,
+): boolean {
+  return Boolean(tree && userId && tree.owner_user_id === userId);
+}
+
+/** True when granted access includes any non-view management capability. */
+export function hasTreeManagementAccess(
+  permissionNames: Iterable<string> | null | undefined,
+): boolean {
+  if (!permissionNames) return false;
+  const granted = new Set(permissionNames);
+  return TREE_MANAGEMENT_ACCESS.some((name) => granted.has(name));
+}
+
+/**
+ * Tree settings / management page: owner, or a member who can change the tree.
+ * View-only members (even with birth-date / photo view extras) stay out.
+ */
+export function canAccessTreeSettings(
+  tree:
+    | {
+        owner_user_id: string;
+        my_permissions?: Iterable<string> | null;
+      }
+    | null
+    | undefined,
+  userId: string | null | undefined,
+): boolean {
+  if (!tree || !userId) return false;
+  if (isTreeOwner(tree, userId)) return true;
+  return hasTreeManagementAccess(tree.my_permissions);
+}

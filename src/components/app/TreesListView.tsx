@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { listFamilyTrees } from "@/lib/auth/client";
 import { freeUserAtTreeLimit } from "@/lib/auth/account-limits";
+import { canAccessTreeSettings } from "@/lib/auth/tree-access";
 import { useFreeAccountNotice } from "@/lib/auth/useFreeAccountNotice";
 import { AuthApiError, Permissions, type FamilyTree } from "@/lib/auth/types";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -26,7 +27,6 @@ export function TreesListView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const canCreate = hasPermission(Permissions.TREE_CREATE);
-  const canManage = hasPermission(Permissions.TREE_UPDATE);
   const atFreeTreeLimit = freeUserAtTreeLimit(me, trees);
 
   const { ownedTrees, joinedTrees } = useMemo(() => {
@@ -187,7 +187,7 @@ export function TreesListView() {
                       </div>
                       <span className={styles.treeAction}>{t("open")}</span>
                     </Link>
-                    {canManage ? (
+                    {canAccessTreeSettings(tree, me?.id) ? (
                       <Link
                         className={styles.treeSettings}
                         href={`/dashboard/trees/${tree.id}/settings`}

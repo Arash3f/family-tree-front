@@ -49,6 +49,7 @@ type Props = {
   canImportExcel: boolean;
   canExportExcel: boolean;
   canCreateTicket: boolean;
+  canAccessSettings: boolean;
   /** Set while a branch preview narrows the canvas. */
   branchActive: boolean;
   /** Set while the workspace covers the whole screen. */
@@ -135,6 +136,7 @@ export function PedigreeHeader({
   canImportExcel,
   canExportExcel,
   canCreateTicket,
+  canAccessSettings,
   branchActive,
   fullscreen,
   foldedCount,
@@ -391,6 +393,7 @@ export function PedigreeHeader({
           canImportExcel={canImportExcel}
           canExportExcel={canExportExcel}
           canCreateTicket={canCreateTicket}
+          canAccessSettings={canAccessSettings}
           canCreatePerson={canCreatePerson}
           canCreateMarriage={canCreateMarriage}
           canReadPersons={canReadPersons}

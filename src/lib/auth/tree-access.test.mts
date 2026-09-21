@@ -149,3 +149,41 @@ test("treeAccessSetsEqual ignores ordering", () => {
   );
   assert.equal(treeAccessSetsEqual(["view"], ["view", "view_photo"]), false);
 });
+
+test("settings access is owner or write-capable, not view-only", async () => {
+  const { canAccessTreeSettings, isTreeOwner, hasTreeManagementAccess } =
+    await import("@/lib/auth/tree-access.ts");
+
+  assert.equal(isTreeOwner({ owner_user_id: "u1" }, "u1"), true);
+  assert.equal(isTreeOwner({ owner_user_id: "u1" }, "u2"), false);
+  assert.equal(hasTreeManagementAccess([TreeAccess.VIEW]), false);
+  assert.equal(
+    hasTreeManagementAccess([TreeAccess.VIEW, TreeAccess.VIEW_PHOTO]),
+    false,
+  );
+  assert.equal(hasTreeManagementAccess([TreeAccess.PERSON_CREATE]), true);
+  assert.equal(
+    canAccessTreeSettings(
+      { owner_user_id: "owner", my_permissions: [TreeAccess.VIEW] },
+      "owner",
+    ),
+    true,
+  );
+  assert.equal(
+    canAccessTreeSettings(
+      { owner_user_id: "owner", my_permissions: [TreeAccess.VIEW] },
+      "viewer",
+    ),
+    false,
+  );
+  assert.equal(
+    canAccessTreeSettings(
+      {
+        owner_user_id: "owner",
+        my_permissions: [TreeAccess.VIEW, TreeAccess.PERSON_UPDATE],
+      },
+      "editor",
+    ),
+    true,
+  );
+});

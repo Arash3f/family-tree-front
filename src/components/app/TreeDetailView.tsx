@@ -23,7 +23,9 @@ import {
 } from "@/lib/auth/types";
 import {
   TreeAccess,
+  canAccessTreeSettings,
   groupTreeAccess,
+  isTreeOwner,
   normalizeTreeAccess,
 } from "@/lib/auth/tree-access";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -65,12 +67,12 @@ export function TreeDetailView({ treeId }: Props) {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const canUpdate = hasPermission(Permissions.TREE_UPDATE);
-  const canDelete = hasPermission(Permissions.TREE_DELETE);
+  const canRename = isTreeOwner(tree, me?.id);
+  const canDeleteTree = isTreeOwner(tree, me?.id) && hasPermission(Permissions.TREE_DELETE);
   const myAccess = new Set(tree?.my_permissions ?? []);
   const canAddMember = myAccess.has(TreeAccess.MEMBER_ADD);
   const canRemoveMember = myAccess.has(TreeAccess.MEMBER_REMOVE);
-  const canSaveName = canUpdate && name.trim().length > 0;
+  const canSaveName = canRename && name.trim().length > 0;
 
   const ownerCount = useMemo(
     () => members.filter((member) => member.role === "owner").length,
@@ -98,10 +100,12 @@ export function TreeDetailView({ treeId }: Props) {
       setLoading(true);
       setLoadError(null);
       try {
-        const [treeData, memberList] = await Promise.all([
-          getFamilyTree(treeId),
-          listTreeMembers(treeId),
-        ]);
+        const treeData = await getFamilyTree(treeId);
+        if (!canAccessTreeSettings(treeData, me?.id)) {
+          router.replace(`/dashboard/trees/${treeId}`);
+          return;
+        }
+        const memberList = await listTreeMembers(treeId);
         setTree(treeData);
         setName(treeData.name);
         setMembers(memberList);
@@ -113,11 +117,11 @@ export function TreeDetailView({ treeId }: Props) {
         setLoading(false);
       }
     })();
-  }, [status, hasPermission, router, treeId, t, showError]);
+  }, [status, hasPermission, router, treeId, t, showError, me?.id]);
 
   const onSave = async (event: FormEvent) => {
     event.preventDefault();
-    if (!canUpdate || !canSaveName) return;
+    if (!canRename || !canSaveName) return;
     setSaving(true);
     try {
       const updated = await updateFamilyTree(treeId, { name: name.trim() });
@@ -132,6 +136,7 @@ export function TreeDetailView({ treeId }: Props) {
   };
 
   const handleDelete = async () => {
+    if (!canDeleteTree) return;
     const ok = await confirm(t("deleteConfirm"), {
       confirmLabel: t("delete"),
     });
@@ -281,7 +286,7 @@ export function TreeDetailView({ treeId }: Props) {
             required
             minLength={1}
             maxLength={100}
-            disabled={!canUpdate || busy}
+            disabled={!canRename || busy}
             autoComplete="off"
           />
 
@@ -296,10 +301,10 @@ export function TreeDetailView({ treeId }: Props) {
             </div>
           </dl>
 
-          {canUpdate || canDelete ? (
+          {canRename || canDeleteTree ? (
             <FormActions
               secondary={
-                canDelete ? (
+                canDeleteTree ? (
                   <Button
                     variant="danger"
                     loading={deleting}
@@ -311,7 +316,7 @@ export function TreeDetailView({ treeId }: Props) {
                 ) : undefined
               }
             >
-              {canUpdate ? (
+              {canRename ? (
                 <Button
                   type="submit"
                   loading={saving}

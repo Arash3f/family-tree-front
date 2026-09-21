@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { getAlternativeRelationshipPaths, getClosestRelationship } from "@/lib/auth/client";
 import {
   getApiErrorMessage,
@@ -19,6 +20,7 @@ import {
   type Marriage,
   type Person,
 } from "@/lib/auth/types";
+import { canAccessTreeSettings } from "@/lib/auth/tree-access";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { resolvePersonPhotoUrl } from "@/lib/media";
 import {
@@ -107,6 +109,7 @@ export function PedigreeView({ treeId }: Props) {
   const tTrees = useTranslations("trees");
   const locale = useLocale();
   const { showError } = useFeedback();
+  const { user } = useAuth();
 
   const focus = useGraphFocus();
   const fullscreen = useFullscreen();
@@ -855,6 +858,7 @@ export function PedigreeView({ treeId }: Props) {
         canImportExcel={permissions.canImportExcel}
         canExportExcel={permissions.canExportExcel}
         canCreateTicket={permissions.canCreateTicket}
+        canAccessSettings={canAccessTreeSettings(tree.treeMeta, user?.id)}
         branchActive={Boolean(focus.branchRootId)}
         fullscreen={fullscreen.active}
         foldedCount={branches.hiddenPersonIds.size}
