@@ -10,9 +10,11 @@ import { Updates } from "@/components/landing/Updates";
 import { AppSplash } from "@/components/loading/AppSplash";
 import {
   absoluteLocaleUrl,
+  getSiteUrl,
   languageAlternates,
   localePath,
 } from "@/lib/site-url";
+import { OG_IMAGE_SIZE } from "@/lib/brand-icon";
 import { routing } from "@/i18n/routing";
 
 type Props = {
@@ -28,23 +30,43 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: "meta" });
   const title = t("title");
   const description = t("description");
-  const canonical = localePath(locale);
+  const siteName = t("siteName");
+  const ogAlt = t("ogImageAlt");
+  const canonicalPath = localePath(locale);
+  const pageUrl = absoluteLocaleUrl(locale);
+  const ogImageUrl = absoluteLocaleUrl(locale, "/opengraph-image");
+  const ogLocale = locale === "fa" ? "fa_IR" : "en_US";
+  const ogAlternate = locale === "fa" ? "en_US" : "fa_IR";
 
   return {
     title: { absolute: title },
     description,
     alternates: {
-      canonical,
+      canonical: canonicalPath,
       languages: languageAlternates(),
     },
     openGraph: {
-      url: canonical,
+      type: "website",
+      url: pageUrl,
       title,
       description,
+      siteName,
+      locale: ogLocale,
+      alternateLocale: [ogAlternate],
+      images: [
+        {
+          url: ogImageUrl,
+          width: OG_IMAGE_SIZE.width,
+          height: OG_IMAGE_SIZE.height,
+          alt: ogAlt,
+        },
+      ],
     },
     twitter: {
+      card: "summary_large_image",
       title,
       description,
+      images: [{ url: ogImageUrl, alt: ogAlt }],
     },
     robots: { index: true, follow: true },
   };
@@ -55,19 +77,25 @@ export default async function HomePage({ params }: Props) {
   setRequestLocale(locale);
   const tLoading = await getTranslations({ locale, namespace: "loading" });
   const tMeta = await getTranslations({ locale, namespace: "meta" });
+  const tHero = await getTranslations({ locale, namespace: "hero" });
   const pageUrl = absoluteLocaleUrl(locale);
   const ogImage = absoluteLocaleUrl(locale, "/opengraph-image");
+  const siteName = tMeta("siteName");
+  const logoUrl = `${getSiteUrl()}/apple-icon`;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Family Tree",
+    name: siteName,
+    alternateName: locale === "fa" ? "Family Tree" : "شجره‌نامه",
     url: pageUrl,
     image: ogImage,
+    screenshot: ogImage,
     applicationCategory: "LifestyleApplication",
     operatingSystem: "Web",
     description: tMeta("description"),
-    inLanguage: routing.locales,
+    inLanguage: locale,
+    availableLanguage: [...routing.locales],
     offers: {
       "@type": "Offer",
       price: "0",
@@ -75,8 +103,14 @@ export default async function HomePage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: "Family Tree",
+      name: siteName,
       url: pageUrl,
+      logo: logoUrl,
+    },
+    potentialAction: {
+      "@type": "RegisterAction",
+      target: absoluteLocaleUrl(locale, "/register"),
+      name: tHero("ctaRegister"),
     },
   };
 

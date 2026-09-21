@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Family Tree — Private trees, clear relationships",
-    "description": "Build private family trees, record people and marriages, explore the timeline, and find closest plus alternative paths — in English or Persian."
+    "description": "Build private family trees, record people and marriages, explore the timeline, and find closest plus alternative paths — in English or Persian.",
+    "ogImageAlt": "Family Tree — private family trees and clear relationships",
+    "siteName": "Family Tree"
   },
   "nav": {
     "primary": "Primary",
