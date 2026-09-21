@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Source_Sans_3, Vazirmatn } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { UserPreferencesSync } from "@/components/auth/UserPreferencesSync";
 import { FeedbackProvider } from "@/components/feedback/FeedbackProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
@@ -138,6 +139,7 @@ export default async function LocaleLayout({ children, params }: Props) {
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             <AuthProvider>
+              <UserPreferencesSync />
               <FeedbackProvider>{children}</FeedbackProvider>
             </AuthProvider>
           </NextIntlClientProvider>

@@ -57,6 +57,9 @@ const ME = {
     description_fa: `به دارنده اجازه می‌دهد در هر درختی که به آن دسترسی دارد، ${name.replace(/_/g, " ")} را انجام دهد.`,
   })),
   session_id: "session-current",
+  account_type: "free",
+  preferred_locale: null,
+  preferred_theme: null,
 };
 
 const SESSIONS = [
@@ -331,6 +334,12 @@ export async function installMockApi(page) {
     if (p === "/health") return json({ status: "ok", postgres: "ok", neo4j: "ok" });
     if (p === "/auth/me") return json(ME);
     if (p === "/auth/sessions") return json(SESSIONS);
+    if (p === "/auth/preferences" && method === "PUT") {
+      const payload = body ? JSON.parse(body) : {};
+      if ("preferred_locale" in payload) ME.preferred_locale = payload.preferred_locale;
+      if ("preferred_theme" in payload) ME.preferred_theme = payload.preferred_theme;
+      return json({ result: "Preferences updated" });
+    }
     if (p === "/auth/login")
       return json({ access_token: "t", refresh_token: "r", token_type: "bearer" });
     if (p === "/auth/refresh")

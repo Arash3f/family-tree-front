@@ -489,7 +489,19 @@
     "revokeSession": "پایان نشست",
     "revokeConfirm": "آیا می‌خواهید به این نشست پایان دهید؟",
     "revokeCurrentConfirm": "این نشست مربوط به همین دستگاه است و با پایان دادن به آن، از حساب خود خارج می‌شوید.",
-    "working": "لطفاً صبر کنید…"
+    "working": "لطفاً صبر کنید…",
+    "preferencesMetaTitle": "زبان و تم — شجره‌نامه",
+    "navPreferences": "زبان و تم",
+    "preferencesTitle": "زبان و تم",
+    "preferencesSupport": "برای حساب شما ذخیره می‌شود و در ورود بعدی به‌صورت خودکار اعمال می‌گردد.",
+    "preferredLocale": "زبان",
+    "preferredTheme": "تم",
+    "themeLight": "روشن",
+    "themeDark": "تاریک",
+    "themeSystem": "سیستم",
+    "savePreferences": "ذخیرهٔ تنظیمات",
+    "preferencesSuccess": "تنظیمات ذخیره شد.",
+    "preferencesError": "ذخیرهٔ تنظیمات انجام نشد. دوباره تلاش کنید."
   },
   "users": {
     "metaTitle": "کاربران — شجره‌نامه",

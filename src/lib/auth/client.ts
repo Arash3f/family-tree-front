@@ -31,6 +31,8 @@ import {
   type Person,
   type PersonCreateInput,
   type PersonUpdateData,
+  type PreferredLocale,
+  type PreferredTheme,
   type TicketCategory,
   type TicketDetail,
   type TicketMessage,
@@ -372,6 +374,16 @@ export async function fetchCurrentUser(): Promise<AuthUser> {
     permission_details: data.permission_details ?? [],
     session_id: data.session_id ?? "",
     account_type: data.account_type === "paid" ? "paid" : "free",
+    preferred_locale:
+      data.preferred_locale === "en" || data.preferred_locale === "fa"
+        ? data.preferred_locale
+        : null,
+    preferred_theme:
+      data.preferred_theme === "light" ||
+      data.preferred_theme === "dark" ||
+      data.preferred_theme === "system"
+        ? data.preferred_theme
+        : null,
   };
 }
 
@@ -413,6 +425,18 @@ export async function changeOwnPassword(input: {
   re_password: string;
 }): Promise<void> {
   const response = await apiFetch("/auth/password", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  await jsonOrThrow(response);
+}
+
+export async function updateMyPreferences(input: {
+  preferred_locale?: PreferredLocale | null;
+  preferred_theme?: PreferredTheme | null;
+}): Promise<void> {
+  const response = await apiFetch("/auth/preferences", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),

@@ -2,6 +2,8 @@
 
 import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { updateMyPreferences } from "@/lib/auth/client";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import type { AppLocale } from "@/i18n/routing";
 import styles from "./LocaleSwitcher.module.css";
@@ -12,12 +14,22 @@ export function LocaleSwitcher() {
   const pathname = usePathname();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const { status, patchUser } = useAuth();
 
   const switchTo = (next: AppLocale) => {
     if (next === locale || pending) return;
     startTransition(() => {
       router.replace(pathname, { locale: next });
     });
+    if (status === "authenticated") {
+      void updateMyPreferences({ preferred_locale: next })
+        .then(() => {
+          patchUser({ preferred_locale: next });
+        })
+        .catch(() => {
+          /* keep local switch; prefs can be retried from profile */
+        });
+    }
   };
 
   return (

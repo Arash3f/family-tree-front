@@ -12,6 +12,10 @@ export type AuthPermissionDetail = {
 
 export type AccountType = "free" | "paid";
 
+export type PreferredLocale = "en" | "fa";
+
+export type PreferredTheme = "light" | "dark" | "system";
+
 export type AuthUser = {
   id: string;
   username: string;
@@ -24,6 +28,8 @@ export type AuthUser = {
   permission_details: AuthPermissionDetail[];
   session_id: string;
   account_type: AccountType;
+  preferred_locale: PreferredLocale | null;
+  preferred_theme: PreferredTheme | null;
 };
 
 export type UserSession = {

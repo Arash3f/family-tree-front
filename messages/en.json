@@ -489,7 +489,19 @@
     "revokeSession": "Revoke",
     "revokeConfirm": "Revoke this session?",
     "revokeCurrentConfirm": "This is your current session. You will be signed out.",
-    "working": "Working…"
+    "working": "Working…",
+    "preferencesMetaTitle": "Language & theme — Family Tree",
+    "navPreferences": "Language & theme",
+    "preferencesTitle": "Language & theme",
+    "preferencesSupport": "Saved for your account and applied automatically next time you sign in.",
+    "preferredLocale": "Language",
+    "preferredTheme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "savePreferences": "Save preferences",
+    "preferencesSuccess": "Preferences saved.",
+    "preferencesError": "Could not save preferences."
   },
   "users": {
     "metaTitle": "Users — Family Tree",

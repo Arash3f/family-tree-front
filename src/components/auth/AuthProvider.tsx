@@ -41,6 +41,7 @@ export function useAuth() {
       logout: s.logout,
       logoutAll: s.logoutAll,
       refreshUser: s.refreshUser,
+      patchUser: s.patchUser,
       hasPermission: s.hasPermission,
     })),
   );

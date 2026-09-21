@@ -35,6 +35,7 @@ type AuthState = {
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  patchUser: (partial: Partial<AuthUser>) => void;
   hasPermission: (permission: string) => boolean;
 };
 
@@ -103,6 +104,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       user: next,
       status: next ? "authenticated" : "anonymous",
     });
+  },
+
+  patchUser: (partial) => {
+    const current = get().user;
+    if (!current) return;
+    set({ user: { ...current, ...partial } });
   },
 
   hasPermission: (permission) =>

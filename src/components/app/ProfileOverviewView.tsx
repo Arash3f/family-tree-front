@@ -7,6 +7,7 @@ import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import styles from "./ProfileView.module.css";
 
 const SECTIONS = [
+  { href: "/dashboard/profile/preferences", key: "navPreferences" as const },
   { href: "/dashboard/profile/permissions", key: "navPermissions" as const },
   { href: "/dashboard/profile/password", key: "navPassword" as const },
   { href: "/dashboard/profile/sessions", key: "navSessions" as const },
