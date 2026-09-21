@@ -51,6 +51,7 @@ import {
   emptyPersonForm,
   personToForm,
   type LinkAsParentOf,
+  type LinkAsSpouseOf,
   type PanelMode,
   type ParentRole,
   type PersonFormState,
@@ -287,14 +288,20 @@ export function PedigreeView({ treeId }: Props) {
   const creatingParentChild = creatingParent
     ? (personById.get(creatingParent.childId) ?? null)
     : null;
+  const creatingSpouse =
+    panel.kind === "create-person" ? panel.linkAsSpouseOf : undefined;
+  const creatingSpousePartner = creatingSpouse
+    ? (personById.get(creatingSpouse.existingSpouseId) ?? null)
+    : null;
 
   const parentFormOptions = useMemo(() => {
     const exclude = new Set<string>();
     if (panel.kind === "edit-person") exclude.add(panel.personId);
     if (creatingParent) exclude.add(creatingParent.childId);
+    if (creatingSpouse) exclude.add(creatingSpouse.existingSpouseId);
     if (exclude.size === 0) return personOptions;
     return personOptions.filter((person) => !exclude.has(person.id));
-  }, [personOptions, panel, creatingParent]);
+  }, [personOptions, panel, creatingParent, creatingSpouse]);
 
   const marriageOptions = useMemo(
     () =>
@@ -490,9 +497,10 @@ export function PedigreeView({ treeId }: Props) {
   const openCreatePerson = (
     defaults?: Partial<PersonFormState>,
     linkAsParentOf?: LinkAsParentOf,
+    linkAsSpouseOf?: LinkAsSpouseOf,
   ) => {
     setPersonForm({ ...emptyPersonForm(), ...defaults });
-    setPanel({ kind: "create-person", defaults, linkAsParentOf });
+    setPanel({ kind: "create-person", defaults, linkAsParentOf, linkAsSpouseOf });
   };
 
   const openCreateParent = (child: Person, role: ParentRole) => {
@@ -502,6 +510,20 @@ export function PedigreeView({ treeId }: Props) {
         family_name: role === "father" ? (child.family_name ?? "") : "",
       },
       { childId: child.id, role },
+    );
+  };
+
+  const openCreateSpouse = (partner: Person) => {
+    openCreatePerson(
+      {
+        gender: partner.gender === "male" ? "female" : "male",
+        family_name: partner.family_name ?? "",
+      },
+      undefined,
+      {
+        existingSpouseId: partner.id,
+        married_at: todayIso(),
+      },
     );
   };
 
@@ -663,9 +685,21 @@ export function PedigreeView({ treeId }: Props) {
   }, []);
 
   const submitPerson = async () => {
+    if (
+      panel.kind === "create-person" &&
+      panel.linkAsSpouseOf &&
+      !panel.linkAsSpouseOf.married_at.trim()
+    ) {
+      showError(t("spouseMarriedAtRequired"));
+      return;
+    }
     const target =
       panel.kind === "create-person"
-        ? { kind: "create" as const, linkAsParentOf: panel.linkAsParentOf }
+        ? {
+            kind: "create" as const,
+            linkAsParentOf: panel.linkAsParentOf,
+            linkAsSpouseOf: panel.linkAsSpouseOf,
+          }
         : panel.kind === "edit-person"
           ? { kind: "edit" as const, personId: panel.personId }
           : null;
@@ -679,9 +713,13 @@ export function PedigreeView({ treeId }: Props) {
     if (!saved) return;
     closePanel();
     setSelectedId(saved.id);
+    const frameIds =
+      target.kind === "create" && target.linkAsSpouseOf
+        ? [target.linkAsSpouseOf.existingSpouseId, saved.id]
+        : [saved.id];
     // After create or edit, land the camera on that person so the save does
     // not feel like it jumped back to the opening shot of the tree.
-    relayoutFraming([saved.id]);
+    relayoutFraming(frameIds);
   };
 
   const handleDeletePerson = async (person: Person) => {
@@ -1054,6 +1092,23 @@ export function PedigreeView({ treeId }: Props) {
                     ? personDisplayName(creatingParentChild)
                     : null
                 }
+                spouseOfName={
+                  creatingSpousePartner
+                    ? personDisplayName(creatingSpousePartner)
+                    : null
+                }
+                onSpouseMarriedAtChange={(marriedAt) => {
+                  if (panel.kind !== "create-person" || !panel.linkAsSpouseOf) {
+                    return;
+                  }
+                  setPanel({
+                    ...panel,
+                    linkAsSpouseOf: {
+                      ...panel.linkAsSpouseOf,
+                      married_at: marriedAt,
+                    },
+                  });
+                }}
                 existingPhotoUrl={
                   editingPerson
                     ? resolvePersonPhotoUrl(
@@ -1105,6 +1160,9 @@ export function PedigreeView({ treeId }: Props) {
                 onSelectPerson={onSelect}
                 onEditPerson={() =>
                   selectedPerson ? openEditPerson(selectedPerson) : undefined
+                }
+                onAddSpouse={() =>
+                  selectedPerson ? openCreateSpouse(selectedPerson) : undefined
                 }
                 onAddMarriage={() =>
                   selectedPerson

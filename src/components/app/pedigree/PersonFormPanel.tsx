@@ -35,12 +35,17 @@ import { marriagePeriodText } from "./marriage-text";
 import {
   findOriginMarriageId,
   type LinkAsParentOf,
+  type LinkAsSpouseOf,
   type PersonFormState,
 } from "./person-form";
 import styles from "./PedigreeView.module.css";
 
 type Mode =
-  | { kind: "create"; linkAsParentOf?: LinkAsParentOf }
+  | {
+      kind: "create";
+      linkAsParentOf?: LinkAsParentOf;
+      linkAsSpouseOf?: LinkAsSpouseOf;
+    }
   | { kind: "edit"; personId: string };
 
 type Props = {
@@ -60,6 +65,9 @@ type Props = {
   nameOf: (personId: string) => string;
   /** Name of the child this new person is being added as a parent of. */
   parentOfName: string | null;
+  /** Name of the person this new person will marry. */
+  spouseOfName: string | null;
+  onSpouseMarriedAtChange: (marriedAt: string) => void;
   existingPhotoUrl: string | null;
   divorceDate: string;
   onDivorceDateChange: (value: string) => void;
@@ -95,6 +103,8 @@ export function PersonFormPanel({
   editingMarriages,
   nameOf,
   parentOfName,
+  spouseOfName,
+  onSpouseMarriedAtChange,
   existingPhotoUrl,
   divorceDate,
   onDivorceDateChange,
@@ -113,6 +123,8 @@ export function PersonFormPanel({
   const locale = useLocale();
   const photoInputRef = useRef<HTMLInputElement>(null);
   const creatingParent = mode.kind === "create" ? mode.linkAsParentOf : undefined;
+  const creatingSpouse =
+    mode.kind === "create" ? mode.linkAsSpouseOf : undefined;
 
   const pickedPhotoUrl = useMemo(() => {
     if (!form.photoFile) return null;
@@ -169,7 +181,9 @@ export function PersonFormPanel({
                 ? t("createFatherTitle")
                 : creatingParent?.role === "mother"
                   ? t("createMotherTitle")
-                  : t("createPersonTitle")
+                  : creatingSpouse
+                    ? t("createSpouseTitle")
+                    : t("createPersonTitle")
               : t("editPersonTitle")}
           </h2>
           <button
@@ -191,7 +205,27 @@ export function PersonFormPanel({
             )}
           </p>
         ) : null}
+        {creatingSpouse && spouseOfName ? (
+          <p className={styles.support}>
+            {t("addSpouseNote", { name: spouseOfName })}
+          </p>
+        ) : null}
       </FormRow>
+
+      {creatingSpouse ? (
+        <Field label={t("fields.marriedAt")} required>
+          {({ id }) => (
+            <DateField
+              id={id}
+              value={creatingSpouse.married_at}
+              onChange={onSpouseMarriedAtChange}
+              locale={locale}
+              disabled={busy}
+              placeholder={t("dateHint")}
+            />
+          )}
+        </Field>
+      ) : null}
 
       <TextField
         label={t("fields.name")}
@@ -216,7 +250,7 @@ export function PersonFormPanel({
         onChange={(e) =>
           setForm((prev) => ({ ...prev, gender: e.target.value as Gender }))
         }
-        disabled={busy || Boolean(creatingParent)}
+        disabled={busy || Boolean(creatingParent) || Boolean(creatingSpouse)}
       >
         <option value="male">{t("gender.male")}</option>
         <option value="female">{t("gender.female")}</option>

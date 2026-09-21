@@ -38,11 +38,16 @@ import { useRouter } from "@/i18n/navigation";
 import {
   personPayloadFromForm,
   type LinkAsParentOf,
+  type LinkAsSpouseOf,
   type PersonFormState,
 } from "./person-form";
 
 type SavePersonTarget =
-  | { kind: "create"; linkAsParentOf?: LinkAsParentOf }
+  | {
+      kind: "create";
+      linkAsParentOf?: LinkAsParentOf;
+      linkAsSpouseOf?: LinkAsSpouseOf;
+    }
   | { kind: "edit"; personId: string };
 
 type SavePersonInput = {
@@ -268,6 +273,32 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
             }
           }
           setPersons(nextPersons);
+
+          const spouseLink = target.linkAsSpouseOf;
+          if (spouseLink) {
+            if (freeOwnerAtMarriageLimit(user, treeMeta, marriages.length)) {
+              await showFreeAccountNotice();
+              showSuccess(t("personCreateSuccess"));
+              return created;
+            }
+            try {
+              const marriage = await apiCreateMarriage(treeId, {
+                spouse_a_id: spouseLink.existingSpouseId,
+                spouse_b_id: created.id,
+                married_at: toLatinDigits(spouseLink.married_at),
+              });
+              setMarriages((prev) => [...prev, marriage]);
+              showSuccess(t("spouseCreateSuccess"));
+            } catch (err) {
+              await handleMaybeFreeLimit(
+                err,
+                getApiErrorMessage(err, t("marriageSaveError")),
+              );
+              showSuccess(t("personCreateSuccess"));
+            }
+            return created;
+          }
+
           showSuccess(t("personCreateSuccess"));
           return created;
         }

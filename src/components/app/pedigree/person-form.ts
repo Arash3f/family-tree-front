@@ -15,6 +15,12 @@ export type LinkAsParentOf = {
   role: ParentRole;
 };
 
+/** Create a new person and marry them to an existing spouse. */
+export type LinkAsSpouseOf = {
+  existingSpouseId: string;
+  married_at: string;
+};
+
 export type PersonFormState = {
   name: string;
   family_name: string;
@@ -39,6 +45,7 @@ export type PanelMode =
       kind: "create-person";
       defaults?: Partial<PersonFormState>;
       linkAsParentOf?: LinkAsParentOf;
+      linkAsSpouseOf?: LinkAsSpouseOf;
     }
   | { kind: "edit-person"; personId: string }
   | { kind: "create-marriage"; spouseAId?: string }

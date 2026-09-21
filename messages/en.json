@@ -772,7 +772,8 @@
       "marriage": "Marriage",
       "child": "Child",
       "father": "Father",
-      "mother": "Mother"
+      "mother": "Mother",
+      "spouse": "Spouse"
     },
     "fitView": "Fit view",
     "fullscreen": "Fullscreen",
@@ -1086,7 +1087,12 @@
       "marriedAt": "Married on",
       "divorcedAt": "Divorced on",
       "relateTo": "Related to"
-    }
+    },
+    "addSpouse": "Add spouse",
+    "createSpouseTitle": "New spouse",
+    "addSpouseNote": "After saving, this person will be married to {name}.",
+    "spouseMarriedAtRequired": "Enter the marriage date before saving.",
+    "spouseCreateSuccess": "Spouse added and marriage recorded."
   },
   "roles": {
     "metaTitle": "Roles — Family Tree",

@@ -30,6 +30,8 @@ type Props = {
   editingMarriages: Marriage[];
   nameOf: (personId: string) => string;
   parentOfName: string | null;
+  spouseOfName: string | null;
+  onSpouseMarriedAtChange: (marriedAt: string) => void;
   existingPhotoUrl: string | null;
   divorceDate: string;
   onDivorceDateChange: (value: string) => void;
@@ -65,6 +67,7 @@ type Props = {
   onCloseDetail: () => void;
   onSelectPerson: (personId: string) => void;
   onEditPerson: () => void;
+  onAddSpouse: () => void;
   onAddMarriage: () => void;
   onAddChild: () => void;
   onAddParent: (role: ParentRole) => void;
@@ -98,6 +101,8 @@ export function PedigreeSidePanels({
   editingMarriages,
   nameOf,
   parentOfName,
+  spouseOfName,
+  onSpouseMarriedAtChange,
   existingPhotoUrl,
   divorceDate,
   onDivorceDateChange,
@@ -133,6 +138,7 @@ export function PedigreeSidePanels({
   onCloseDetail,
   onSelectPerson,
   onEditPerson,
+  onAddSpouse,
   onAddMarriage,
   onAddChild,
   onAddParent,
@@ -155,7 +161,11 @@ export function PedigreeSidePanels({
         <PersonFormPanel
           mode={
             panel.kind === "create-person"
-              ? { kind: "create", linkAsParentOf: panel.linkAsParentOf }
+              ? {
+                  kind: "create",
+                  linkAsParentOf: panel.linkAsParentOf,
+                  linkAsSpouseOf: panel.linkAsSpouseOf,
+                }
               : { kind: "edit", personId: panel.personId }
           }
           form={personForm}
@@ -168,6 +178,8 @@ export function PedigreeSidePanels({
           editingMarriages={editingMarriages}
           nameOf={nameOf}
           parentOfName={parentOfName}
+          spouseOfName={spouseOfName}
+          onSpouseMarriedAtChange={onSpouseMarriedAtChange}
           existingPhotoUrl={existingPhotoUrl}
           divorceDate={divorceDate}
           onDivorceDateChange={onDivorceDateChange}
@@ -223,6 +235,7 @@ export function PedigreeSidePanels({
           onClose={onCloseDetail}
           onSelectPerson={onSelectPerson}
           onEdit={onEditPerson}
+          onAddSpouse={onAddSpouse}
           onAddMarriage={onAddMarriage}
           onAddChild={onAddChild}
           onAddParent={onAddParent}

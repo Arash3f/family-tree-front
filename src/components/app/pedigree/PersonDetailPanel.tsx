@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   HiOutlineHeart,
+  HiOutlineLink,
   HiOutlineLockClosed,
   HiOutlineUser,
   HiOutlineUserCircle,
@@ -54,6 +55,7 @@ type Props = {
   onClose: () => void;
   onSelectPerson: (personId: string) => void;
   onEdit: () => void;
+  onAddSpouse: () => void;
   onAddMarriage: () => void;
   onAddChild: () => void;
   onAddParent: (role: ParentRole) => void;
@@ -100,6 +102,7 @@ export function PersonDetailPanel({
   onClose,
   onSelectPerson,
   onEdit,
+  onAddSpouse,
   onAddMarriage,
   onAddChild,
   onAddParent,
@@ -126,10 +129,19 @@ export function PersonDetailPanel({
     canCreatePerson && canUpdatePerson && person.parents.length < 2;
 
   const addTiles: AddRelativeTile[] = [];
+  if (canCreatePerson && canCreateMarriage) {
+    addTiles.push({
+      key: "spouse",
+      icon: <HiOutlineHeart aria-hidden />,
+      label: t("addRelative.spouse"),
+      fullLabel: t("addSpouse"),
+      onClick: onAddSpouse,
+    });
+  }
   if (canCreateMarriage) {
     addTiles.push({
       key: "marriage",
-      icon: <HiOutlineHeart aria-hidden />,
+      icon: <HiOutlineLink aria-hidden />,
       label: t("addRelative.marriage"),
       fullLabel: t("addMarriage"),
       onClick: onAddMarriage,

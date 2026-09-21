@@ -772,7 +772,8 @@
       "marriage": "ازدواج",
       "child": "فرزند",
       "father": "پدر",
-      "mother": "مادر"
+      "mother": "مادر",
+      "spouse": "همسر"
     },
     "fitView": "نمایش کل درخت",
     "fullscreen": "تمام‌صفحه",
@@ -1086,7 +1087,12 @@
       "marriedAt": "تاریخ ازدواج",
       "divorcedAt": "تاریخ طلاق",
       "relateTo": "نسبت با"
-    }
+    },
+    "addSpouse": "افزودن همسر",
+    "createSpouseTitle": "همسر جدید",
+    "addSpouseNote": "پس از ذخیره، این فرد به‌عنوان همسر {name} ثبت می‌شود.",
+    "spouseMarriedAtRequired": "قبل از ذخیره، تاریخ ازدواج را وارد کنید.",
+    "spouseCreateSuccess": "همسر اضافه و ازدواج ثبت شد."
   },
   "roles": {
     "metaTitle": "نقش‌ها — شجره‌نامه",
