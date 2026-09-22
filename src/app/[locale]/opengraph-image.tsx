@@ -24,7 +24,6 @@ export default async function OpenGraphImage({ params }: Props) {
   return brandOpenGraphResponse({
     brand: tHero("brand"),
     headline: tHero("headline"),
-    locale,
     dir: locale === "fa" ? "rtl" : "ltr",
   });
 }

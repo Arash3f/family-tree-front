@@ -3,13 +3,11 @@ import path from "node:path";
 import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
 import { FaGithub, FaGlobe, FaLinkedin } from "react-icons/fa";
+import { AUTHOR_LINKS } from "@/lib/author";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Section } from "./Section";
 import styles from "./Author.module.css";
 
-const WEBSITE = "https://arash-alfooneh.ir/";
-const LINKEDIN = "https://www.linkedin.com/in/arash-alfooneh/";
-const GITHUB = "https://github.com/Arash3f";
 const PHOTO = "/arash-alfooneh.webp";
 const PHOTO_FILE = path.join(process.cwd(), "public", "arash-alfooneh.webp");
 
@@ -57,7 +55,7 @@ export async function Author() {
           <div className={styles.links}>
             <a
               className={styles.link}
-              href={WEBSITE}
+              href={AUTHOR_LINKS.website}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -66,7 +64,7 @@ export async function Author() {
             </a>
             <a
               className={styles.link}
-              href={LINKEDIN}
+              href={AUTHOR_LINKS.linkedin}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -75,7 +73,7 @@ export async function Author() {
             </a>
             <a
               className={styles.link}
-              href={GITHUB}
+              href={AUTHOR_LINKS.github}
               target="_blank"
               rel="noopener noreferrer"
             >

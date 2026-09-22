@@ -14,6 +14,7 @@ import {
   languageAlternates,
   localePath,
 } from "@/lib/site-url";
+import { AUTHOR_LINKS, AUTHOR_NAMES } from "@/lib/author";
 import { OG_IMAGE_SIZE } from "@/lib/brand-icon";
 import { routing } from "@/i18n/routing";
 
@@ -80,8 +81,17 @@ export default async function HomePage({ params }: Props) {
   const tHero = await getTranslations({ locale, namespace: "hero" });
   const pageUrl = absoluteLocaleUrl(locale);
   const ogImage = absoluteLocaleUrl(locale, "/opengraph-image");
+  const tAuthor = await getTranslations({ locale, namespace: "author" });
   const siteName = tMeta("siteName");
-  const logoUrl = `${getSiteUrl()}/apple-icon`;
+  const logoUrl = `${getSiteUrl()}/icons/icon-512.png`;
+  const author = {
+    "@type": "Person",
+    "@id": `${AUTHOR_LINKS.website}#person`,
+    ...AUTHOR_NAMES,
+    jobTitle: tAuthor("role"),
+    url: AUTHOR_LINKS.website,
+    sameAs: [AUTHOR_LINKS.linkedin, AUTHOR_LINKS.github],
+  };
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -101,6 +111,8 @@ export default async function HomePage({ params }: Props) {
       price: "0",
       priceCurrency: "USD",
     },
+    author,
+    creator: { "@id": author["@id"] },
     publisher: {
       "@type": "Organization",
       name: siteName,

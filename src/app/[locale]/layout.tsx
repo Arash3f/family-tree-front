@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(getSiteUrl()),
     title: {
       default: title,
-      template: "%s · Family Tree",
+      template: `%s — ${t("siteName")}`,
     },
     description,
     applicationName: "Family Tree",
