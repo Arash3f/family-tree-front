@@ -26,7 +26,7 @@
   },
   "hero": {
     "brand": "Family Tree",
-    "headline": "Your family, mapped with care.",
+    "headline": "Your family tree, mapped with care.",
     "support": "Create private trees, add people and marriages, walk the timeline, and see the closest path — then explore other routes between relatives.",
     "ctaLogin": "Sign in to dashboard",
     "scroll": "Scroll to features",
@@ -210,7 +210,7 @@
     "label": "Growing your tree…"
   },
   "login": {
-    "metaTitle": "Sign in — Family Tree",
+    "metaTitle": "Sign in",
     "brand": "Family Tree",
     "title": "Sign in",
     "support": "Use your account to open your private dashboard.",
@@ -225,7 +225,7 @@
     "createAccount": "Create a free account"
   },
   "register": {
-    "metaTitle": "Sign up — Family Tree",
+    "metaTitle": "Sign up",
     "brand": "Family Tree",
     "title": "Sign up",
     "support": "Create an account to manage your family tree.",
@@ -294,7 +294,7 @@
     "freeAccountMessage": "You are on a free account (for now)"
   },
   "dashboard": {
-    "metaTitle": "Dashboard — Family Tree",
+    "metaTitle": "Dashboard",
     "welcome": "Welcome, {name}",
     "welcomeSupport": "From this dashboard you can create private family trees, record people and marriages, find the closest path and other routes between two people, and control member access.",
     "features": {
@@ -441,7 +441,7 @@
     }
   },
   "profile": {
-    "metaTitle": "My profile — Family Tree",
+    "metaTitle": "My profile",
     "permissionsMetaTitle": "Permissions — Family Tree",
     "passwordMetaTitle": "Password — Family Tree",
     "sessionsMetaTitle": "Sessions — Family Tree",
@@ -504,7 +504,7 @@
     "working": "Working…"
   },
   "users": {
-    "metaTitle": "Users — Family Tree",
+    "metaTitle": "Users",
     "createMetaTitle": "New user — Family Tree",
     "editMetaTitle": "Manage user — Family Tree",
     "title": "Users",
@@ -565,7 +565,7 @@
     "working": "Working…"
   },
   "tickets": {
-    "metaTitle": "Tickets — Family Tree",
+    "metaTitle": "Tickets",
     "createMetaTitle": "New ticket — Family Tree",
     "detailMetaTitle": "Ticket — Family Tree",
     "title": "Tickets",
@@ -646,7 +646,7 @@
     "closedHint": "This ticket is closed. Replies are disabled."
   },
   "trees": {
-    "metaTitle": "Family trees — Family Tree",
+    "metaTitle": "Family trees",
     "createMetaTitle": "New family tree — Family Tree",
     "editMetaTitle": "Manage family tree — Family Tree",
     "title": "Family trees",
@@ -1095,7 +1095,7 @@
     }
   },
   "roles": {
-    "metaTitle": "Roles — Family Tree",
+    "metaTitle": "Roles",
     "createMetaTitle": "New role — Family Tree",
     "editMetaTitle": "Manage role — Family Tree",
     "title": "Roles",
