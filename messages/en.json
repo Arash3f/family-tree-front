@@ -680,8 +680,11 @@
     "createError": "Could not create family tree.",
     "editTitle": "Manage {name}",
     "editSupport": "Rename the tree, manage members, or delete it when you have the matching permissions.",
+    "settingsTabsLabel": "Tree management sections",
     "detailsTitle": "Tree details",
     "detailsSupport": "Name and basic information for this family tree.",
+    "dangerTitle": "Delete tree",
+    "dangerSupport": "Permanently delete this tree and all of its people, marriages, and data. This cannot be undone.",
     "owner": "Owner",
     "save": "Save changes",
     "saving": "Saving…",
@@ -698,6 +701,9 @@
     "membersEmpty": "No members found.",
     "addMemberTitle": "Add a member",
     "addMemberSupport": "Invite by username and choose their access level.",
+    "ownerAccessFull": "Owners have full access.",
+    "accessSummaryCount": "{count, plural, one {# permission} other {# permissions}}",
+    "accessSummaryEmpty": "No permissions set.",
     "memberRole": {
       "owner": "Owner",
       "member": "Member"
@@ -735,6 +741,8 @@
       "ticket_manage": "Manage tickets"
     },
     "memberAccessEdit": "Edit access",
+    "memberAccessEditTitle": "Access for {name}",
+    "memberAccessEditSupport": "Change this member’s access level, then save.",
     "memberAccessSave": "Save access",
     "memberAccessCancel": "Cancel",
     "memberAccessSuccess": "Member access updated.",
@@ -751,6 +759,7 @@
     "memberRemoveError": "Could not remove member.",
     "lastOwnerRemoveBlocked": "Cannot remove the last owner of a family tree.",
     "open": "View family tree",
+    "openShort": "Open",
     "pedigreeMetaTitle": "View family tree — Family Tree",
     "settingsMetaTitle": "Tree settings — Family Tree",
     "backToPedigree": "Back to pedigree"

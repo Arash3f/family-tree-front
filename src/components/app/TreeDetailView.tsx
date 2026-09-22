@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
-import { TreeMemberAccessPicker } from "@/components/app/TreeMemberAccessPicker";
+import { TreeMemberAccessDialog } from "@/components/app/TreeMemberAccessDialog";
 import {
   addTreeMember,
   deleteFamilyTree,
@@ -40,6 +40,12 @@ type Props = {
   treeId: string;
 };
 
+type SettingsTab = "members" | "details";
+
+type AccessDialogState =
+  | { mode: "add" }
+  | { mode: "edit"; member: TreeMembership };
+
 const USER_NOT_FOUND_CODE = 1400;
 
 export function TreeDetailView({ treeId }: Props) {
@@ -50,15 +56,10 @@ export function TreeDetailView({ treeId }: Props) {
   const [tree, setTree] = useState<FamilyTree | null>(null);
   const [members, setMembers] = useState<TreeMembership[]>([]);
   const [name, setName] = useState("");
-  const [memberUsername, setMemberUsername] = useState("");
-  const [newMemberAccess, setNewMemberAccess] = useState<string[]>([
-    TreeAccess.VIEW,
-  ]);
-  // The picker only reseeds when this changes. A constant key would keep the
-  // last member's access after a successful add.
-  const [memberFormKey, setMemberFormKey] = useState(0);
-  const [editingUserId, setEditingUserId] = useState<string | null>(null);
-  const [editAccess, setEditAccess] = useState<string[]>([TreeAccess.VIEW]);
+  const [tab, setTab] = useState<SettingsTab>("members");
+  const [accessDialog, setAccessDialog] = useState<AccessDialogState | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -68,7 +69,8 @@ export function TreeDetailView({ treeId }: Props) {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const canRename = isTreeOwner(tree, me?.id);
-  const canDeleteTree = isTreeOwner(tree, me?.id) && hasPermission(Permissions.TREE_DELETE);
+  const canDeleteTree =
+    isTreeOwner(tree, me?.id) && hasPermission(Permissions.TREE_DELETE);
   const myAccess = new Set(tree?.my_permissions ?? []);
   const canAddMember = myAccess.has(TreeAccess.MEMBER_ADD);
   const canRemoveMember = myAccess.has(TreeAccess.MEMBER_REMOVE);
@@ -151,21 +153,16 @@ export function TreeDetailView({ treeId }: Props) {
     }
   };
 
-  const handleAddMember = async (event: FormEvent) => {
-    event.preventDefault();
-    const username = memberUsername.trim();
-    if (!username) return;
+  const handleAddMember = async (username: string, access: string[]) => {
     setAddingMember(true);
     try {
       const membership = await addTreeMember(
         treeId,
         username,
-        normalizeTreeAccess(newMemberAccess),
+        normalizeTreeAccess(access),
       );
       setMembers((prev) => [...prev, membership]);
-      setMemberUsername("");
-      setNewMemberAccess([TreeAccess.VIEW]);
-      setMemberFormKey((key) => key + 1);
+      setAccessDialog(null);
       showSuccess(t("memberAddSuccess"));
     } catch (err) {
       if (
@@ -181,25 +178,20 @@ export function TreeDetailView({ treeId }: Props) {
     }
   };
 
-  const startEditAccess = (member: TreeMembership) => {
-    setEditingUserId(member.user_id);
-    setEditAccess(normalizeTreeAccess(member.permissions ?? [TreeAccess.VIEW]));
-  };
-
-  const handleSaveAccess = async (userId: string) => {
+  const handleSaveAccess = async (userId: string, access: string[]) => {
     setSavingAccess(true);
     try {
       const updated = await updateTreeMember(
         treeId,
         userId,
-        normalizeTreeAccess(editAccess),
+        normalizeTreeAccess(access),
       );
       setMembers((prev) =>
         prev.map((member) =>
           member.user_id === userId ? updated : member,
         ),
       );
-      setEditingUserId(null);
+      setAccessDialog(null);
       showSuccess(t("memberAccessSuccess"));
     } catch (err) {
       showError(getApiErrorMessage(err, t("memberAccessError")));
@@ -222,7 +214,12 @@ export function TreeDetailView({ treeId }: Props) {
     try {
       await removeTreeMember(treeId, userId);
       setMembers((prev) => prev.filter((member) => member.user_id !== userId));
-      if (editingUserId === userId) setEditingUserId(null);
+      if (
+        accessDialog?.mode === "edit" &&
+        accessDialog.member.user_id === userId
+      ) {
+        setAccessDialog(null);
+      }
       showSuccess(t("memberRemoveSuccess"));
     } catch (err) {
       showError(getApiErrorMessage(err, t("memberRemoveError")));
@@ -257,6 +254,12 @@ export function TreeDetailView({ treeId }: Props) {
     savingAccess ||
     removingId !== null;
 
+  const memberLabel = (member: TreeMembership) =>
+    member.username ||
+    (me && me.id === member.user_id
+      ? me.fullname || me.username
+      : t("memberRole.member"));
+
   return (
     <Page>
       <PageHeader
@@ -267,56 +270,79 @@ export function TreeDetailView({ treeId }: Props) {
         title={t("editTitle", { name: tree.name })}
         support={t("editSupport")}
         actions={
-          <ButtonLink href={`/dashboard/trees/${treeId}`} variant="subtle">
-            {t("open")}
+          <ButtonLink
+            href={`/dashboard/trees/${treeId}`}
+            variant="subtle"
+            className={styles.openTreeAction}
+          >
+            <span className={styles.openLong}>{t("open")}</span>
+            <span className={styles.openShort}>{t("openShort")}</span>
           </ButtonLink>
         }
       />
 
-      <Panel
-        delay={1}
-        title={t("detailsTitle")}
-        support={t("detailsSupport")}
+      <div
+        className={`${styles.scopeTrack} ${styles.settingsTabs}`}
+        role="tablist"
+        aria-label={t("settingsTabsLabel")}
       >
-        <Form columns="single" onSubmit={onSave}>
-          <TextField
-            label={t("name")}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            minLength={1}
-            maxLength={100}
-            disabled={!canRename || busy}
-            autoComplete="off"
-          />
-
-          <dl className={styles.metaGrid}>
-            <div className={styles.metaItem}>
-              <dt>{t("owner")}</dt>
-              <dd>{ownerLabel}</dd>
-            </div>
-            <div className={styles.metaItem}>
-              <dt>{t("membersTitle")}</dt>
-              <dd>{t("memberCount", { count: members.length })}</dd>
-            </div>
-          </dl>
-
-          {canRename || canDeleteTree ? (
-            <FormActions
-              secondary={
-                canDeleteTree ? (
-                  <Button
-                    variant="danger"
-                    loading={deleting}
-                    disabled={busy}
-                    onClick={() => void handleDelete()}
-                  >
-                    {deleting ? t("working") : t("delete")}
-                  </Button>
-                ) : undefined
+        {(
+          [
+            ["members", t("membersTitle")],
+            ["details", t("detailsTitle")],
+          ] as const
+        ).map(([value, label]) => {
+          const selected = tab === value;
+          return (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={selected}
+              className={
+                selected
+                  ? `${styles.scopeTab} ${styles.scopeTabActive}`
+                  : styles.scopeTab
               }
+              onClick={() => setTab(value)}
             >
-              {canRename ? (
+              {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {tab === "details" ? (
+        <Panel
+          delay={1}
+          title={t("detailsTitle")}
+          support={t("detailsSupport")}
+        >
+          <Form columns="single" onSubmit={onSave}>
+            <TextField
+              label={t("name")}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              minLength={1}
+              maxLength={100}
+              disabled={!canRename || busy}
+              autoComplete="off"
+            />
+
+            <dl className={styles.metaGrid}>
+              <div className={styles.metaItem}>
+                <dt>{t("owner")}</dt>
+                <dd>{ownerLabel}</dd>
+              </div>
+              <div className={styles.metaItem}>
+                <dt>{t("membersTitle")}</dt>
+                <dd>{t("memberCount", { count: members.length })}</dd>
+              </div>
+            </dl>
+
+            {canRename ? (
+              <FormActions>
                 <Button
                   type="submit"
                   loading={saving}
@@ -324,179 +350,164 @@ export function TreeDetailView({ treeId }: Props) {
                 >
                   {saving ? t("saving") : t("save")}
                 </Button>
-              ) : null}
-            </FormActions>
-          ) : null}
-        </Form>
-      </Panel>
+              </FormActions>
+            ) : null}
+          </Form>
 
-      <Panel
-        delay={2}
-        title={t("membersTitle")}
-        support={t("membersSupport")}
-      >
-        {members.length === 0 ? (
-          <p className={styles.empty}>{t("membersEmpty")}</p>
-        ) : (
-          <ul className={styles.memberList}>
-            {members.map((member) => {
-              const isLastOwner =
-                member.role === "owner" && ownerCount <= 1;
-              const label =
-                member.username ||
-                (me && me.id === member.user_id
-                  ? me.fullname || me.username
-                  : t("memberRole.member"));
-              const isEditing = editingUserId === member.user_id;
-              const perms = member.permissions ?? [];
-              return (
-                <li key={member.id} className={styles.memberCard}>
-                  <div className={styles.memberHead}>
-                    <div className={styles.memberIdentity}>
-                      <p className={styles.memberName}>{label}</p>
-                      <span
-                        className={`${styles.badge} ${
-                          member.role === "owner"
-                            ? styles.badgeOwned
-                            : styles.badgeJoined
-                        }`}
-                      >
-                        {t(`memberRole.${member.role}`)}
-                      </span>
-                    </div>
-                    <div className={styles.memberActions}>
-                      {canAddMember && member.role !== "owner" ? (
-                        isEditing ? (
-                          <>
-                            <Button
-                              size="sm"
-                              loading={savingAccess}
-                              disabled={busy}
-                              onClick={() =>
-                                void handleSaveAccess(member.user_id)
-                              }
-                            >
-                              {savingAccess
-                                ? t("working")
-                                : t("memberAccessSave")}
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              disabled={busy}
-                              onClick={() => setEditingUserId(null)}
-                            >
-                              {t("memberAccessCancel")}
-                            </Button>
-                          </>
-                        ) : (
+          {canDeleteTree ? (
+            <div className={styles.dangerZone}>
+              <div className={styles.dangerZoneText}>
+                <h3 className={styles.dangerZoneTitle}>{t("dangerTitle")}</h3>
+                <p className={styles.dangerZoneSupport}>{t("dangerSupport")}</p>
+              </div>
+              <Button
+                variant="danger"
+                loading={deleting}
+                disabled={busy}
+                onClick={() => void handleDelete()}
+              >
+                {deleting ? t("working") : t("delete")}
+              </Button>
+            </div>
+          ) : null}
+        </Panel>
+      ) : (
+        <Panel
+          delay={1}
+          title={t("membersTitle")}
+          support={t("membersSupport")}
+          actions={
+            canAddMember ? (
+              <Button
+                size="sm"
+                disabled={busy}
+                onClick={() => setAccessDialog({ mode: "add" })}
+              >
+                {t("addMemberTitle")}
+              </Button>
+            ) : undefined
+          }
+        >
+          {members.length === 0 ? (
+            <p className={styles.empty}>{t("membersEmpty")}</p>
+          ) : (
+            <ul className={styles.memberList}>
+              {members.map((member) => {
+                const isLastOwner =
+                  member.role === "owner" && ownerCount <= 1;
+                const label = memberLabel(member);
+                const perms = member.permissions ?? [];
+                const accessGroups = groupTreeAccess(perms);
+                return (
+                  <li key={member.id} className={styles.memberCard}>
+                    <div className={styles.memberHead}>
+                      <div className={styles.memberIdentity}>
+                        <p className={styles.memberName}>{label}</p>
+                        <span
+                          className={`${styles.badge} ${
+                            member.role === "owner"
+                              ? styles.badgeOwned
+                              : styles.badgeJoined
+                          }`}
+                        >
+                          {t(`memberRole.${member.role}`)}
+                        </span>
+                      </div>
+                      <div className={styles.memberActions}>
+                        {canAddMember && member.role !== "owner" ? (
                           <Button
                             size="sm"
                             variant="ghost"
                             disabled={busy}
-                            onClick={() => startEditAccess(member)}
+                            onClick={() =>
+                              setAccessDialog({ mode: "edit", member })
+                            }
                           >
                             {t("memberAccessEdit")}
                           </Button>
-                        )
-                      ) : null}
-                      {canRemoveMember ? (
-                        <Button
-                          size="sm"
-                          variant="dangerGhost"
-                          loading={removingId === member.user_id}
-                          disabled={busy}
-                          title={
-                            isLastOwner
-                              ? t("lastOwnerRemoveBlocked")
-                              : undefined
-                          }
-                          onClick={() =>
-                            void handleRemoveMember(member.user_id)
-                          }
-                        >
-                          {removingId === member.user_id
-                            ? t("working")
-                            : t("memberRemove")}
-                        </Button>
-                      ) : null}
+                        ) : null}
+                        {canRemoveMember ? (
+                          <Button
+                            size="sm"
+                            variant="dangerGhost"
+                            loading={removingId === member.user_id}
+                            disabled={busy}
+                            title={
+                              isLastOwner
+                                ? t("lastOwnerRemoveBlocked")
+                                : undefined
+                            }
+                            onClick={() =>
+                              void handleRemoveMember(member.user_id)
+                            }
+                          >
+                            {removingId === member.user_id
+                              ? t("working")
+                              : t("memberRemove")}
+                          </Button>
+                        ) : null}
+                      </div>
                     </div>
-                  </div>
 
-                  {!isEditing ? (
-                    <div className={styles.accessBadgeGroups}>
-                      {groupTreeAccess(perms).map((group) => (
-                        <div
-                          key={group.id}
-                          className={styles.accessBadgeGroup}
-                        >
-                          <span className={styles.accessBadgeGroupTitle}>
-                            {t(`accessGroups.${group.id}`)}
-                          </span>
-                          <div className={styles.accessBadges}>
-                            {group.items.map((perm) => (
-                              <Badge key={perm} tone="neutral">
-                                {t(`access.${perm}`)}
-                              </Badge>
-                            ))}
-                          </div>
+                    {member.role === "owner" ? (
+                      <p className={styles.accessSummaryMuted}>
+                        {t("ownerAccessFull")}
+                      </p>
+                    ) : accessGroups.length > 0 ? (
+                      <div className={styles.accessSummary}>
+                        <span className={styles.accessSummaryCount}>
+                          {t("accessSummaryCount", { count: perms.length })}
+                        </span>
+                        <div className={styles.accessSummaryChips}>
+                          {accessGroups.map((group) => (
+                            <Badge key={group.id} tone="neutral">
+                              {t(`accessGroups.${group.id}`)}
+                            </Badge>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  ) : null}
+                      </div>
+                    ) : (
+                      <p className={styles.accessSummaryMuted}>
+                        {t("accessSummaryEmpty")}
+                      </p>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </Panel>
+      )}
 
-                  {isEditing && member.role !== "owner" ? (
-                    <div className={styles.memberEditor}>
-                      <TreeMemberAccessPicker
-                        selected={editAccess}
-                        onChange={setEditAccess}
-                        disabled={busy}
-                        resetKey={`${member.user_id}-${member.permissions?.join(",")}`}
-                      />
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+      {accessDialog?.mode === "add" ? (
+        <TreeMemberAccessDialog
+          open
+          mode="add"
+          busy={addingMember}
+          onClose={() => {
+            if (!addingMember) setAccessDialog(null);
+          }}
+          onSubmit={handleAddMember}
+        />
+      ) : null}
 
-        {canAddMember ? (
-          <div className={styles.addMemberPanel}>
-            <div className={styles.addMemberHeader}>
-              <h3 className={styles.addMemberTitle}>{t("addMemberTitle")}</h3>
-              <p className={styles.addMemberSupport}>{t("addMemberSupport")}</p>
-            </div>
-            <Form columns="single" onSubmit={handleAddMember}>
-              <TextField
-                label={t("memberUser")}
-                value={memberUsername}
-                onChange={(e) => setMemberUsername(e.target.value)}
-                required
-                disabled={busy}
-                placeholder={t("memberUsernamePlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <TreeMemberAccessPicker
-                selected={newMemberAccess}
-                onChange={setNewMemberAccess}
-                disabled={busy}
-                resetKey={`new-member-${memberFormKey}`}
-              />
-              <FormActions>
-                <Button
-                  type="submit"
-                  loading={addingMember}
-                  disabled={busy || !memberUsername.trim()}
-                >
-                  {addingMember ? t("working") : t("memberAdd")}
-                </Button>
-              </FormActions>
-            </Form>
-          </div>
-        ) : null}
-      </Panel>
+      {accessDialog?.mode === "edit" ? (
+        <TreeMemberAccessDialog
+          open
+          mode="edit"
+          busy={savingAccess}
+          memberLabel={memberLabel(accessDialog.member)}
+          initialAccess={
+            accessDialog.member.permissions ?? [TreeAccess.VIEW]
+          }
+          onClose={() => {
+            if (!savingAccess) setAccessDialog(null);
+          }}
+          onSubmit={(access) =>
+            handleSaveAccess(accessDialog.member.user_id, access)
+          }
+        />
+      ) : null}
     </Page>
   );
 }

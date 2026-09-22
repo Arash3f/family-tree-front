@@ -680,8 +680,11 @@
     "createError": "ساخت شجره‌نامه انجام نشد. دوباره تلاش کنید.",
     "editTitle": "مدیریت {name}",
     "editSupport": "در صورت داشتن دسترسی لازم، می‌توانید نام شجره‌نامه را تغییر دهید، اعضا را مدیریت کنید یا آن را حذف کنید.",
+    "settingsTabsLabel": "بخش‌های مدیریت شجره‌نامه",
     "detailsTitle": "مشخصات شجره‌نامه",
     "detailsSupport": "نام و اطلاعات اصلی این شجره‌نامه.",
+    "dangerTitle": "حذف شجره‌نامه",
+    "dangerSupport": "حذف دائمی این شجره‌نامه و همهٔ افراد، ازدواج‌ها و داده‌های آن. این کار قابل بازگشت نیست.",
     "owner": "مالک",
     "save": "ذخیرهٔ تغییرات",
     "saving": "در حال ذخیره…",
@@ -698,6 +701,9 @@
     "membersEmpty": "عضوی پیدا نشد.",
     "addMemberTitle": "افزودن عضو",
     "addMemberSupport": "نام کاربری فرد را وارد کنید و سطح دسترسی او را مشخص کنید.",
+    "ownerAccessFull": "مالک همهٔ دسترسی‌ها را دارد.",
+    "accessSummaryCount": "{count, plural, one {# دسترسی} other {# دسترسی}}",
+    "accessSummaryEmpty": "دسترسی‌ای تنظیم نشده.",
     "memberRole": {
       "owner": "مالک",
       "member": "عضو"
@@ -735,6 +741,8 @@
       "ticket_manage": "مدیریت تیکت‌ها"
     },
     "memberAccessEdit": "ویرایش دسترسی",
+    "memberAccessEditTitle": "دسترسی {name}",
+    "memberAccessEditSupport": "سطح دسترسی این عضو را تغییر دهید و ذخیره کنید.",
     "memberAccessSave": "ذخیرهٔ دسترسی",
     "memberAccessCancel": "انصراف",
     "memberAccessSuccess": "دسترسی عضو ذخیره شد.",
@@ -751,6 +759,7 @@
     "memberRemoveError": "حذف عضو انجام نشد. دوباره تلاش کنید.",
     "lastOwnerRemoveBlocked": "آخرین مالک شجره‌نامه را نمی‌توان حذف کرد.",
     "open": "مشاهدهٔ شجره‌نامه",
+    "openShort": "مشاهده",
     "pedigreeMetaTitle": "مشاهدهٔ شجره‌نامه — شجره‌نامه",
     "settingsMetaTitle": "تنظیمات شجره‌نامه — شجره‌نامه",
     "backToPedigree": "بازگشت به نمای درخت"
