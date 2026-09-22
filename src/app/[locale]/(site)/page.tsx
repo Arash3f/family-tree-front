@@ -14,7 +14,7 @@ import {
   languageAlternates,
   localePath,
 } from "@/lib/site-url";
-import { AUTHOR_LINKS } from "@/lib/author";
+import { AUTHOR_LINKS, AUTHOR_NAMES } from "@/lib/author";
 import { OG_IMAGE_SIZE } from "@/lib/brand-icon";
 import { routing } from "@/i18n/routing";
 
@@ -87,7 +87,7 @@ export default async function HomePage({ params }: Props) {
   const author = {
     "@type": "Person",
     "@id": `${AUTHOR_LINKS.website}#person`,
-    name: tAuthor("name"),
+    ...AUTHOR_NAMES,
     jobTitle: tAuthor("role"),
     url: AUTHOR_LINKS.website,
     sameAs: [AUTHOR_LINKS.linkedin, AUTHOR_LINKS.github],
