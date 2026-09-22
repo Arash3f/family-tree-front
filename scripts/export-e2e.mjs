@@ -69,7 +69,7 @@ function buildFixture(widest, generations) {
         data: {
           person: {
             id,
-            name: i % 3 === 0 ? "محمدحسین عبدالله‌زاده طباطبایی" : "آرش آلفونه",
+            name: i % 3 === 0 ? "محمدحسین عبدالله‌زاده طباطبایی" : "آرش الفونه",
             family_name: "",
             gender: i % 2 === 0 ? "male" : "female",
             birth_date: "1990-04-12",

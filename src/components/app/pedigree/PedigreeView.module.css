@@ -660,59 +660,33 @@
   display: none;
 }
 
-.detailOpening {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-app-dialog);
-  display: grid;
-  place-items: center;
-  padding: max(1rem, var(--safe-top)) max(1rem, var(--safe-inline-end))
-    max(1rem, var(--safe-bottom)) max(1rem, var(--safe-inline-start));
-  background: color-mix(in srgb, var(--foreground) 28%, transparent);
-  backdrop-filter: blur(6px) saturate(1.05);
-  animation: detailOpeningIn 180ms var(--ease-out) both;
-  pointer-events: none;
-}
-
-.detailOpeningCard {
+.treeLoading {
   display: grid;
   justify-items: center;
-  gap: 0.85rem;
-  min-width: min(16rem, 100%);
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface-raised);
-  box-shadow: var(--shadow-lg);
-  color: var(--foreground);
+  align-content: center;
+  gap: 1rem;
+  min-height: min(60svh, 28rem);
+  padding: var(--space-6);
+  color: var(--ink-soft);
+  animation: fadeUp 420ms var(--ease-out) both;
 }
 
-.detailOpeningCard p {
+.treeLoading p {
   margin: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
-  color: var(--ink-soft);
 }
 
-.detailOpeningSpinner {
-  width: 2.25rem;
-  height: 2.25rem;
+.treeLoadingSpinner {
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
   border: 2.5px solid color-mix(in srgb, var(--accent) 22%, var(--border));
   border-top-color: var(--accent);
-  animation: detailSpin 0.7s linear infinite;
+  animation: treeLoadSpin 0.75s linear infinite;
 }
 
-@keyframes detailOpeningIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes detailSpin {
+@keyframes treeLoadSpin {
   to {
     transform: rotate(360deg);
   }

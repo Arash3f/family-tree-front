@@ -40,7 +40,7 @@ async function bundle() {
 function person(id, overrides = {}) {
   return {
     id,
-    name: "آرش آلفونه",
+    name: "آرش الفونه",
     family_name: "",
     gender: "male",
     birth_date: "1990-04-12",

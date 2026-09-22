@@ -12,5 +12,5 @@ export const AUTHOR_LINKS = {
  */
 export const AUTHOR_NAMES = {
   name: "Arash Alfooneh",
-  alternateName: "آرش آلفونه",
+  alternateName: "آرش الفونه",
 } as const;

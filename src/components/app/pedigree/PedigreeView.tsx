@@ -8,7 +8,6 @@ import {
   useState,
   type PointerEvent,
 } from "react";
-import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
@@ -148,7 +147,6 @@ export function PedigreeView({ treeId }: Props) {
   const [panel, setPanel] = useState<PanelMode>({ kind: "none" });
   /** Matches the CSS sheet breakpoint: detail covers the canvas instead of sitting beside it. */
   const [sheetLayout, setSheetLayout] = useState(false);
-  const [openingDetail, setOpeningDetail] = useState(false);
   const panelOpenedAt = useRef(0);
   const [personForm, setPersonForm] = useState<PersonFormState>(emptyPersonForm);
   const [marriageForm, setMarriageForm] = useState<MarriageFormState>({
@@ -354,12 +352,8 @@ export function PedigreeView({ treeId }: Props) {
     (personId: string | null) => {
       if (personId) {
         panelOpenedAt.current = Date.now();
-        if (sheetLayout) {
-          setOpeningDetail(true);
-          setSheetSnap("half");
-        }
+        if (sheetLayout) setSheetSnap("half");
       } else {
-        setOpeningDetail(false);
         setSheetSnap("half");
       }
       setSelectedId(personId);
@@ -522,10 +516,10 @@ export function PedigreeView({ treeId }: Props) {
   };
 
   const openCreateSpouse = (partner: Person) => {
+    // Spouses often do not share a family name — leave it blank (unlike father).
     openCreatePerson(
       {
         gender: partner.gender === "male" ? "female" : "male",
-        family_name: partner.family_name ?? "",
       },
       undefined,
       {
@@ -551,7 +545,6 @@ export function PedigreeView({ treeId }: Props) {
 
   const closePanel = () => setPanel({ kind: "none" });
   const dismissSidePanel = () => {
-    setOpeningDetail(false);
     setSheetSnap("half");
     closePanel();
     setSelectedId(null);
@@ -574,15 +567,6 @@ export function PedigreeView({ treeId }: Props) {
     mq.addEventListener("change", sync);
     return () => mq.removeEventListener("change", sync);
   }, []);
-
-  useEffect(() => {
-    if (!openingDetail || !selectedPerson) return;
-    // Keep the loader on screen long enough to read — sheet paint alone is too fast.
-    const shownFor = Date.now() - panelOpenedAt.current;
-    const remaining = Math.max(0, 900 - shownFor);
-    const timer = window.setTimeout(() => setOpeningDetail(false), remaining);
-    return () => window.clearTimeout(timer);
-  }, [openingDetail, selectedPerson]);
 
   useScrollLock(
     fullscreen.active || (panelOpen && sheetSnap !== "peek"),
@@ -816,7 +800,19 @@ export function PedigreeView({ treeId }: Props) {
   };
 
   if (tree.loading) {
-    return <p className={styles.empty}>{t("loading")}</p>;
+    return (
+      <section className={styles.root}>
+        <div
+          className={styles.treeLoading}
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span className={styles.treeLoadingSpinner} aria-hidden />
+          <p>{t("loading")}</p>
+        </div>
+      </section>
+    );
   }
 
   if (tree.loadError && !tree.treeName) {
@@ -885,17 +881,10 @@ export function PedigreeView({ treeId }: Props) {
         searchPeople={searchPeople}
         hint={personSearchHint}
         onPickSearchResult={(person) => {
-          // Sheet layout covers the canvas — search only frames the person;
-          // tapping the node still opens the detail page. Leave path/branch
-          // clips first so the hit is actually on the rebuilt full tree.
-          if (sheetLayout) {
-            setSelectedId(null);
-            setPanel({ kind: "none" });
-            revealPerson(person.id);
-            return;
-          }
-          onSelect(person.id);
+          // Leave path/branch clips first so the hit is on the full tree,
+          // then open the detail card after framing the person.
           revealPerson(person.id);
+          onSelect(person.id);
         }}
         canReadPersons={permissions.canReadPersons}
         canCreatePerson={permissions.canCreatePerson}
@@ -932,8 +921,8 @@ export function PedigreeView({ treeId }: Props) {
         people={persons}
         canViewBirthDate={permissions.canViewBirthDate}
         onSelectBirthdayPerson={(personId) => {
-          onSelect(personId);
           revealPerson(personId);
+          onSelect(personId);
         }}
       />
 
@@ -1070,7 +1059,6 @@ export function PedigreeView({ treeId }: Props) {
                         setAlternativesLoading(false);
                         clearRelationHighlight();
                         setRelateToId("");
-                        setOpeningDetail(false);
                         setSheetSnap("half");
                         setSelectedId(null);
                         closePanel();
@@ -1280,22 +1268,6 @@ export function PedigreeView({ treeId }: Props) {
         }}
       />
 
-      {openingDetail
-        ? createPortal(
-            <div
-              className={styles.detailOpening}
-              role="status"
-              aria-live="polite"
-              aria-busy="true"
-            >
-              <div className={styles.detailOpeningCard}>
-                <span className={styles.detailOpeningSpinner} aria-hidden />
-                <p>{t("openingPerson")}</p>
-              </div>
-            </div>,
-            document.body,
-          )
-        : null}
     </section>
   );
 }

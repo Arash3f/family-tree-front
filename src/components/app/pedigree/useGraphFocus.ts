@@ -105,15 +105,6 @@ function setsFromPaths(
   };
 }
 
-function frameIdsForMode(
-  mode: PathViewMode,
-  next: { highlightIds: Set<string>; coverPathIds: Set<string> },
-): string[] {
-  if (mode === "active") return [...next.highlightIds];
-  if (mode === "all") return [...next.coverPathIds];
-  return [];
-}
-
 /**
  * What the canvas is looking at: the relationship path highlight, the branch
  * subset, and the camera tokens. Kept apart from the tree data because none of
@@ -275,12 +266,12 @@ export function useGraphFocus(): GraphFocus {
       setRelationPaths(paths);
       setActivePathIndex(0);
       setRelationLabel(label);
-      const next = applyPathSets(paths, 0);
-      const frame = frameIdsForMode(pathViewMode, next);
-      if (frame.length > 0) relayoutFraming(frame);
-      else focusCameraOn(pathIds);
+      setPathViewMode("all");
+      applyPathSets(paths, 0);
+      // Default pathfinding view: clip to all path people and fit.
+      relayoutFraming([]);
     },
-    [pathViewMode, relayoutFraming, focusCameraOn, applyPathSets],
+    [relayoutFraming, applyPathSets],
   );
 
   const showRelationPaths = useCallback(
@@ -289,12 +280,11 @@ export function useGraphFocus(): GraphFocus {
       setRelationPaths(paths);
       setActivePathIndex(0);
       setRelationLabel(label);
-      const next = applyPathSets(paths, 0);
-      const frame = frameIdsForMode(pathViewMode, next);
-      if (frame.length > 0) relayoutFraming(frame);
-      else focusCameraOn(paths[0]?.ids ?? []);
+      setPathViewMode("all");
+      applyPathSets(paths, 0);
+      relayoutFraming([]);
     },
-    [pathViewMode, relayoutFraming, focusCameraOn, applyPathSets],
+    [relayoutFraming, applyPathSets],
   );
 
   const selectRelationPath = useCallback(

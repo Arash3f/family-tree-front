@@ -68,7 +68,19 @@ export function TreesListView() {
       setError(null);
       try {
         const items = await listFamilyTrees();
-        if (!cancelled) setTrees(items);
+        if (!cancelled) {
+          // Guard against duplicate ids from the API (e.g. soft-deleted +
+          // active membership join) so React keys stay unique when filtering
+          // by owned / joined / all.
+          const seen = new Set<string>();
+          setTrees(
+            items.filter((tree) => {
+              if (seen.has(tree.id)) return false;
+              seen.add(tree.id);
+              return true;
+            }),
+          );
+        }
       } catch (err) {
         if (!cancelled) {
           setError(err instanceof AuthApiError ? err.message : t("loadError"));

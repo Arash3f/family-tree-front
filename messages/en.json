@@ -297,6 +297,7 @@
     "metaTitle": "Dashboard",
     "welcome": "Welcome, {name}",
     "welcomeSupport": "From this dashboard you can create private family trees, record people and marriages, find the closest path and other routes between two people, and control member access.",
+    "openTrees": "Go to family trees",
     "features": {
       "trees": {
         "title": "Private family trees",
@@ -956,7 +957,6 @@
     "sheetCollapse": "Collapse panel",
     "sheetPeek": "Collapse to path dock",
     "pathPeekHint": "Path is on the tree — drag up for details.",
-    "openingPerson": "Opening details…",
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit",
@@ -991,7 +991,7 @@
     "notYetMarried": "Not yet married",
     "divorce": "Divorce",
     "findRelation": "Find relation",
-    "runRelation": "Trace path",
+    "runRelation": "Closest path",
     "runRelationMaleOnly": "Male-line path",
     "relationFrom": "From {name}",
     "relationFound": "Closest path distance: {distance}",

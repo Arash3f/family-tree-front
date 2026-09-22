@@ -10,6 +10,7 @@ import {
   HiOutlineUserGroup,
 } from "react-icons/hi2";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { ButtonLink } from "@/components/ui/Button";
 import styles from "./DashboardHome.module.css";
 
 const FEATURES = [
@@ -47,6 +48,10 @@ export function DashboardHome() {
           </li>
         ))}
       </ul>
+
+      <div className={styles.cta}>
+        <ButtonLink href="/dashboard/trees">{t("openTrees")}</ButtonLink>
+      </div>
     </section>
   );
 }

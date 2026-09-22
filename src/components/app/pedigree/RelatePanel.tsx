@@ -120,17 +120,21 @@ export function RelatePanel({
       </FormRow>
 
       <FormActions>
-        <Button type="submit" loading={busy} disabled={!pickedId}>
-          {t("runRelation")}
-        </Button>
         <Button
           type="button"
-          variant="ghost"
           loading={busy}
           disabled={!pickedId}
           onClick={onSubmitMaleOnly}
         >
           {t("runRelationMaleOnly")}
+        </Button>
+        <Button
+          type="submit"
+          variant="ghost"
+          loading={busy}
+          disabled={!pickedId}
+        >
+          {t("runRelation")}
         </Button>
         <Button variant="ghost" onClick={onCancel}>
           {t("cancel")}
