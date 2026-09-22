@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# No `# syntax=docker/dockerfile:1` — avoids docker.io/docker/dockerfile pull (403 on some VPS).
 
 ARG NODE_VERSION=22-alpine
 ARG PNPM_VERSION=10.34.5
