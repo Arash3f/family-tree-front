@@ -203,11 +203,10 @@ export function MoreMenu({
   const showData = canDownloadSample || canImportExcel || canExportExcel;
   const showCanvasState = branchActive || foldedCount > 0;
 
+  // A closed menu keeps its last placement: the panel only renders while
+  // `open`, and reopening re-measures here before the browser paints.
   useLayoutEffect(() => {
-    if (!open) {
-      setPlacement(null);
-      return;
-    }
+    if (!open) return;
     const trigger = triggerRef.current;
     if (!trigger) return;
 
