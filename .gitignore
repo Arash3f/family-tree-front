@@ -50,3 +50,6 @@ next-env.d.ts
 dev-*.txt
 eslint-before.json
 *.tgz
+
+# graphify knowledge graph (generated locally)
+graphify-out/

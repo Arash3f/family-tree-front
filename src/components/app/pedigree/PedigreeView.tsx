@@ -118,7 +118,6 @@ export function PedigreeView({ treeId }: Props) {
     relayoutKeeping,
     relayoutFraming,
     clearRelationHighlight,
-    focusCameraOn,
     revealPerson,
   } = focus;
   /**
@@ -139,11 +138,21 @@ export function PedigreeView({ treeId }: Props) {
 
   const canvasApiRef = useRef<PedigreeCanvasHandle | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [layoutDensity, setLayoutDensity] = useState<"layered" | "compact">(
-    "layered",
-  );
-  /** Once the user picks density, stop auto-switching for this session. */
-  const densityTouchedRef = useRef(false);
+  /**
+   * null = follow auto rule (compact once the tree has loaded with ≥150 people).
+   * Once the user toggles density, keep their choice for this session.
+   */
+  const [densityOverride, setDensityOverride] = useState<
+    "layered" | "compact" | null
+  >(null);
+  const [densityTreeId, setDensityTreeId] = useState(treeId);
+  if (densityTreeId !== treeId) {
+    setDensityTreeId(treeId);
+    setDensityOverride(null);
+  }
+  const layoutDensity: "layered" | "compact" =
+    densityOverride ??
+    (!tree.loading && persons.length >= 150 ? "compact" : "layered");
   const [panel, setPanel] = useState<PanelMode>({ kind: "none" });
   /** Matches the CSS sheet breakpoint: detail covers the canvas instead of sitting beside it. */
   const [sheetLayout, setSheetLayout] = useState(false);
@@ -159,12 +168,6 @@ export function PedigreeView({ treeId }: Props) {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const relationRequestSeq = useRef(0);
-
-  // Large trees pack tighter by default so the first paint stays usable.
-  useEffect(() => {
-    if (densityTouchedRef.current || tree.loading) return;
-    if (persons.length >= 150) setLayoutDensity("compact");
-  }, [persons.length, tree.loading]);
 
   // Identity has to stay stable: it feeds a context read by every graph node.
   const dataAccess = useMemo(
@@ -904,10 +907,7 @@ export function PedigreeView({ treeId }: Props) {
         onTidyLayout={bumpLayout}
         layoutDensity={layoutDensity}
         onToggleLayoutDensity={() => {
-          densityTouchedRef.current = true;
-          setLayoutDensity((mode) =>
-            mode === "layered" ? "compact" : "layered",
-          );
+          setDensityOverride(layoutDensity === "layered" ? "compact" : "layered");
           bumpLayout();
         }}
         onFitView={handleFitView}

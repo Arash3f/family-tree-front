@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  useEffect,
   useId,
   useRef,
   useState,
@@ -35,40 +34,48 @@ type Props = {
   busy?: boolean;
 } & (AddMode | EditMode);
 
+/**
+ * Remount key so opening the dialog (or switching the edited member) starts
+ * from fresh local state — avoids setState-inside-effect that ESLint rejects.
+ */
+function dialogInstanceKey(props: Props): string {
+  if (props.mode === "add") return "add";
+  return `edit:${props.memberLabel}\0${props.initialAccess.join("\0")}`;
+}
+
 export function TreeMemberAccessDialog(props: Props) {
   const { open, onClose, busy = false } = props;
+
+  if (!open) return null;
+
+  return (
+    <TreeMemberAccessDialogOpen
+      key={dialogInstanceKey(props)}
+      {...props}
+      onClose={onClose}
+      busy={busy}
+    />
+  );
+}
+
+function TreeMemberAccessDialogOpen(props: Props) {
+  const { onClose, busy = false } = props;
   const t = useTranslations("trees");
   const titleId = useId();
   const modalRef = useRef<HTMLDivElement>(null);
   const [username, setUsername] = useState("");
-  const [access, setAccess] = useState<string[]>([TreeAccess.VIEW]);
-  const [formKey, setFormKey] = useState(0);
-
-  const seedAccess =
-    props.mode === "edit" ? props.initialAccess.join("\0") : TreeAccess.VIEW;
-
-  useEffect(() => {
-    if (!open) return;
-    if (props.mode === "add") {
-      setUsername("");
-      setAccess([TreeAccess.VIEW]);
-      setFormKey((key) => key + 1);
-      return;
-    }
-    setAccess(normalizeTreeAccess(props.initialAccess));
-    setFormKey((key) => key + 1);
-    // Re-seed when the dialog opens or the edited member's access changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mode/initialAccess via seedAccess
-  }, [open, props.mode, seedAccess]);
+  const [access, setAccess] = useState<string[]>(() =>
+    props.mode === "edit"
+      ? normalizeTreeAccess(props.initialAccess)
+      : [TreeAccess.VIEW],
+  );
 
   const onEscape = useCallback(() => {
     if (!busy) onClose();
   }, [busy, onClose]);
 
-  useFocusTrap(modalRef, open, onEscape);
-  useScrollLock(open);
-
-  if (!open) return null;
+  useFocusTrap(modalRef, true, onEscape);
+  useScrollLock(true);
 
   const title =
     props.mode === "add"
@@ -154,7 +161,7 @@ export function TreeMemberAccessDialog(props: Props) {
               selected={access}
               onChange={setAccess}
               disabled={busy}
-              resetKey={`${props.mode}-${formKey}`}
+              resetKey={dialogInstanceKey(props)}
             />
           </div>
 

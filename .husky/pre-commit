@@ -1,2 +1,6 @@
 #!/usr/bin/env sh
+# lint-staged only sees files in the commit; CI runs full `pnpm lint`.
+# Run both so a red main (or an untouched file with a new ESLint rule)
+# cannot slip through when the agent/user only stages a subset.
 npx lint-staged
+pnpm lint
