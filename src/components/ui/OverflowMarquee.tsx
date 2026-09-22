@@ -19,6 +19,11 @@ type Props = {
   as?: ElementType;
   /** Force LTR for emails / dial codes inside RTL pages. */
   dir?: "ltr" | "rtl" | "auto";
+  /**
+   * Skip ResizeObserver / measure until hover or focus. Use on dense grids
+   * (pedigree cards) where hundreds of observers would stall the main thread.
+   */
+  idleUntilInteraction?: boolean;
 };
 
 /**
@@ -31,12 +36,14 @@ export function OverflowMarquee({
   title,
   as: Tag = "span",
   dir,
+  idleUntilInteraction = false,
 }: Props) {
   const outerRef = useRef<HTMLElement | null>(null);
   const trackRef = useRef<HTMLSpanElement | null>(null);
   const [overflowing, setOverflowing] = useState(false);
   const [shiftPx, setShiftPx] = useState(0);
   const [durationSec, setDurationSec] = useState(6);
+  const [armed, setArmed] = useState(!idleUntilInteraction);
 
   const measure = useCallback(() => {
     const outer = outerRef.current;
@@ -61,6 +68,7 @@ export function OverflowMarquee({
   }, []);
 
   useEffect(() => {
+    if (!armed) return;
     measure();
     const outer = outerRef.current;
     const track = trackRef.current;
@@ -76,7 +84,7 @@ export function OverflowMarquee({
     }
 
     return () => ro.disconnect();
-  }, [measure, children]);
+  }, [measure, children, armed]);
 
   const titleText =
     title ??
@@ -88,6 +96,11 @@ export function OverflowMarquee({
     "--marquee-shift": `${shiftPx}px`,
     "--marquee-duration": `${durationSec}s`,
   } as CSSProperties;
+
+  const arm = () => {
+    if (!idleUntilInteraction || armed) return;
+    setArmed(true);
+  };
 
   return (
     <Tag
@@ -101,7 +114,9 @@ export function OverflowMarquee({
         .join(" ")}
       style={style}
       dir={dir}
-      title={overflowing ? titleText : undefined}
+      title={titleText}
+      onPointerEnter={idleUntilInteraction ? arm : undefined}
+      onFocus={idleUntilInteraction ? arm : undefined}
     >
       <span ref={trackRef} className={styles.track}>
         {children}

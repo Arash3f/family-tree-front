@@ -198,7 +198,9 @@ function computeGenerations(
 
   for (const person of persons) visit(person.id, new Set());
 
-  for (let pass = 0; pass < persons.length + marriages.length + 2; pass++) {
+  // Cap worst-case passes; well-formed trees converge far sooner via `changed`.
+  const maxPasses = Math.min(persons.length + marriages.length + 2, 48);
+  for (let pass = 0; pass < maxPasses; pass++) {
     let changed = false;
 
     for (const marriage of marriages) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useDeferredValue, useMemo } from "react";
 import type { TreeIndex } from "@/lib/pedigree/index-tree";
 import {
   computePedigreeLayout,
@@ -17,10 +17,17 @@ type Args = {
 
 /**
  * Builds the React Flow graph for the current layout job and stamps fold marks.
+ *
+ * Large trees are expensive to pack; deferring the job keeps pan/zoom and
+ * form typing responsive while a newer layout catches up.
  */
 export function usePedigreeLayout({ job, foldIndex, countByRoot }: Args) {
+  const deferredJob = useDeferredValue(job);
+  const deferredFoldIndex = useDeferredValue(foldIndex);
+  const deferredCountByRoot = useDeferredValue(countByRoot);
+
   return useMemo(() => {
-    const built = computePedigreeLayout(job);
-    return withFoldMarks(built, foldIndex, countByRoot);
-  }, [job, foldIndex, countByRoot]);
+    const built = computePedigreeLayout(deferredJob);
+    return withFoldMarks(built, deferredFoldIndex, deferredCountByRoot);
+  }, [deferredJob, deferredFoldIndex, deferredCountByRoot]);
 }

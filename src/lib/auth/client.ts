@@ -1,4 +1,4 @@
-import { allOrCancelled, getApiBaseUrl } from "@/lib/api";
+import { getApiBaseUrl } from "@/lib/api";
 import {
   buildExportBasename,
   downloadBlob,
@@ -776,49 +776,14 @@ export async function removeTreeMember(
   await jsonOrThrow(response);
 }
 
-/**
- * Fetch every page of a paginated endpoint.
- *
- * The first page also reports `total`, which tells us exactly how many more
- * pages exist — so the remainder go out together instead of one after another.
- * A 500-person tree drops from five sequential round-trips to two.
- *
- * Pages are large deliberately: fewer, fatter requests beat many small ones
- * once latency dominates, which it does here.
- */
-async function listAllPages<T>(
-  fetchPage: (page: number, pageSize: number) => Promise<Paginated<T>>,
-  signal?: AbortSignal,
-): Promise<T[]> {
-  // Must not exceed the API's MAX_PAGE_SIZE (100); a larger value is rejected
-  // with 422 and no rows come back at all.
-  const pageSize = 100;
-  const first = await fetchPage(1, pageSize);
-
-  const total = first.total;
-  if (signal?.aborted || first.items.length === 0 || total <= first.items.length) {
-    return first.items;
-  }
-
-  const pageCount = Math.ceil(total / pageSize);
-  const rest = await allOrCancelled(
-    Array.from({ length: pageCount - 1 }, (_, index) =>
-      fetchPage(index + 2, pageSize),
-    ),
-    signal,
-  );
-  // Cancelled: the caller is gone, so what already arrived is as good an answer
-  // as any. Callers that pass a signal check it before using the result.
-  if (!rest) return first.items;
-
-  const items = [...first.items];
-  for (const page of rest) items.push(...page.items);
-  return items;
-}
-
 export async function listPersons(
   treeId: string,
-  options?: { page?: number; pageSize?: number; signal?: AbortSignal },
+  options?: {
+    page?: number;
+    pageSize?: number;
+    getAll?: boolean;
+    signal?: AbortSignal;
+  },
 ): Promise<Paginated<Person>> {
   const page = options?.page ?? 1;
   const pageSize = options?.pageSize ?? 100;
@@ -827,7 +792,12 @@ export async function listPersons(
     headers: { "Content-Type": "application/json" },
     signal: options?.signal,
     body: JSON.stringify({
-      pagination: { page, page_size: pageSize, offset: 0 },
+      pagination: {
+        page,
+        page_size: pageSize,
+        offset: 0,
+        ...(options?.getAll ? { get_all: true } : {}),
+      },
       filters: {},
       sort: { sort_order: "asc", sort_by: "name" },
     }),
@@ -839,10 +809,8 @@ export async function listAllPersons(
   treeId: string,
   signal?: AbortSignal,
 ): Promise<Person[]> {
-  return listAllPages(
-    (page, pageSize) => listPersons(treeId, { page, pageSize, signal }),
-    signal,
-  );
+  const page = await listPersons(treeId, { getAll: true, pageSize: 1, signal });
+  return page.items;
 }
 
 export async function getPerson(
@@ -940,7 +908,12 @@ export async function getAlternativeRelationshipPaths(
 
 export async function listMarriages(
   treeId: string,
-  options?: { page?: number; pageSize?: number; signal?: AbortSignal },
+  options?: {
+    page?: number;
+    pageSize?: number;
+    getAll?: boolean;
+    signal?: AbortSignal;
+  },
 ): Promise<Paginated<Marriage>> {
   const page = options?.page ?? 1;
   const pageSize = options?.pageSize ?? 100;
@@ -949,7 +922,12 @@ export async function listMarriages(
     headers: { "Content-Type": "application/json" },
     signal: options?.signal,
     body: JSON.stringify({
-      pagination: { page, page_size: pageSize, offset: 0 },
+      pagination: {
+        page,
+        page_size: pageSize,
+        offset: 0,
+        ...(options?.getAll ? { get_all: true } : {}),
+      },
       filters: {},
       sort: { sort_order: "desc", sort_by: "id" },
     }),
@@ -961,10 +939,8 @@ export async function listAllMarriages(
   treeId: string,
   signal?: AbortSignal,
 ): Promise<Marriage[]> {
-  return listAllPages(
-    (page, pageSize) => listMarriages(treeId, { page, pageSize, signal }),
-    signal,
-  );
+  const page = await listMarriages(treeId, { getAll: true, pageSize: 1, signal });
+  return page.items;
 }
 
 export async function getMarriage(

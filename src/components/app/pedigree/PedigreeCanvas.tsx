@@ -918,13 +918,15 @@ function CanvasInner({
         className={styles.flow}
         defaultEdgeOptions={{ animated: false }}
       >
-        <Background
-          id="pedigree-dots"
-          variant={BackgroundVariant.Dots}
-          gap={24}
-          size={1.1}
-          color="color-mix(in srgb, var(--border) 70%, transparent)"
-        />
+        {nodes.length <= 180 ? (
+          <Background
+            id="pedigree-dots"
+            variant={BackgroundVariant.Dots}
+            gap={24}
+            size={1.1}
+            color="color-mix(in srgb, var(--border) 70%, transparent)"
+          />
+        ) : null}
         <Controls
           showInteractive={!narrowViewport}
           position={narrowViewport ? "bottom-right" : "bottom-left"}

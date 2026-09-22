@@ -217,7 +217,11 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
           )}
         </span>
         <span className={styles.identity}>
-          <OverflowMarquee className={styles.name} title={label}>
+          <OverflowMarquee
+            className={styles.name}
+            title={label}
+            idleUntilInteraction
+          >
             {label}
           </OverflowMarquee>
         </span>

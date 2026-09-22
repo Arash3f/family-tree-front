@@ -143,6 +143,8 @@ export function PedigreeView({ treeId }: Props) {
   const [layoutDensity, setLayoutDensity] = useState<"layered" | "compact">(
     "layered",
   );
+  /** Once the user picks density, stop auto-switching for this session. */
+  const densityTouchedRef = useRef(false);
   const [panel, setPanel] = useState<PanelMode>({ kind: "none" });
   /** Matches the CSS sheet breakpoint: detail covers the canvas instead of sitting beside it. */
   const [sheetLayout, setSheetLayout] = useState(false);
@@ -159,6 +161,12 @@ export function PedigreeView({ treeId }: Props) {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const relationRequestSeq = useRef(0);
+
+  // Large trees pack tighter by default so the first paint stays usable.
+  useEffect(() => {
+    if (densityTouchedRef.current || tree.loading) return;
+    if (persons.length >= 150) setLayoutDensity("compact");
+  }, [persons.length, tree.loading]);
 
   // Identity has to stay stable: it feeds a context read by every graph node.
   const dataAccess = useMemo(
@@ -907,6 +915,7 @@ export function PedigreeView({ treeId }: Props) {
         onTidyLayout={bumpLayout}
         layoutDensity={layoutDensity}
         onToggleLayoutDensity={() => {
+          densityTouchedRef.current = true;
           setLayoutDensity((mode) =>
             mode === "layered" ? "compact" : "layered",
           );
