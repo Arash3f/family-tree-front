@@ -1,0 +1,106 @@
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  border-block-start: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.item {
+  border-block-end: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+}
+
+.question {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--duration-md) var(--ease-out);
+}
+
+/* Safari still paints its own triangle unless the pseudo-element is cleared. */
+.question::-webkit-details-marker {
+  display: none;
+}
+
+.question:hover,
+.item[open] > .question {
+  color: var(--accent-strong);
+}
+
+.question:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.questionText {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-snug);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .questionText {
+  letter-spacing: var(--tracking-normal);
+}
+
+/*
+ * A plus that becomes a minus: two bars, the vertical one collapsing on open.
+ * Drawn from pseudo-elements so the control carries no glyph to translate and
+ * mirrors itself for RTL without a second rule.
+ */
+.marker {
+  position: relative;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.marker::before,
+.marker::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  width: 0.625rem;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--accent-strong);
+  translate: -50% -50%;
+  transition: rotate var(--duration-md) var(--ease-out);
+}
+
+.marker::after {
+  rotate: 90deg;
+}
+
+.item[open] .marker::after {
+  rotate: 0deg;
+}
+
+.answer {
+  margin: 0;
+  padding-block-end: var(--space-4);
+  padding-inline-end: calc(1.25rem + var(--space-3));
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+  max-width: 44rem;
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marker::before,
+  .marker::after {
+    transition: none;
+  }
+}

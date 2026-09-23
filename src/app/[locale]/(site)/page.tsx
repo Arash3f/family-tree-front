@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Architecture } from "@/components/landing/Architecture";
 import { Author } from "@/components/landing/Author";
 import { CallToAction } from "@/components/landing/CallToAction";
+import { Faq } from "@/components/landing/Faq";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
 import { Updates } from "@/components/landing/Updates";
@@ -141,6 +142,7 @@ export default async function HomePage({ params }: Props) {
           <Architecture />
         </Suspense>
         <Author />
+        <Faq />
         <CallToAction />
       </main>
     </>

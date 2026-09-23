@@ -22,7 +22,8 @@
     "menuClose": "Close menu",
     "language": "Language",
     "skipToContent": "Skip to content",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "faq": "FAQ"
   },
   "hero": {
     "brand": "Family Tree",
@@ -111,6 +112,60 @@
     "website": "Website",
     "linkedin": "LinkedIn",
     "github": "GitHub"
+  },
+  "faq": {
+    "title": "Family tree questions, answered",
+    "subtitle": "What people ask before starting a tree — what the free plan covers, who can see your data, how GEDCOM and spreadsheet imports work, and how the relationship finder decides that two people are second cousins.",
+    "items": {
+      "free": {
+        "q": "Is this a free family tree maker?",
+        "a": "Yes. A free account holds up to 2 trees with up to 20 people and 8 marriages each, which covers a three-generation family. Two sample trees are created on sign-up so you can look around before entering anything of your own; larger families need an upgraded account."
+      },
+      "openSource": {
+        "q": "Is it open source, and can I self-host it?",
+        "a": "Yes to both. The backend — FastAPI, PostgreSQL, Neo4j and Celery — is open source under the MIT licence and ships a Docker Compose stack that brings up the whole system, so you can run it on your own server and keep the data on hardware you control. The hosted version is there for people who would rather not run infrastructure."
+      },
+      "privacy": {
+        "q": "Who can see my family tree?",
+        "a": "Only the people you invite. Every tree is a separate tenant: the scoping is enforced in the database queries themselves, including inside the graph traversals, so data never crosses from one tree to another — not even when the same person is recorded in both. No tree is public to search engines or to other users."
+      },
+      "relation": {
+        "q": "How does it work out how two people are related?",
+        "a": "Pick two people and the shortest kinship path between them is traced through the graph and shown person by person, so \"second cousin once removed\" arrives with the chain that produced it rather than as a label you have to trust. Where two people connect more than one way — common wherever cousins married — the alternative paths are listed too, and the search can be restricted to the male line."
+      },
+      "gedcom": {
+        "q": "Can I import a GEDCOM file from Ancestry, MyHeritage or Gramps?",
+        "a": "Not yet — GEDCOM import is not implemented. Today the bulk-entry format is an Excel workbook, so moving a tree in from another platform means exporting it there and mapping the columns into the sample workbook. If you need GEDCOM, it is a reasonable thing to open an issue about; the import layer is already built around a parse-preview-commit pipeline that a second format can plug into."
+      },
+      "excel": {
+        "q": "How do I add a lot of people at once?",
+        "a": "Download the sample Excel workbook, which arrives with its columns ready (name, family name, gender, birth date, parents and marriage) and validation built in, fill it in offline and upload it back. A preview shows exactly who would be created and flags rows that are namesakes of people already in the tree, so nothing is written until you have seen it. Excel export is always available, so you keep your own copy of the data."
+      },
+      "export": {
+        "q": "Can I export or print a family tree chart?",
+        "a": "Yes. The whole tree or any single branch can be saved as an image or a PDF and printed, and each person can be exported as a detail card or a lineage poster — sized to frame or to send round the family."
+      },
+      "collaborate": {
+        "q": "Can relatives work on the same tree with me?",
+        "a": "Yes. Invite them and decide per person whether they may only view the tree, edit it, or add new people. In practice it works best when one person does the data entry while everyone else reviews and reports corrections."
+      },
+      "howFarBack": {
+        "q": "How far back can I trace my family?",
+        "a": "That depends on the records, not on the software: civil registration and census records usually carry a line through the 1800s, parish and religious registers can reach the 1600s, and much before that the records thin out fast. A practical rule is to finish each generation before reaching for the next one, and to record a birth year for everyone — undated people are what makes an old branch impossible to verify later."
+      },
+      "living": {
+        "q": "How are living people and sensitive details handled?",
+        "a": "Per-role visibility is part of the permission model: birth dates, marriage dates and photos are each gated separately, so a relative can be given the shape of the tree without the personal details of everyone still living. Photos are kept in private object storage and served as short-lived signed links, never as public URLs."
+      },
+      "complex": {
+        "q": "How are remarriages, divorce, adoption and step-children recorded?",
+        "a": "Each marriage carries its own date and an optional divorce date, so several marriages for one person are fully supported. Every parent-child link is tagged biological, adoptive or step, and those tags are taken into account when a relationship path is traced."
+      },
+      "api": {
+        "q": "Is there an API?",
+        "a": "Yes — REST and GraphQL, both thin layers over the same use cases, so authorization, validation and error semantics cannot drift apart between them. Swagger UI, ReDoc and GraphiQL are served by the app outside production, and the OpenAPI and GraphQL schemas are committed to the repository."
+      }
+    }
   },
   "cta": {
     "title": "Start mapping your family",
