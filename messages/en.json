@@ -167,6 +167,15 @@
       }
     }
   },
+  "demo": {
+    "metaTitle": "Live family tree demo — a real tree you can explore",
+    "metaDescription": "Explore a real family tree without signing up: pan the chart, scrub the timeline, and trace how any two people are related. View only, nothing to set up.",
+    "title": "Live demo",
+    "support": "A real family tree, published for anyone to read. This is the same view you get after signing up — pan the chart, open a person, scrub the timeline, and pick two people to see the kinship path between them, step by step.",
+    "readOnlyNote": "View only — nothing you do here changes the tree.",
+    "canvasLabel": "Demo family tree chart",
+    "navLabel": "Demo"
+  },
   "cta": {
     "title": "Start mapping your family",
     "body": "Create a free account to build a private tree, add people and marriages, and see how anyone connects.",

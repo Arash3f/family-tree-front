@@ -66,7 +66,7 @@ import {
 import { usePedigreeLayout } from "./usePedigreeLayout";
 import { usePedigreePermissions } from "./usePedigreePermissions";
 import { useTimelineSlice } from "./useTimelineSlice";
-import { useTreeData } from "./useTreeData";
+import { useTreeData, type TreeSource } from "./useTreeData";
 
 const EMPTY_PATH_IDS = new Set<string>();
 
@@ -102,9 +102,15 @@ const EMPTY_FOCUS_IDS = new Set<string>();
 
 type Props = {
   treeId: string;
+  /**
+   * Which tree this is. `"demo"` reads the publicly published tree instead of
+   * a membership, and `treeId` is then only an identity for the per-tree UI
+   * state (collapsed branches, opening fit) — the real id arrives with it.
+   */
+  treeSource?: TreeSource;
 };
 
-export function PedigreeView({ treeId }: Props) {
+export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   const t = useTranslations("pedigree");
   const tTrees = useTranslations("trees");
   const locale = useLocale();
@@ -131,7 +137,7 @@ export function PedigreeView({ treeId }: Props) {
     openingFitTreeId.current = treeId;
     bumpLayout();
   }, [treeId, bumpLayout]);
-  const tree = useTreeData(treeId, onTreeLoaded);
+  const tree = useTreeData(treeId, onTreeLoaded, treeSource);
   const { busy, marriages, persons } = tree;
   const permissions = usePedigreePermissions(tree.hasTreeAccess);
   const branches = useBranchCollapse(treeId, persons, marriages);

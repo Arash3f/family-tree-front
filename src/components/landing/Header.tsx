@@ -30,6 +30,7 @@ function readHeaderOffset() {
 export function Header() {
   const t = useTranslations("nav");
   const brand = useTranslations("hero");
+  const tDemo = useTranslations("demo");
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionId | null>(null);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
@@ -230,6 +231,9 @@ export function Header() {
                 {label}
               </a>
             ))}
+            <Link className={styles.docs} href="/demo" onClick={close}>
+              {tDemo("navLabel")}
+            </Link>
             <a
               className={styles.docs}
               href={getApiDocsUrl()}
@@ -275,6 +279,9 @@ export function Header() {
               {label}
             </a>
           ))}
+          <Link className={styles.docs} href="/demo">
+            {tDemo("navLabel")}
+          </Link>
           <a
             className={styles.docs}
             href={getApiDocsUrl()}

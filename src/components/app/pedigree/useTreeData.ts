@@ -10,6 +10,7 @@ import {
   deleteMarriage as apiDeleteMarriage,
   deletePerson as apiDeletePerson,
   divorceMarriage as apiDivorceMarriage,
+  getDemoFamilyTree,
   getFamilyTree,
   listAllMarriages,
   listAllPersons,
@@ -57,6 +58,16 @@ type SavePersonInput = {
   target: SavePersonTarget;
 };
 
+/**
+ * Which tree is being read, and therefore under which authorization.
+ *
+ * `"member"` is the normal case: a signed-in member of that tree. `"demo"` is
+ * the single tree published for anyone to read — it is resolved by name rather
+ * than by id, needs no session, and comes back carrying only read capabilities,
+ * so everything downstream renders it read-only without knowing it is the demo.
+ */
+export type TreeSource = "member" | "demo";
+
 type TreeSnapshot = {
   tree: Awaited<ReturnType<typeof getFamilyTree>>;
   personList: Person[];
@@ -94,7 +105,12 @@ export type TreeData = {
  * `onLoaded` fires after a fetch replaces the tree, which is when the graph has
  * to be laid out again.
  */
-export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
+export function useTreeData(
+  treeId: string,
+  onLoaded: () => void,
+  source: TreeSource = "member",
+): TreeData {
+  const isDemo = source === "demo";
   const t = useTranslations("pedigree");
   const router = useRouter();
   const { status, user, hasPermission } = useAuth();
@@ -134,7 +150,9 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
   /** Resolves `null` when the caller was cancelled before the data arrived. */
   const fetchSnapshot = useCallback(
     async (signal?: AbortSignal): Promise<TreeSnapshot | null> => {
-      const tree = await getFamilyTree(treeId, signal);
+      const tree = isDemo
+        ? await getDemoFamilyTree(signal)
+        : await getFamilyTree(treeId, signal);
       if (signal?.aborted) return null;
 
       const canView = (tree.my_permissions ?? []).includes(TreeAccess.VIEW);
@@ -144,8 +162,10 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
 
       const loaded = await allOrCancelled(
         [
-          listAllPersons(treeId, signal),
-          listAllMarriages(treeId, signal),
+          // `tree.id`, not `treeId`: identical for a member tree, and the only
+          // way to know the id of the demo tree, which is resolved by name.
+          listAllPersons(tree.id, signal),
+          listAllMarriages(tree.id, signal),
         ] as const,
         signal,
       );
@@ -154,7 +174,7 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
       const [personList, marriageList] = loaded;
       return { tree, personList, marriageList };
     },
-    [treeId],
+    [treeId, isDemo],
   );
 
   const applySnapshot = useCallback((snapshot: TreeSnapshot) => {
@@ -193,10 +213,14 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
   }, [fetchSnapshot, applySnapshot, applyLoadFailure]);
 
   useEffect(() => {
-    if (status !== "authenticated") return;
-    if (!hasPermission(Permissions.TREE_READ)) {
-      router.replace("/dashboard");
-      return;
+    // The demo is the one tree with no session behind it, so neither the
+    // sign-in wait nor the system TREE_READ redirect applies to it.
+    if (!isDemo) {
+      if (status !== "authenticated") return;
+      if (!hasPermission(Permissions.TREE_READ)) {
+        router.replace("/dashboard");
+        return;
+      }
     }
     // Navigating between trees must not let the slower response win.
     const controller = new AbortController();
@@ -222,6 +246,7 @@ export function useTreeData(treeId: string, onLoaded: () => void): TreeData {
         new DOMException("Tree view navigated away", "AbortError"),
       );
   }, [
+    isDemo,
     status,
     hasPermission,
     router,

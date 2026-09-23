@@ -699,6 +699,28 @@ export async function getFamilyTree(
   return jsonOrThrow(response);
 }
 
+/**
+ * The one tree published for anyone to read, without signing in.
+ *
+ * Its id is server-side configuration, so the client asks for "the demo tree"
+ * rather than being told which id that is. `my_permissions` comes back as the
+ * read-only demo set, which is what makes the pedigree render without any of
+ * its editing affordances — the same field a member tree is rendered from.
+ *
+ * @param signal - Abort signal for the request.
+ *
+ * @returns The demo tree.
+ *
+ * @throws {AuthApiError} 404 - When no demo tree is configured.
+ * @throws {AuthApiError} 429 - When the per-IP demo rate limit is exhausted.
+ */
+export async function getDemoFamilyTree(
+  signal?: AbortSignal,
+): Promise<FamilyTree> {
+  const response = await apiFetch("/family-trees/demo", { signal });
+  return jsonOrThrow(response);
+}
+
 export async function createFamilyTree(input: {
   name: string;
 }): Promise<FamilyTree> {

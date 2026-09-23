@@ -1,0 +1,67 @@
+.page {
+  display: grid;
+  gap: var(--space-5);
+  padding-block: clamp(2rem, 6vh, 3.5rem) clamp(2rem, 6vh, 4rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+}
+
+.intro {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-3);
+  max-width: 44rem;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.025em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+
+.support {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.note {
+  justify-self: start;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent-strong);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+}
+
+/*
+ * The pedigree canvas sizes itself to its container, so it needs a height here
+ * rather than the intrinsic one a document-flow section would give it.
+ */
+.canvas {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  min-height: min(72vh, 44rem);
+  display: grid;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+@media (max-width: 479.98px) {
+  .canvas {
+    min-height: 68vh;
+    border-radius: var(--radius-md);
+  }
+}
