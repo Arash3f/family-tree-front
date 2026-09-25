@@ -10,11 +10,11 @@
     "build": "next build",
     "start": "next start --port 5173",
     "lint": "eslint",
-    "test": "node --import ./scripts/test-alias-hook.mjs --test \"src/**/*.test.mts\"",
+    "test": "node --experimental-strip-types --import ./scripts/test-alias-hook.mjs --test \"src/**/*.test.mts\"",
     "test:export": "node scripts/export-e2e.mjs",
     "test:layout": "node scripts/check-layout.mjs",
     "shots": "node scripts/shoot-landing.mjs",
-    "bench:layout": "node --import ./scripts/test-alias-hook.mjs scripts/bench-layout.mjs"
+    "bench:layout": "node --experimental-strip-types --import ./scripts/test-alias-hook.mjs scripts/bench-layout.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.11.2",
