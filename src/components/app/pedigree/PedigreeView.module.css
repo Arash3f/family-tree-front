@@ -412,7 +412,9 @@
 
 .searchResults {
   position: fixed;
-  z-index: var(--z-modal);
+  /* Above portaled mobile sheets (--z-site-sheet) and app dialogs — same
+   * tier as Select typeaheads; --z-modal sits under the path/person sheet. */
+  z-index: var(--z-popover);
   margin: 0;
   list-style: none;
   border: 1px solid var(--border);

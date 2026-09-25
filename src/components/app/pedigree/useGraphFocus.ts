@@ -55,7 +55,12 @@ export type GraphFocus = {
   clearRelationHighlight: (resetMinimalFit?: boolean) => void;
   applyPathView: (mode: PathViewMode) => void;
   openBranchPreview: (personId: string) => void;
-  clearBranchPreview: () => void;
+  /**
+   * Leave the branch clip and rebuild the full tree, framing `focusPersonId`
+   * (or the branch root when omitted) so the camera does not jump to the
+   * opening shot / empty space.
+   */
+  clearBranchPreview: (focusPersonId?: string | null) => void;
   /** Leave path/branch clips, restore the full tree, then frame this person. */
   revealPerson: (personId: string) => void;
   showRelationPath: (pathIds: string[], label: string) => void;
@@ -227,10 +232,18 @@ export function useGraphFocus(): GraphFocus {
     [clearRelationHighlight, relayoutFraming],
   );
 
-  const clearBranchPreview = useCallback(() => {
-    setBranchRootId(null);
-    relayout(null);
-  }, [relayout]);
+  const clearBranchPreview = useCallback(
+    (focusPersonId?: string | null) => {
+      const frameId = focusPersonId ?? branchRootId;
+      setBranchRootId(null);
+      if (frameId) {
+        relayoutFraming([frameId]);
+        return;
+      }
+      relayout(null);
+    },
+    [branchRootId, relayout, relayoutFraming],
+  );
 
   const revealPerson = useCallback(
     (personId: string) => {

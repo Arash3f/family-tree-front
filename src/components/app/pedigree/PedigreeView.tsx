@@ -1122,7 +1122,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                   setSelectedId(null);
                   setPanel({ kind: "none" });
                   if (focus.branchRootId === personId) {
-                    focus.clearBranchPreview();
+                    focus.clearBranchPreview(personId);
                   } else {
                     focus.openBranchPreview(personId);
                   }
@@ -1215,7 +1215,9 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
           setPanel({ kind: "none" });
           exportDialog.openTreeExport();
         }}
-        onExitBranch={focus.clearBranchPreview}
+        onExitBranch={() =>
+          focus.clearBranchPreview(selectedId ?? focus.branchRootId)
+        }
         onDownloadSample={() => void excel.downloadSample()}
         onExportExcel={() => void excel.exportExcel()}
         onPickFile={(file) => void excel.openPreview(file)}
