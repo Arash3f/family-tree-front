@@ -187,6 +187,10 @@
   background: color-mix(in srgb, var(--accent) 8%, var(--surface));
 }
 
+.previewRowUpdate td {
+  background: color-mix(in srgb, var(--accent-muted, var(--accent)) 18%, var(--surface));
+}
+
 .previewRowDuplicate td,
 .previewRowWarning td {
   background: color-mix(in srgb, var(--danger) 7%, var(--surface));
@@ -195,7 +199,8 @@
 .previewBadgeExisting,
 .previewBadgeDuplicate,
 .previewBadgeWarning,
-.previewBadgeNew {
+.previewBadgeNew,
+.previewBadgeUpdate {
   display: inline-block;
   max-width: 18rem;
   overflow: hidden;
@@ -208,6 +213,11 @@
 
 .previewBadgeExisting {
   background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent);
+}
+
+.previewBadgeUpdate {
+  background: color-mix(in srgb, var(--accent) 22%, var(--surface));
   color: var(--accent);
 }
 
@@ -242,7 +252,8 @@
   .previewBadgeExisting,
   .previewBadgeDuplicate,
   .previewBadgeWarning,
-  .previewBadgeNew {
+  .previewBadgeNew,
+  .previewBadgeUpdate {
     max-width: 100%;
   }
 }

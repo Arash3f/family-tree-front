@@ -5,7 +5,11 @@ import type { TreeExcelPreviewResult } from "@/lib/auth/client";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { formatDateForLocale } from "@/lib/pedigree/dates";
 import { Button } from "@/components/ui/Button";
-import { isImportableMarriage, isImportablePerson } from "./excel-import";
+import {
+  isImportableMarriage,
+  isSelectablePerson,
+  isUpdatablePerson,
+} from "./excel-import";
 import shared from "./PedigreeView.module.css";
 import styles from "./ExcelPreviewDialog.module.css";
 
@@ -85,8 +89,23 @@ export function ExcelPreviewDialog({
     existing_label?: string | null;
     duplicate_of_ref: string | null;
     warning?: string | null;
+    changed_fields?: string[];
   }) => {
     if (row.already_exists) {
+      if (row.changed_fields && row.changed_fields.length > 0) {
+        return (
+          <span className={styles.previewStatusStack}>
+            <span className={styles.previewBadgeUpdate}>
+              {t("excelPreviewUpdate")}
+            </span>
+            {row.existing_label ? (
+              <span className={styles.previewWarningText}>
+                {t("excelPreviewExistingAs", { label: row.existing_label })}
+              </span>
+            ) : null}
+          </span>
+        );
+      }
       return (
         <span className={styles.previewBadgeExisting}>
           {row.existing_label
@@ -215,7 +234,7 @@ export function ExcelPreviewDialog({
                 </thead>
                 <tbody>
                   {preview.persons.map((person) => {
-                    const importable = isImportablePerson(person);
+                    const selectable = isSelectablePerson(person);
                     const fullName = [person.name, person.family_name]
                       .filter(Boolean)
                       .join(" ");
@@ -223,20 +242,22 @@ export function ExcelPreviewDialog({
                       <tr
                         key={`${person.row_number}-${person.ref}`}
                         className={
-                          person.already_exists
-                            ? styles.previewRowExisting
-                            : person.duplicate_of_ref
-                              ? styles.previewRowDuplicate
-                              : person.warning
-                                ? styles.previewRowWarning
-                                : undefined
+                          isUpdatablePerson(person)
+                            ? styles.previewRowUpdate
+                            : person.already_exists
+                              ? styles.previewRowExisting
+                              : person.duplicate_of_ref
+                                ? styles.previewRowDuplicate
+                                : person.warning
+                                  ? styles.previewRowWarning
+                                  : undefined
                         }
                       >
                         <td className={styles.previewCheckCol}>
                           <input
                             type="checkbox"
                             checked={selectedPersonRefs.has(person.ref)}
-                            disabled={busy || !importable}
+                            disabled={busy || !selectable}
                             aria-label={fullName || person.ref}
                             onChange={(event) =>
                               onTogglePerson(person.ref, event.target.checked)

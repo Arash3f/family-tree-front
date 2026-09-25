@@ -8,6 +8,19 @@ export function isImportablePerson(person: TreeExcelPreviewPerson): boolean {
   return !person.already_exists && !person.duplicate_of_ref;
 }
 
+export function isUpdatablePerson(person: TreeExcelPreviewPerson): boolean {
+  return (
+    person.already_exists &&
+    !person.duplicate_of_ref &&
+    person.changed_fields.length > 0
+  );
+}
+
+/** New rows plus matched rows that carry field edits. */
+export function isSelectablePerson(person: TreeExcelPreviewPerson): boolean {
+  return isImportablePerson(person) || isUpdatablePerson(person);
+}
+
 export function isImportableMarriage(
   marriage: TreeExcelPreviewMarriage,
 ): boolean {
@@ -20,7 +33,7 @@ export function defaultExcelSelection(preview: TreeExcelPreviewResult): {
 } {
   return {
     persons: new Set(
-      preview.persons.filter(isImportablePerson).map((person) => person.ref),
+      preview.persons.filter(isSelectablePerson).map((person) => person.ref),
     ),
     marriages: new Set(
       preview.marriages
@@ -33,7 +46,8 @@ export function defaultExcelSelection(preview: TreeExcelPreviewResult): {
 /**
  * Everything that has to come along when one person is picked: their ancestors
  * and the marriages tying them together. Rows already in the tree stop the
- * walk, since importing them again would duplicate people.
+ * walk, since importing them again would duplicate people — unless that row is
+ * itself an edit the caller already selected separately.
  */
 export function collectPersonImportGraph(
   startRef: string,

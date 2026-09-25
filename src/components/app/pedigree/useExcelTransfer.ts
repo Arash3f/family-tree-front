@@ -17,7 +17,8 @@ import {
   collectPersonImportGraph,
   defaultExcelSelection,
   isImportableMarriage,
-  isImportablePerson,
+  isSelectablePerson,
+  isUpdatablePerson,
 } from "./excel-import";
 
 export type ExcelTransfer = {
@@ -128,7 +129,7 @@ export function useExcelTransfer(
     if (!file || !preview?.valid) return;
     const personRefs = [...selectedPersonRefs].filter((ref) => {
       const person = preview.persons.find((item) => item.ref === ref);
-      return person ? isImportablePerson(person) : false;
+      return person ? isSelectablePerson(person) : false;
     });
     const marriageRefs = [...selectedMarriageRefs].filter((ref) => {
       const marriage = preview.marriages.find((item) => item.ref === ref);
@@ -145,6 +146,7 @@ export function useExcelTransfer(
         t("excelImportSuccess", {
           people: formatLocaleDigits(result.persons_created, locale),
           marriages: formatLocaleDigits(result.marriages_created, locale),
+          updated: formatLocaleDigits(result.persons_updated ?? 0, locale),
         }),
       );
       closePreview();
@@ -174,12 +176,18 @@ export function useExcelTransfer(
   const togglePerson = useCallback(
     (ref: string, checked: boolean) => {
       if (!preview) return;
+      const person = preview.persons.find((item) => item.ref === ref);
+      if (!person || !isSelectablePerson(person)) return;
       if (!checked) {
         setSelectedPersonRefs((current) => {
           const next = new Set(current);
           next.delete(ref);
           return next;
         });
+        return;
+      }
+      if (isUpdatablePerson(person)) {
+        setSelectedPersonRefs((current) => new Set([...current, ref]));
         return;
       }
       const extra = collectPersonImportGraph(ref, preview);
@@ -234,7 +242,7 @@ export function useExcelTransfer(
       preview
         ? preview.persons.filter(
             (person) =>
-              selectedPersonRefs.has(person.ref) && isImportablePerson(person),
+              selectedPersonRefs.has(person.ref) && isSelectablePerson(person),
           ).length
         : 0,
     [preview, selectedPersonRefs],

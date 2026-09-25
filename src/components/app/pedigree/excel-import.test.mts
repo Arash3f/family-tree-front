@@ -6,6 +6,8 @@ import {
   defaultExcelSelection,
   isImportableMarriage,
   isImportablePerson,
+  isSelectablePerson,
+  isUpdatablePerson,
 } from "@/components/app/pedigree/excel-import.ts";
 import type {
   TreeExcelPreviewMarriage,
@@ -34,6 +36,7 @@ function person(seed: PersonSeed): TreeExcelPreviewPerson {
     parent1_label: null,
     parent2_label: null,
     marriage_label: null,
+    changed_fields: [],
     ...seed,
   };
 }
@@ -84,6 +87,25 @@ test("rows already in the tree or duplicated are not importable", () => {
   );
 });
 
+test("matched rows with field edits are updatable and selectable", () => {
+  const unchanged = person({
+    ref: "same",
+    already_exists: true,
+    changed_fields: [],
+  });
+  const edited = person({
+    ref: "edit",
+    already_exists: true,
+    changed_fields: ["family_name"],
+  });
+
+  assert.equal(isUpdatablePerson(unchanged), false);
+  assert.equal(isSelectablePerson(unchanged), false);
+  assert.equal(isUpdatablePerson(edited), true);
+  assert.equal(isSelectablePerson(edited), true);
+  assert.equal(isImportablePerson(edited), false);
+});
+
 test("default selection includes namesake warnings as new people", () => {
   const selection = defaultExcelSelection(
     preview([
@@ -99,16 +121,21 @@ test("default selection includes namesake warnings as new people", () => {
   assert.deepEqual([...selection.persons].sort(), ["ali-1", "ali-2"]);
 });
 
-test("default selection takes every importable person", () => {
+test("default selection takes new people and pending updates", () => {
   const selection = defaultExcelSelection(
     preview([
       person({ ref: "new" }),
       person({ ref: "existing", already_exists: true }),
+      person({
+        ref: "edit",
+        already_exists: true,
+        changed_fields: ["notes"],
+      }),
       person({ ref: "dupe", duplicate_of_ref: "new" }),
     ]),
   );
 
-  assert.deepEqual([...selection.persons], ["new"]);
+  assert.deepEqual([...selection.persons].sort(), ["edit", "new"]);
 });
 
 test("default selection skips marriages carrying a warning", () => {

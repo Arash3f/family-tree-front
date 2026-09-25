@@ -705,7 +705,7 @@ export async function getFamilyTree(
  * Its id is server-side configuration, so the client asks for "the demo tree"
  * rather than being told which id that is. `my_permissions` comes back as the
  * read-only demo set, which is what makes the pedigree render without any of
- * its editing affordances — the same field a member tree is rendered from.
+ * its editing affordances ΓÇö the same field a member tree is rendered from.
  *
  * @param signal - Abort signal for the request.
  *
@@ -1110,6 +1110,7 @@ export async function exportTreeExcel(
 export type TreeExcelImportResult = {
   persons_created: number;
   marriages_created: number;
+  persons_updated: number;
 };
 
 export type TreeExcelPreviewPerson = {
@@ -1131,6 +1132,8 @@ export type TreeExcelPreviewPerson = {
   parent1_label: string | null;
   parent2_label: string | null;
   marriage_label: string | null;
+  /** Fields that differ from the matched person; empty when unchanged or new. */
+  changed_fields: string[];
 };
 
 export type TreeExcelPreviewMarriage = {
