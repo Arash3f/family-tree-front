@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { getApiDocsUrl } from "@/lib/api";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import styles from "./Header.module.css";
 
 const DESKTOP_MQ = "(min-width: 920px)";
@@ -31,6 +31,8 @@ export function Header() {
   const t = useTranslations("nav");
   const brand = useTranslations("hero");
   const tDemo = useTranslations("demo");
+  const pathname = usePathname();
+  const onLanding = pathname === "/";
   const [open, setOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionId | null>(null);
   const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
@@ -49,6 +51,11 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    if (!onLanding) {
+      pendingSectionRef.current = null;
+      return;
+    }
+
     let frame = 0;
     let cancelled = false;
 
@@ -96,6 +103,18 @@ export function Header() {
       updateActive();
     };
 
+    const scrollToHashIfPresent = () => {
+      const raw = window.location.hash.replace(/^#/, "");
+      if (!SECTION_IDS.includes(raw as SectionId)) return false;
+      const id = raw as SectionId;
+      const section = document.getElementById(id);
+      if (!section) return false;
+      pendingSectionRef.current = id;
+      setActiveSection(id);
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+      return true;
+    };
+
     const tryInit = () => {
       if (cancelled) return;
       const ready = SECTION_IDS.some((id) => document.getElementById(id));
@@ -103,7 +122,7 @@ export function Header() {
         frame = window.requestAnimationFrame(tryInit);
         return;
       }
-      updateActive();
+      if (!scrollToHashIfPresent()) updateActive();
     };
 
     tryInit();
@@ -120,7 +139,7 @@ export function Header() {
       window.removeEventListener("hashchange", onScroll);
       window.removeEventListener("scrollend", onScrollEnd);
     };
-  }, []);
+  }, [onLanding]);
 
   useEffect(() => {
     if (!open) return;
@@ -192,15 +211,18 @@ export function Header() {
     });
   };
 
+  // Landing sections only exist on `/`. Off-home (e.g. `/demo`) go to `/#id`
+  // via next-intl Link so the locale prefix is preserved.
+  const highlightedSection = onLanding ? activeSection : null;
   const navItems = SECTION_IDS.map((id) => ({
     id,
-    href: `#${id}`,
+    href: onLanding ? `#${id}` : `/#${id}`,
     label: t(id),
   }));
 
   const sectionLinkProps = (id: SectionId) => ({
-    className: activeSection === id ? styles.active : undefined,
-    "aria-current": activeSection === id ? ("true" as const) : undefined,
+    className: highlightedSection === id ? styles.active : undefined,
+    "aria-current": highlightedSection === id ? ("true" as const) : undefined,
     onClick: (event: MouseEvent<HTMLAnchorElement>) => {
       event.preventDefault();
       scrollToSection(id);
@@ -226,11 +248,17 @@ export function Header() {
           aria-label={t("menuOpen")}
         >
           <nav className={styles.navMobile} aria-label={t("primary")}>
-            {navItems.map(({ id, href, label }) => (
-              <a key={id} href={href} {...sectionLinkProps(id)}>
-                {label}
-              </a>
-            ))}
+            {navItems.map(({ id, href, label }) =>
+              onLanding ? (
+                <a key={id} href={href} {...sectionLinkProps(id)}>
+                  {label}
+                </a>
+              ) : (
+                <Link key={id} href={href} onClick={close}>
+                  {label}
+                </Link>
+              ),
+            )}
             <Link className={styles.docs} href="/demo" onClick={close}>
               {tDemo("navLabel")}
             </Link>
@@ -274,11 +302,17 @@ export function Header() {
         </Link>
 
         <nav className={styles.navDesktop} aria-label={t("primary")}>
-          {navItems.map(({ id, href, label }) => (
-            <a key={id} href={href} {...sectionLinkProps(id)}>
-              {label}
-            </a>
-          ))}
+          {navItems.map(({ id, href, label }) =>
+            onLanding ? (
+              <a key={id} href={href} {...sectionLinkProps(id)}>
+                {label}
+              </a>
+            ) : (
+              <Link key={id} href={href}>
+                {label}
+              </Link>
+            ),
+          )}
           <Link className={styles.docs} href="/demo">
             {tDemo("navLabel")}
           </Link>
