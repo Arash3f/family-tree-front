@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-/** Calendar pulls `react-multi-date-picker` — load only when the chrome mounts it. */
+/** Loads calendar chrome (jalali month grid) only when the pedigree toolbar mounts it. */
 export const BirthdayCalendarButton = dynamic(
   () =>
     import("./BirthdayCalendar").then((mod) => ({
