@@ -18,9 +18,15 @@ export function getApiDocsUrl(): string {
 }
 
 export function isAbortError(error: unknown): boolean {
+  if (error instanceof DOMException || error instanceof Error) {
+    return error.name === "AbortError";
+  }
+  // Duck-type across realms / serialized rejections where `instanceof` fails.
   return (
-    (error instanceof DOMException && error.name === "AbortError") ||
-    (error instanceof Error && error.name === "AbortError")
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name: unknown }).name === "AbortError"
   );
 }
 
@@ -47,8 +53,20 @@ export async function allOrCancelled<T extends readonly unknown[] | []>(
   const results = await Promise.allSettled(requests);
   if (signal?.aborted) return null;
 
-  for (const result of results) {
-    if (result.status === "rejected") throw result.reason;
+  const rejections = results.filter(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+  // Cancel can surface as AbortError on every sibling even when the signal
+  // check above races a tick behind; walking away is still not a failure.
+  if (
+    rejections.length > 0 &&
+    rejections.every((result) => isAbortError(result.reason))
+  ) {
+    return null;
+  }
+
+  for (const result of rejections) {
+    throw result.reason;
   }
 
   return results.map(

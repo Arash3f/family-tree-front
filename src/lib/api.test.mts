@@ -56,3 +56,14 @@ test("a cancel mid-flight discards the answers that did arrive", async () => {
 
   assert.equal(await group, null);
 });
+
+test("AbortError rejections alone count as cancel even before signal flips", async () => {
+  const abort = new DOMException("navigated away", "AbortError");
+  const group = allOrCancelled(
+    [failsLater(abort, 1), failsLater(abort, 2)] as const,
+    // Signal not aborted — simulates a tick where fetch rejected first.
+    new AbortController().signal,
+  );
+
+  assert.equal(await group, null);
+});
