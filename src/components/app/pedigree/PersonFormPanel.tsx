@@ -17,7 +17,7 @@ import type {
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { personDisplayName } from "@/lib/pedigree/layout";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Feedback";
+import { Alert, Badge } from "@/components/ui/Feedback";
 import {
   Field,
   SelectField,
@@ -31,6 +31,7 @@ import {
   FormSection,
 } from "@/components/ui/Form";
 import { DateField } from "./LazyDateField";
+import { underageSpouseLabels } from "./marriage-age";
 import { marriagePeriodText } from "./marriage-text";
 import {
   findOriginMarriageId,
@@ -67,6 +68,8 @@ type Props = {
   parentOfName: string | null;
   /** Name of the person this new person will marry. */
   spouseOfName: string | null;
+  /** Existing partner when creating a spouse (for soft age alarm). */
+  spousePartner: Person | null;
   onSpouseMarriedAtChange: (marriedAt: string) => void;
   existingPhotoUrl: string | null;
   divorceDate: string;
@@ -104,6 +107,7 @@ export function PersonFormPanel({
   nameOf,
   parentOfName,
   spouseOfName,
+  spousePartner,
   onSpouseMarriedAtChange,
   existingPhotoUrl,
   divorceDate,
@@ -125,6 +129,34 @@ export function PersonFormPanel({
   const creatingParent = mode.kind === "create" ? mode.linkAsParentOf : undefined;
   const creatingSpouse =
     mode.kind === "create" ? mode.linkAsSpouseOf : undefined;
+
+  const underageSpouseWarningNames = useMemo(() => {
+    if (!creatingSpouse) return [];
+    return underageSpouseLabels(
+      [
+        spousePartner
+          ? {
+              label: personDisplayName(spousePartner),
+              birth_date: spousePartner.birth_date,
+            }
+          : null,
+        {
+          label: form.name.trim() || t("createSpouseTitle"),
+          birth_date: form.birth_date || null,
+        },
+      ].filter(
+        (item): item is { label: string; birth_date: string | null } =>
+          Boolean(item),
+      ),
+      creatingSpouse.married_at,
+    );
+  }, [
+    creatingSpouse,
+    form.birth_date,
+    form.name,
+    spousePartner,
+    t,
+  ]);
 
   const pickedPhotoUrl = useMemo(() => {
     if (!form.photoFile) return null;
@@ -225,6 +257,16 @@ export function PersonFormPanel({
             />
           )}
         </Field>
+      ) : null}
+
+      {underageSpouseWarningNames.length > 0 ? (
+        <Alert tone="warning">
+          {t("underageMarriageWarning", {
+            names: underageSpouseWarningNames.join(
+              locale === "fa" ? "، " : ", ",
+            ),
+          })}
+        </Alert>
       ) : null}
 
       <TextField

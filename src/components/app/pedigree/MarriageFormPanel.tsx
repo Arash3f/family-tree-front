@@ -5,9 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Person } from "@/lib/auth/types";
 import { personDisplayName } from "@/lib/pedigree/layout";
 import { Button } from "@/components/ui/Button";
+import { Alert } from "@/components/ui/Feedback";
 import { Field, SelectField } from "@/components/ui/Field";
 import { Form, FormActions, FormRow } from "@/components/ui/Form";
 import { DateField } from "./LazyDateField";
+import { underageSpouseLabels } from "./marriage-age";
 import styles from "./PedigreeView.module.css";
 
 export type MarriageFormState = {
@@ -35,6 +37,22 @@ export function MarriageFormPanel({
 }: Props) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
+  const personById = new Map(personOptions.map((person) => [person.id, person]));
+  const spouseA = personById.get(form.spouse_a_id);
+  const spouseB = personById.get(form.spouse_b_id);
+  const underageNames = underageSpouseLabels(
+    [
+      spouseA
+        ? { label: personDisplayName(spouseA), birth_date: spouseA.birth_date }
+        : null,
+      spouseB
+        ? { label: personDisplayName(spouseB), birth_date: spouseB.birth_date }
+        : null,
+    ].filter((item): item is { label: string; birth_date: string | null } =>
+      Boolean(item),
+    ),
+    form.married_at,
+  );
 
   return (
     <Form
@@ -111,6 +129,13 @@ export function MarriageFormPanel({
           />
         )}
       </Field>
+      {underageNames.length > 0 ? (
+        <Alert tone="warning">
+          {t("underageMarriageWarning", {
+            names: underageNames.join(locale === "fa" ? "، " : ", "),
+          })}
+        </Alert>
+      ) : null}
       <FormActions>
         <Button type="submit" loading={busy}>
           {t("save")}

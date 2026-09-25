@@ -74,6 +74,65 @@
   pointer-events: none;
 }
 
+.rootProminent {
+  flex-shrink: 0;
+}
+
+.triggerProminent {
+  gap: 0.4rem;
+  min-width: 2.15rem;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 22%, var(--surface-raised)),
+      color-mix(in srgb, var(--surface-raised) 92%, transparent)
+    );
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-size: 1.15rem;
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.triggerProminent > svg {
+  flex-shrink: 0;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.triggerProminent:hover {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 32%, var(--surface-raised)),
+      color-mix(in srgb, var(--surface-raised) 92%, transparent)
+    );
+  color: var(--foreground);
+}
+
+.triggerProminent.triggerOpen {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border));
+  color: var(--accent-strong);
+}
+
+/* Inline with the icon — not a corner overlay that hides the calendar. */
+.countProminent {
+  position: static;
+  top: auto;
+  inset-inline-end: auto;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.3rem;
+  font-size: 0.75rem;
+  font-weight: var(--weight-bold);
+  box-shadow: var(--shadow-sm);
+}
+
 .overlay {
   position: fixed;
   inset: 0;

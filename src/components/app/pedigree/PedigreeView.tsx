@@ -34,6 +34,7 @@ import {
 import { subsetWithoutHidden } from "@/lib/pedigree/collapse";
 import { countDescendantsByGeneration } from "@/lib/pedigree/descendants";
 import { ageInYearsAtYear, todayIso } from "@/lib/pedigree/dates";
+import { HiOutlineTicket } from "react-icons/hi2";
 import { Link } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
 import { Button } from "@/components/ui/Button";
@@ -46,6 +47,7 @@ import { PedigreeHeader } from "./PedigreeHeader";
 import { PedigreeOverlays } from "./PedigreeOverlays";
 import { PedigreeSidePanels } from "./PedigreeSidePanels";
 import { RelationResult } from "./RelationResult";
+import { BirthdayCalendarButton } from "./LazyBirthdayCalendar";
 import {
   emptyPersonForm,
   personToForm,
@@ -175,6 +177,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   const [relateToId, setRelateToId] = useState("");
   const [divorceDate, setDivorceDate] = useState(todayIso());
   const [ticketOpen, setTicketOpen] = useState(false);
+  const [birthdayOpen, setBirthdayOpen] = useState(false);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const relationRequestSeq = useRef(0);
 
@@ -949,12 +952,6 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
         onExportExcel={() => void excel.exportExcel()}
         onPickFile={(file) => void excel.openPreview(file)}
         onCreateTicket={() => setTicketOpen(true)}
-        people={persons}
-        canViewBirthDate={permissions.canViewBirthDate}
-        onSelectBirthdayPerson={(personId) => {
-          revealPerson(personId);
-          onSelect(personId);
-        }}
       />
 
       {!permissions.canReadPersons ? (
@@ -970,6 +967,46 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
       >
         <div className={styles.stage}>
           <div className={styles.canvasWrap}>
+            {permissions.canReadPersons ? (
+              <div className={styles.canvasChrome}>
+                <div
+                  className={styles.canvasPersonCount}
+                  title={t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                  aria-label={t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                >
+                  {t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                </div>
+                <BirthdayCalendarButton
+                  prominent
+                  people={persons}
+                  canViewBirthDate={permissions.canViewBirthDate}
+                  open={birthdayOpen}
+                  onOpenChange={setBirthdayOpen}
+                  onSelectPerson={(personId) => {
+                    revealPerson(personId);
+                    onSelect(personId);
+                  }}
+                />
+                {permissions.canCreateTicket ? (
+                  <button
+                    type="button"
+                    className={styles.canvasTicketBtn}
+                    title={t("createTicket")}
+                    aria-label={t("createTicket")}
+                    onClick={() => setTicketOpen(true)}
+                  >
+                    <HiOutlineTicket aria-hidden />
+                    <span>{t("createTicket")}</span>
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
             {persons.length === 0 && permissions.canReadPersons ? (
               <div className={styles.emptyState}>
                 <h2>{t("emptyTitle")}</h2>
@@ -1126,6 +1163,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                     ? personDisplayName(creatingSpousePartner)
                     : null
                 }
+                spousePartner={creatingSpousePartner}
                 onSpouseMarriedAtChange={(marriedAt) => {
                   if (panel.kind !== "create-person" || !panel.linkAsSpouseOf) {
                     return;

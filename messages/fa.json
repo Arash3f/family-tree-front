@@ -983,8 +983,9 @@
     "excelPreviewExistingAs": "مطابق با {label}",
     "excelPreviewUpdate": "ویرایش",
     "excelPreviewDuplicate": "تکراری با {ref}",
-    "excelPreviewWarning": "هویت را بررسی کنید",
+    "excelPreviewWarning": "هشدار",
     "excelPreviewNew": "جدید",
+    "underageMarriageWarning": "{names} در تاریخ ازدواج زیر سن معمول قانونی است؛ ثبت همچنان مجاز است.",
     "excelCols": {
       "select": "ورود",
       "row": "ردیف",

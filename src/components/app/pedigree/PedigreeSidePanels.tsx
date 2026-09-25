@@ -31,6 +31,7 @@ type Props = {
   nameOf: (personId: string) => string;
   parentOfName: string | null;
   spouseOfName: string | null;
+  spousePartner: Person | null;
   onSpouseMarriedAtChange: (marriedAt: string) => void;
   existingPhotoUrl: string | null;
   divorceDate: string;
@@ -102,6 +103,7 @@ export function PedigreeSidePanels({
   nameOf,
   parentOfName,
   spouseOfName,
+  spousePartner,
   onSpouseMarriedAtChange,
   existingPhotoUrl,
   divorceDate,
@@ -179,6 +181,7 @@ export function PedigreeSidePanels({
           nameOf={nameOf}
           parentOfName={parentOfName}
           spouseOfName={spouseOfName}
+          spousePartner={spousePartner}
           onSpouseMarriedAtChange={onSpouseMarriedAtChange}
           existingPhotoUrl={existingPhotoUrl}
           divorceDate={divorceDate}

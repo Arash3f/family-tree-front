@@ -983,8 +983,9 @@
     "excelPreviewExistingAs": "Matches {label}",
     "excelPreviewUpdate": "Update",
     "excelPreviewDuplicate": "Duplicate of {ref}",
-    "excelPreviewWarning": "Check identity",
+    "excelPreviewWarning": "Warning",
     "excelPreviewNew": "New",
+    "underageMarriageWarning": "{names} is under the usual legal marriage age on the wedding date; saving is still allowed.",
     "excelCols": {
       "select": "Import",
       "row": "Row",

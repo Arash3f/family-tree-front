@@ -37,7 +37,7 @@ export function defaultExcelSelection(preview: TreeExcelPreviewResult): {
     ),
     marriages: new Set(
       preview.marriages
-        .filter((marriage) => isImportableMarriage(marriage) && !marriage.warning)
+        .filter((marriage) => isImportableMarriage(marriage))
         .map((marriage) => marriage.ref),
     ),
   };

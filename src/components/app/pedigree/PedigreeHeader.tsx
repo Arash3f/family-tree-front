@@ -3,6 +3,7 @@
 import {
   useId,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
   type RefObject,
@@ -28,9 +29,9 @@ import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Button } from "@/components/ui/Button";
 import { HelpGuide } from "@/components/app/HelpGuide";
 import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
-import { BirthdayCalendarButton } from "./LazyBirthdayCalendar";
 import { MoreMenu } from "./MoreMenu";
 import { PersonSearchResults } from "./PersonSearchResults";
+import { useChromePlan } from "./useChromePlan";
 import styles from "./PedigreeView.module.css";
 
 type Props = {
@@ -50,11 +51,8 @@ type Props = {
   canExportExcel: boolean;
   canCreateTicket: boolean;
   canAccessSettings: boolean;
-  /** Set while a branch preview narrows the canvas. */
   branchActive: boolean;
-  /** Set while the workspace covers the whole screen. */
   fullscreen: boolean;
-  /** People the folded branches keep off the canvas. */
   foldedCount: number;
   onExpandFolded: () => void;
   fileInputRef: RefObject<HTMLInputElement | null>;
@@ -71,16 +69,11 @@ type Props = {
   onExportExcel: () => void;
   onPickFile: (file: File | null) => void;
   onCreateTicket: () => void;
-  people: Person[];
-  canViewBirthDate: boolean;
-  onSelectBirthdayPerson: (personId: string) => void;
 };
 
 type ToolButtonProps = {
   label: string;
-  /** Longer tooltip text; the label is used when there is none. */
   hint?: string;
-  /** Only for toggles — plain actions leave it off so they read as buttons. */
   pressed?: boolean;
   disabled?: boolean;
   className?: string;
@@ -88,11 +81,6 @@ type ToolButtonProps = {
   children: ReactNode;
 };
 
-/**
- * Square icon button for the view controls. Labels live in the tooltip and the
- * accessible name: five spelled-out Persian actions in a row read as a
- * paragraph, and the canvas is what the eye should land on.
- */
 function ToolButton({
   label,
   hint,
@@ -155,52 +143,112 @@ export function PedigreeHeader({
   onExportExcel,
   onPickFile,
   onCreateTicket,
-  people,
-  canViewBirthDate,
-  onSelectBirthdayPerson,
 }: Props) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
   const [search, setSearch] = useState("");
-  const [birthdayOpen, setBirthdayOpen] = useState(false);
+  const chromeRef = useRef<HTMLElement>(null);
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const plan = useChromePlan(chromeRef, actionsRef, searchRef);
   const searchId = useId();
   const results = useMemo(() => searchPeople(search), [searchPeople, search]);
   const empty = personCount === 0;
 
+  const inlineTools = plan.tools !== "menu";
+  const labeled = plan.tools === "labeled";
+  // Person / marriage / calendar / export sit opposite the view strip.
+  // Only fold into MoreMenu when immersive stack hides the identity column.
+  const primaryOnIdentity = !(fullscreen && plan.layout === "stack");
+
   return (
-    <header className={styles.chrome}>
+    <header
+      ref={chromeRef}
+      className={styles.chrome}
+      data-layout={plan.layout}
+      data-tools={plan.tools}
+    >
       <div className={styles.chromeIdentity}>
         <div className={styles.identityBody}>
           <div className={styles.titleRow}>
             <h1 className={styles.title}>
-              <OverflowMarquee title={treeName || t("title")}>
+              <OverflowMarquee
+                className={styles.titleName}
+                title={treeName || t("title")}
+              >
                 {treeName || t("title")}
               </OverflowMarquee>
             </h1>
-            <div
-              className={styles.statRow}
-              aria-label={t("support", {
-                people: formatLocaleDigits(personCount, locale),
-                marriages: formatLocaleDigits(marriageCount, locale),
-              })}
-            >
-              <span className={styles.stat}>
-                {t("statPeople", {
-                  count: formatLocaleDigits(personCount, locale),
+            {labeled ? (
+              <div
+                className={styles.statRow}
+                aria-label={t("support", {
+                  people: formatLocaleDigits(personCount, locale),
+                  marriages: formatLocaleDigits(marriageCount, locale),
                 })}
-              </span>
-              <span className={styles.stat}>
-                {t("statMarriages", {
-                  count: formatLocaleDigits(marriageCount, locale),
-                })}
-              </span>
-            </div>
+              >
+                <span className={styles.stat}>
+                  {t("statPeople", {
+                    count: formatLocaleDigits(personCount, locale),
+                  })}
+                </span>
+                <span className={styles.stat}>
+                  {t("statMarriages", {
+                    count: formatLocaleDigits(marriageCount, locale),
+                  })}
+                </span>
+              </div>
+            ) : null}
           </div>
         </div>
+        {primaryOnIdentity ? (
+          <div className={styles.chromePrimary} role="group" aria-label={t("composeGroup")}>
+            {canCreatePerson ? (
+              <Button
+                size="sm"
+                className={styles.toolBtn}
+                disabled={busy}
+                title={t("addPerson")}
+                aria-label={t("addPerson")}
+                icon={<HiOutlineUserPlus aria-hidden />}
+                onClick={onAddPerson}
+              >
+                {labeled ? <span className={styles.toolLabel}>{t("addPerson")}</span> : null}
+              </Button>
+            ) : null}
+            {canCreateMarriage ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={styles.toolBtn}
+                disabled={busy || personCount < 2}
+                title={t("addMarriage")}
+                aria-label={t("addMarriage")}
+                icon={<HiOutlineHeart aria-hidden />}
+                onClick={onAddMarriage}
+              >
+                {labeled ? (
+                  <span className={styles.toolLabel}>{t("addMarriage")}</span>
+                ) : null}
+              </Button>
+            ) : null}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.toolBtn}
+              disabled={busy || empty}
+              title={t("exportHint")}
+              aria-label={t("export")}
+              icon={<HiOutlineArrowDownTray aria-hidden />}
+              onClick={onExport}
+            >
+              {labeled ? <span className={styles.toolLabel}>{t("export")}</span> : null}
+            </Button>
+          </div>
+        ) : null}
       </div>
 
-      {/* Search owns its own row on phones so tools cannot crush it. */}
-      <div className={styles.chromeSearch}>
+      <div ref={searchRef} className={styles.chromeSearch}>
         <div className={styles.searchField}>
           <label className={styles.srOnly} htmlFor={searchId}>
             {t("searchPlaceholder")}
@@ -271,115 +319,68 @@ export function PedigreeHeader({
         ) : null}
       </div>
 
-      <div className={styles.chromeActions}>
-        {canCreatePerson ? (
-          <Button
-            size="sm"
-            className={styles.toolBtn}
-            disabled={busy}
-            title={t("addPerson")}
-            aria-label={t("addPerson")}
-            icon={<HiOutlineUserPlus aria-hidden />}
-            onClick={onAddPerson}
-          >
-            <span className={styles.toolLabel}>{t("addPerson")}</span>
-          </Button>
+      <div ref={actionsRef} className={styles.chromeActions}>
+        {inlineTools ? (
+          <div className={styles.iconGroup} role="group" aria-label={t("viewGroup")}>
+            {labeled ? (
+              <ToolButton
+                label={t("tidyLayout")}
+                hint={t("tidyLayoutHint")}
+                disabled={busy || empty}
+                onClick={onTidyLayout}
+              >
+                <HiOutlineRectangleGroup aria-hidden />
+              </ToolButton>
+            ) : null}
+            <ToolButton
+              label={
+                layoutDensity === "compact"
+                  ? t("layoutDensityLayered")
+                  : t("layoutDensityCompact")
+              }
+              hint={
+                layoutDensity === "compact"
+                  ? t("layoutDensityLayeredHint")
+                  : t("layoutDensityCompactHint")
+              }
+              pressed={layoutDensity === "compact"}
+              disabled={busy || empty}
+              onClick={onToggleLayoutDensity}
+            >
+              {layoutDensity === "compact" ? (
+                <HiOutlineSquares2X2 aria-hidden />
+              ) : (
+                <HiOutlineRectangleStack aria-hidden />
+              )}
+            </ToolButton>
+            <ToolButton
+              label={t("fitView")}
+              disabled={busy || empty}
+              onClick={onFitView}
+            >
+              <HiOutlineViewfinderCircle aria-hidden />
+            </ToolButton>
+            <ToolButton
+              label={fullscreen ? t("fullscreenExit") : t("fullscreen")}
+              hint={t("fullscreenHint")}
+              pressed={fullscreen}
+              className={styles.fullscreenBtn}
+              onClick={onToggleFullscreen}
+            >
+              {fullscreen ? (
+                <HiOutlineArrowsPointingIn aria-hidden />
+              ) : (
+                <HiOutlineArrowsPointingOut aria-hidden />
+              )}
+            </ToolButton>
+          </div>
         ) : null}
 
-        {canCreateMarriage ? (
-          <Button
-            variant="ghost"
-            size="sm"
-            className={`${styles.toolBtn} ${styles.wideOnly}`}
-            disabled={busy || personCount < 2}
-            title={t("addMarriage")}
-            aria-label={t("addMarriage")}
-            icon={<HiOutlineHeart aria-hidden />}
-            onClick={onAddMarriage}
-          >
-            <span className={styles.toolLabel}>{t("addMarriage")}</span>
-          </Button>
+        {inlineTools ? (
+          <div className={styles.guideGroup}>
+            <HelpGuide focusPedigree className={styles.helpBtn} />
+          </div>
         ) : null}
-
-        {canReadPersons ? (
-          <BirthdayCalendarButton
-            people={people}
-            canViewBirthDate={canViewBirthDate}
-            onSelectPerson={onSelectBirthdayPerson}
-            open={birthdayOpen}
-            onOpenChange={setBirthdayOpen}
-          />
-        ) : null}
-
-        <div className={styles.iconGroup} role="group" aria-label={t("viewGroup")}>
-          <ToolButton
-            label={t("tidyLayout")}
-            hint={t("tidyLayoutHint")}
-            disabled={busy || empty}
-            className={styles.wideOnly}
-            onClick={onTidyLayout}
-          >
-            <HiOutlineRectangleGroup aria-hidden />
-          </ToolButton>
-          <ToolButton
-            label={
-              layoutDensity === "compact"
-                ? t("layoutDensityLayered")
-                : t("layoutDensityCompact")
-            }
-            hint={
-              layoutDensity === "compact"
-                ? t("layoutDensityLayeredHint")
-                : t("layoutDensityCompactHint")
-            }
-            pressed={layoutDensity === "compact"}
-            disabled={busy || empty}
-            onClick={onToggleLayoutDensity}
-          >
-            {layoutDensity === "compact" ? (
-              <HiOutlineSquares2X2 aria-hidden />
-            ) : (
-              <HiOutlineRectangleStack aria-hidden />
-            )}
-          </ToolButton>
-          <ToolButton
-            label={t("fitView")}
-            disabled={busy || empty}
-            onClick={onFitView}
-          >
-            <HiOutlineViewfinderCircle aria-hidden />
-          </ToolButton>
-          <ToolButton
-            label={fullscreen ? t("fullscreenExit") : t("fullscreen")}
-            hint={t("fullscreenHint")}
-            pressed={fullscreen}
-            className={styles.fullscreenBtn}
-            onClick={onToggleFullscreen}
-          >
-            {fullscreen ? (
-              <HiOutlineArrowsPointingIn aria-hidden />
-            ) : (
-              <HiOutlineArrowsPointingOut aria-hidden />
-            )}
-          </ToolButton>
-        </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className={`${styles.toolBtn} ${styles.wideOnly}`}
-          disabled={busy || empty}
-          title={t("exportHint")}
-          aria-label={t("export")}
-          icon={<HiOutlineArrowDownTray aria-hidden />}
-          onClick={onExport}
-        >
-          <span className={styles.toolLabel}>{t("export")}</span>
-        </Button>
-
-        <div className={styles.guideGroup}>
-          <HelpGuide focusPedigree className={styles.helpBtn} />
-        </div>
 
         <MoreMenu
           treeId={treeId}
@@ -388,6 +389,8 @@ export function PedigreeHeader({
           fullscreen={fullscreen}
           branchActive={branchActive}
           foldedCount={foldedCount}
+          tools={plan.tools}
+          foldPrimary={!primaryOnIdentity}
           fileInputRef={fileInputRef}
           canDownloadSample={canDownloadSample}
           canImportExcel={canImportExcel}
@@ -396,7 +399,6 @@ export function PedigreeHeader({
           canAccessSettings={canAccessSettings}
           canCreatePerson={canCreatePerson}
           canCreateMarriage={canCreateMarriage}
-          canReadPersons={canReadPersons}
           marriageReady={personCount >= 2}
           layoutDensity={layoutDensity}
           onDownloadSample={onDownloadSample}
@@ -409,7 +411,6 @@ export function PedigreeHeader({
           onAddPerson={onAddPerson}
           onFitView={onFitView}
           onToggleFullscreen={onToggleFullscreen}
-          onOpenBirthday={() => setBirthdayOpen(true)}
           onExitBranch={onExitBranch}
           onExpandFolded={onExpandFolded}
           onCreateTicket={onCreateTicket}

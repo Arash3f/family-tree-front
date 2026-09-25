@@ -38,6 +38,8 @@ type Props = {
   onOpenChange?: (open: boolean) => void;
   /** Hide the toolbar trigger when the calendar is opened from elsewhere. */
   hideTrigger?: boolean;
+  /** Larger accent trigger for the fixed canvas corner. */
+  prominent?: boolean;
 };
 
 function birthKey(month: number, day: number): string {
@@ -189,6 +191,7 @@ export function BirthdayCalendarButton({
   open: openProp,
   onOpenChange,
   hideTrigger = false,
+  prominent = false,
 }: Props) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
@@ -256,6 +259,14 @@ export function BirthdayCalendarButton({
         (a, b) => a.day - b.day || a.person.name.localeCompare(b.person.name),
       );
   }, [entries, cursor]);
+
+  const thisMonthCount = useMemo(() => {
+    const month = today.month.number;
+    return entries.reduce(
+      (count, entry) => (entry.month === month ? count + 1 : count),
+      0,
+    );
+  }, [entries, today]);
 
   const selectedEntries = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
   const listEntries = selectedDay ? selectedEntries : monthEntries;
@@ -540,11 +551,15 @@ export function BirthdayCalendarButton({
       : null;
 
   return (
-    <div className={styles.root}>
+    <div className={[styles.root, prominent ? styles.rootProminent : null].filter(Boolean).join(" ")}>
       {hideTrigger ? null : (
         <button
           type="button"
-          className={[styles.trigger, open ? styles.triggerOpen : null]
+          className={[
+            styles.trigger,
+            prominent ? styles.triggerProminent : null,
+            open ? styles.triggerOpen : null,
+          ]
             .filter(Boolean)
             .join(" ")}
           aria-expanded={open}
@@ -554,9 +569,13 @@ export function BirthdayCalendarButton({
           onClick={toggleOpen}
         >
           <HiOutlineCalendarDays aria-hidden />
-          {canViewBirthDate && entries.length > 0 ? (
-            <span className={styles.count}>
-              {formatLocaleDigits(entries.length, locale)}
+          {canViewBirthDate && thisMonthCount > 0 ? (
+            <span
+              className={[styles.count, prominent ? styles.countProminent : null]
+                .filter(Boolean)
+                .join(" ")}
+            >
+              {formatLocaleDigits(thisMonthCount, locale)}
             </span>
           ) : !canViewBirthDate ? (
             <HiOutlineLockClosed className={styles.triggerLock} aria-hidden />

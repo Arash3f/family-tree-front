@@ -18,7 +18,6 @@ import {
   HiOutlineArrowUturnLeft,
   HiOutlineArrowsPointingIn,
   HiOutlineArrowsPointingOut,
-  HiOutlineCalendarDays,
   HiOutlineCog6Tooth,
   HiOutlineDocumentArrowDown,
   HiOutlineEllipsisHorizontal,
@@ -34,6 +33,7 @@ import {
 } from "react-icons/hi2";
 import { Link } from "@/i18n/navigation";
 import { formatLocaleDigits } from "@/lib/localeDigits";
+import type { ChromeTools } from "./chrome-density";
 import styles from "./PedigreeView.module.css";
 
 const emptySubscribe = () => () => {};
@@ -47,6 +47,10 @@ type Props = {
   branchActive: boolean;
   /** People the folded branches keep off the canvas. */
   foldedCount: number;
+  /** Measured chrome tool mode — drives which actions are listed here. */
+  tools: ChromeTools;
+  /** When true, person/marriage/calendar/export live in this menu (identity hidden). */
+  foldPrimary: boolean;
   /** Owned by the Excel flow, which re-reads the picked file on confirm. */
   fileInputRef: RefObject<HTMLInputElement | null>;
   canDownloadSample: boolean;
@@ -56,7 +60,6 @@ type Props = {
   canAccessSettings: boolean;
   canCreatePerson: boolean;
   canCreateMarriage: boolean;
-  canReadPersons: boolean;
   /** True when marriage create is allowed by count (needs ≥2 people). */
   marriageReady: boolean;
   layoutDensity: "layered" | "compact";
@@ -70,7 +73,6 @@ type Props = {
   onAddPerson: () => void;
   onFitView: () => void;
   onToggleFullscreen: () => void;
-  onOpenBirthday: () => void;
   onExitBranch: () => void;
   onExpandFolded: () => void;
   onCreateTicket: () => void;
@@ -166,6 +168,8 @@ export function MoreMenu({
   fullscreen,
   branchActive,
   foldedCount,
+  tools,
+  foldPrimary,
   fileInputRef,
   canDownloadSample,
   canImportExcel,
@@ -174,7 +178,6 @@ export function MoreMenu({
   canAccessSettings,
   canCreatePerson,
   canCreateMarriage,
-  canReadPersons,
   marriageReady,
   layoutDensity,
   onDownloadSample,
@@ -187,7 +190,6 @@ export function MoreMenu({
   onAddPerson,
   onFitView,
   onToggleFullscreen,
-  onOpenBirthday,
   onExitBranch,
   onExpandFolded,
   onCreateTicket,
@@ -298,32 +300,28 @@ export function MoreMenu({
           </>
         ) : null}
 
-        {/* Phones only (≤719): every chrome action that left the toolbar. */}
-        <div className={styles.compactOnly}>
-          <p className={styles.menuLabel}>{t("composeGroup")}</p>
-          {canCreatePerson ? (
-            <MenuItem disabled={busy} onClick={() => closeThen(onAddPerson)}>
-              <HiOutlineUserPlus aria-hidden />
-              {t("addPerson")}
-            </MenuItem>
-          ) : null}
-          {canCreateMarriage ? (
-            <MenuItem
-              disabled={busy || !marriageReady}
-              onClick={() => closeThen(onAddMarriage)}
-            >
-              <HiOutlineHeart aria-hidden />
-              {t("addMarriage")}
-            </MenuItem>
-          ) : null}
-          {canReadPersons ? (
-            <MenuItem
-              disabled={busy}
-              onClick={() => closeThen(onOpenBirthday)}
-            >
-              <HiOutlineCalendarDays aria-hidden />
-              {t("birthdayCalendar")}
-            </MenuItem>
+        {/* Phones: every chrome action that left the toolbar. */}
+        {tools === "menu" ? (
+        <div>
+          {foldPrimary ? (
+            <>
+              <p className={styles.menuLabel}>{t("composeGroup")}</p>
+              {canCreatePerson ? (
+                <MenuItem disabled={busy} onClick={() => closeThen(onAddPerson)}>
+                  <HiOutlineUserPlus aria-hidden />
+                  {t("addPerson")}
+                </MenuItem>
+              ) : null}
+              {canCreateMarriage ? (
+                <MenuItem
+                  disabled={busy || !marriageReady}
+                  onClick={() => closeThen(onAddMarriage)}
+                >
+                  <HiOutlineHeart aria-hidden />
+                  {t("addMarriage")}
+                </MenuItem>
+              ) : null}
+            </>
           ) : null}
 
           <p className={styles.menuLabel}>{t("viewGroup")}</p>
@@ -365,27 +363,22 @@ export function MoreMenu({
               ? t("layoutDensityLayered")
               : t("layoutDensityCompact")}
           </MenuItem>
-          <MenuItem
-            disabled={busy || empty}
-            onClick={() => closeThen(onExport)}
-          >
-            <HiOutlineArrowDownTray aria-hidden />
-            {t("export")}
-          </MenuItem>
-          <hr className={styles.menuSep} />
-        </div>
-
-        {/* Tablet (720–1099): only items already tucked from the inline bar. */}
-        <div className={styles.phoneOnly}>
-          {canCreateMarriage ? (
+          {foldPrimary ? (
             <MenuItem
-              disabled={busy || !marriageReady}
-              onClick={() => closeThen(onAddMarriage)}
+              disabled={busy || empty}
+              onClick={() => closeThen(onExport)}
             >
-              <HiOutlineHeart aria-hidden />
-              {t("addMarriage")}
+              <HiOutlineArrowDownTray aria-hidden />
+              {t("export")}
             </MenuItem>
           ) : null}
+          <hr className={styles.menuSep} />
+        </div>
+        ) : null}
+
+        {/* Icon strip: tidy stays here until the labeled bar has room. */}
+        {tools === "icons" ? (
+        <div>
           <MenuItem
             disabled={busy || empty}
             onClick={() => closeThen(onTidyLayout)}
@@ -393,28 +386,9 @@ export function MoreMenu({
             <HiOutlineRectangleGroup aria-hidden />
             {t("tidyLayout")}
           </MenuItem>
-          <MenuItem
-            disabled={busy || empty}
-            onClick={() => closeThen(onToggleLayoutDensity)}
-          >
-            {layoutDensity === "compact" ? (
-              <HiOutlineSquares2X2 aria-hidden />
-            ) : (
-              <HiOutlineRectangleStack aria-hidden />
-            )}
-            {layoutDensity === "compact"
-              ? t("layoutDensityLayered")
-              : t("layoutDensityCompact")}
-          </MenuItem>
-          <MenuItem
-            disabled={busy || empty}
-            onClick={() => closeThen(onExport)}
-          >
-            <HiOutlineArrowDownTray aria-hidden />
-            {t("export")}
-          </MenuItem>
           <hr className={styles.menuSep} />
         </div>
+        ) : null}
 
         {showData ? (
           <>

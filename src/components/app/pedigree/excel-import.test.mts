@@ -138,19 +138,22 @@ test("default selection takes new people and pending updates", () => {
   assert.deepEqual([...selection.persons].sort(), ["edit", "new"]);
 });
 
-test("default selection skips marriages carrying a warning", () => {
+test("default selection includes marriages carrying a soft warning", () => {
   const selection = defaultExcelSelection(
     preview(
       [],
       [
         marriage({ ref: "clean" }),
-        marriage({ ref: "warned", warning: "spouse missing" }),
+        marriage({
+          ref: "warned",
+          warning: "Ali was under the usual legal marriage age",
+        }),
         marriage({ ref: "existing", already_exists: true }),
       ],
     ),
   );
 
-  assert.deepEqual([...selection.marriages], ["clean"]);
+  assert.deepEqual([...selection.marriages].sort(), ["clean", "warned"]);
 });
 
 test("picking a person pulls in ancestors and their marriages", () => {

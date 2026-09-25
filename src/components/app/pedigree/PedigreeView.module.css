@@ -19,24 +19,28 @@
 }
 
 /*
- * The accent bar is a background layer rather than a pseudo-element so the
- * border radius clips it on its own: the dropdown and search popovers hang out
- * of this box, so it cannot use `overflow: hidden`.
+ * Pedigree chrome toolbar
+ * -----------------------
+ * data-layout / data-tools come from useChromePlan (header width, not viewport).
+ *
+ * centered: identity | search | actions — equal 1fr sides, search is `auto`
+ *           (only as wide as its clamp). Search is a real middle track so it
+ *           cannot paint over the sides.
+ * stack:    identity row, then search + MoreMenu (phone).
+ * Primary (person/marriage/calendar/export) beside the title; view tools opposite.
  */
 .chrome {
-  /* One height for every control on the bar: search, buttons, icon tools. */
   --tool-h: 2.25rem;
   position: relative;
   z-index: var(--z-sticky);
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas:
-    "identity"
-    "search"
-    "actions";
-  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas: "identity search actions";
+  align-items: center;
+  gap: 0.75rem;
   min-width: 0;
-  padding: var(--space-3) var(--space-4);
+  max-width: 100%;
+  padding: 0.9rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background:
@@ -49,6 +53,116 @@
       top center / 100% 2px no-repeat,
     var(--surface-raised);
   box-shadow: var(--shadow-sm);
+}
+
+.chrome[data-tools="labeled"] {
+  gap: 0.9rem 1rem;
+  padding: 0.9rem 1rem;
+}
+
+.chrome[data-layout="stack"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "identity identity"
+    "search actions";
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.chromeIdentity {
+  grid-area: identity;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.45rem;
+  /* Keep at least the title floor visible; track may be minmax(0,1fr). */
+  min-width: 8rem;
+  max-width: 100%;
+  justify-self: stretch;
+}
+
+.chromePrimary {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: visible;
+}
+
+.chromePrimary > * {
+  flex-shrink: 0;
+}
+
+.chromeSearch {
+  grid-area: search;
+  position: relative;
+  z-index: 1;
+  width: clamp(9.5rem, 22vw, 20rem);
+  min-width: 0;
+  max-width: 20rem;
+  justify-self: center;
+}
+
+.chrome[data-tools="labeled"] .chromeSearch {
+  width: clamp(12rem, 24vw, 24rem);
+  max-width: 24rem;
+}
+
+.chrome[data-layout="stack"] .chromeSearch {
+  width: auto;
+  max-width: none;
+  justify-self: stretch;
+}
+
+.chromeActions {
+  grid-area: actions;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
+  justify-self: stretch;
+  overflow: visible;
+}
+
+.chromeActions > * {
+  flex-shrink: 0;
+}
+
+.chrome[data-layout="stack"] .chromeActions > *:not(.menu) {
+  display: none !important;
+}
+
+.chrome[data-tools="icons"] .toolBtn {
+  min-width: var(--tool-h);
+  padding-inline: 0.45rem;
+  gap: 0;
+}
+
+.chrome[data-layout="stack"] .title {
+  font-size: clamp(1.05rem, 4.6vw, 1.3rem);
+  line-height: 1.25;
+}
+
+.chrome[data-layout="centered"][data-tools="icons"] .title {
+  font-size: var(--text-xl);
+}
+
+.chrome[data-tools="labeled"] .title {
+  font-size: var(--text-2xl);
+}
+
+.root.immersive .chrome[data-layout="stack"] .chromeIdentity {
+  display: none;
+}
+
+.root.immersive .chrome[data-layout="stack"] {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "search actions";
+  padding: 0.45rem 0.55rem;
+  gap: 0.4rem;
 }
 
 /*
@@ -86,36 +200,43 @@
   max-height: none;
 }
 
-.chromeIdentity {
-  grid-area: identity;
-  display: grid;
-  gap: 0.35rem;
-  min-width: 0;
-}
-
 .identityBody {
   display: grid;
   gap: 0.3rem;
-  min-width: 0;
+  flex: 1 1 8rem;
+  min-width: 8rem;
+  overflow: hidden;
 }
 
 .titleRow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.35rem 0.65rem;
   min-width: 0;
 }
 
 .title {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.4rem;
   margin: 0;
-  min-width: 0;
-  flex: 1 1 auto;
+  /* Floor so a long tree name never collapses to an unreadable sliver. */
+  flex: 1 1 8rem;
+  min-width: 8rem;
+  max-width: 100%;
   font-family: var(--font-display);
   font-size: var(--text-2xl);
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
+}
+
+.titleName {
+  flex: 1 1 auto;
+  min-width: 5.5rem;
+  overflow: hidden;
 }
 
 :global(html[lang="fa"]) .title {
@@ -188,36 +309,6 @@
 .chip:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-}
-
-.chromeSearch {
-  grid-area: search;
-  position: relative;
-  min-width: 0;
-  width: 100%;
-}
-
-/* Shown only on wide chrome; narrower widths fold these into MoreMenu. */
-.phoneOnly {
-  display: none;
-}
-
-/* Phones only: full action list inside MoreMenu beside search. */
-.compactOnly {
-  display: none;
-}
-
-.chromeActions {
-  grid-area: actions;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.45rem;
-  min-width: 0;
-}
-
-.chromeActions > * {
-  flex-shrink: 0;
 }
 
 .searchField {
@@ -464,11 +555,6 @@
   border-inline-start: 1px solid var(--border);
 }
 
-/* When the first tool is folded away on compact chrome, don't leave a stray divider. */
-.iconGroup .wideOnly + .iconTool {
-  border-inline-start: 0;
-}
-
 .iconTool:hover:not(:disabled) {
   background: var(--surface-hover);
   color: var(--foreground);
@@ -627,6 +713,97 @@
     );
   background-size: 18px 18px, auto, auto;
   box-shadow: var(--shadow-sm);
+}
+
+/* Fixed canvas chrome — people / birthday / ticket stay put while pan/zoom. */
+.canvasChrome {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
+  z-index: var(--z-raised);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.canvasPersonCount {
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 22%, var(--surface-raised)),
+      color-mix(in srgb, var(--surface-raised) 92%, transparent)
+    );
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-normal);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+.canvasTicketBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius: var(--radius-full);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 22%, var(--surface-raised)),
+      color-mix(in srgb, var(--surface-raised) 92%, transparent)
+    );
+  backdrop-filter: blur(10px);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-normal);
+  cursor: pointer;
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.canvasTicketBtn > svg {
+  flex-shrink: 0;
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.canvasTicketBtn:hover {
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--accent) 32%, var(--surface-raised)),
+      color-mix(in srgb, var(--surface-raised) 92%, transparent)
+    );
+  color: var(--foreground);
+}
+
+.canvasTicketBtn:focus-visible {
+  outline: none;
+  box-shadow:
+    var(--ring),
+    var(--shadow-md),
+    0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .toolLabel {
@@ -1307,101 +1484,12 @@ button.ghostBtnActive {
 
 /*
  * Phone / narrow tablet: chrome stays dense so the canvas keeps most of the
- * frame. Labels collapse to icon tools; search and birthdays share one row.
+ * frame. Density classes on `.chrome` own the toolbar grid; these rules only
+ * tune surrounding UI chrome.
  */
-@media (max-width: 919.98px) {
-  .toolLabel {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .chromeActions .toolBtn {
-    min-width: var(--tool-h);
-    padding-inline: 0.45rem;
-    gap: 0;
-  }
-}
-
-@media (max-width: 1099.98px) {
-  /*
-   * Until the bar is wide enough for three columns, keep identity / search /
-   * tools on separate rows and tuck secondary actions into MoreMenu so nothing
-   * paints on top of the search field.
-   */
-  .wideOnly {
-    display: none !important;
-  }
-
-  .menuPanel .phoneOnly {
-    display: contents;
-  }
-}
-
 @media (max-width: 719.98px) {
   .root {
     gap: var(--space-2);
-  }
-
-  .chrome {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "identity identity"
-      "search actions";
-    gap: 0.5rem;
-    padding: 0.55rem 0.65rem;
-    align-items: center;
-  }
-
-  .chromeIdentity {
-    gap: 0.35rem;
-  }
-
-  /*
-   * Phones: every chrome tool lives in MoreMenu, parked beside search so the
-   * bar stays one compact row instead of a scrolling action strip.
-   */
-  .chromeActions {
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    overflow: visible;
-    padding-bottom: 0;
-  }
-
-  .chromeActions > *:not(.menu) {
-    display: none !important;
-  }
-
-  .chromeActions .menu {
-    display: block;
-  }
-
-  .menuPanel .compactOnly {
-    display: contents;
-  }
-
-  /* Avoid duplicating marriage / tidy / export already listed in compactOnly. */
-  .menuPanel .phoneOnly {
-    display: none;
-  }
-
-  /* Fullscreen drops identity so the canvas gains a row; chips live under
-   * search and stay reachable without bringing the title back. */
-  .root.immersive .chromeIdentity {
-    display: none;
-  }
-
-  .root.immersive .chrome {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "search actions";
-    padding: 0.45rem 0.55rem;
-    gap: 0.4rem;
   }
 
   /*
@@ -1416,8 +1504,12 @@ button.ghostBtnActive {
   .title {
     font-size: clamp(1.05rem, 4.6vw, 1.3rem);
     line-height: 1.25;
-    flex: 1 1 0;
-    min-width: 0;
+    flex: 1 1 7rem;
+    min-width: 7rem;
+  }
+
+  .titleName {
+    min-width: 4.75rem;
   }
 
   .statRow {
@@ -1491,64 +1583,7 @@ button.ghostBtnActive {
   }
 }
 
-@media (min-width: 720px) and (max-width: 1099.98px) {
-  .chrome {
-    gap: 0.65rem 0.85rem;
-    padding: 0.75rem 0.9rem;
-  }
-
-  .chromeActions {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .chromeSearch {
-    max-width: none;
-  }
-
-  .title {
-    font-size: var(--text-xl);
-  }
-}
-
 @media (min-width: 1100px) {
-  /*
-   * Mid desktop: tool strip is still ~40rem — keep it on its own row so it
-   * cannot crush search. Equal side tracks + an empty cell keep search centered
-   * on the title row.
-   */
-  .chrome {
-    grid-template-columns: minmax(0, 1fr) minmax(14rem, 26rem) minmax(0, 1fr);
-    grid-template-areas:
-      "identity search ."
-      "actions actions actions";
-    align-items: center;
-    gap: 0.9rem 1rem;
-    padding: 0.9rem 1rem;
-  }
-
-  .chromeIdentity {
-    justify-self: start;
-    max-width: 100%;
-  }
-
-  .title {
-    font-size: var(--text-xl);
-  }
-
-  .chromeSearch {
-    justify-self: center;
-    width: 100%;
-    max-width: 26rem;
-  }
-
-  .chromeActions {
-    justify-self: stretch;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    max-width: 100%;
-  }
-
   /* The side column exists only while a panel is open; otherwise the canvas
    * takes the full width. */
   .workspace {
@@ -1637,30 +1672,6 @@ button.ghostBtnActive {
   }
 }
 
-@media (min-width: 1680px) {
-  /*
-   * Wide desktop: name | search | tools on one row. Equal 1fr sides keep search
-   * centered when the tool strip is wider than the title.
-   */
-  .chrome {
-    grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem) minmax(0, 1fr);
-    grid-template-areas: "identity search actions";
-  }
-
-  .chromeSearch {
-    max-width: 28rem;
-  }
-
-  .chromeActions {
-    justify-self: end;
-    flex-wrap: nowrap;
-  }
-
-  .title {
-    font-size: var(--text-2xl);
-  }
-}
-
 /* Enter fade only — height snap is handled by --sheet-height + transition. */
 @keyframes sheetUp {
   from {
@@ -1696,13 +1707,13 @@ button.ghostBtnActive {
   }
 
   .title {
-    flex: 1 1 0;
-    min-width: 0;
-    white-space: nowrap;
-    display: block;
-    -webkit-line-clamp: unset;
-    -webkit-box-orient: unset;
+    flex: 1 1 6.5rem;
+    min-width: 6.5rem;
     font-size: clamp(1rem, 4.4vw, 1.2rem);
+  }
+
+  .titleName {
+    min-width: 4.25rem;
   }
 
   .statRow {
