@@ -97,6 +97,10 @@
   /* Full-screen app dialogs (export/excel/ticket) above mobile sheets & immersive workspace. */
   --z-app-dialog: calc(var(--z-modal) + 2);
   --z-toast: 70;
+  /* Public site sticky chrome (landing / demo). Above toasts so nav stays usable. */
+  --z-site-header: 80;
+  /* Pedigree bottom sheet when portaled over the site header. */
+  --z-site-sheet: calc(var(--z-site-header) + 10);
 
   --duration-fast: 120ms;
   --duration-md: 200ms;

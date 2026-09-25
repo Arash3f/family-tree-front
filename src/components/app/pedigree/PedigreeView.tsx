@@ -38,6 +38,7 @@ import { HiOutlineTicket } from "react-icons/hi2";
 import { Link } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
 import { Button } from "@/components/ui/Button";
+import { DocumentPortal } from "@/components/ui/DocumentPortal";
 import { useScrollLock } from "@/components/ui/useFocusTrap";
 import styles from "./PedigreeView.module.css";
 import { TimelineBar } from "./TimelineBar";
@@ -208,6 +209,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   // Public demo: no year scrub. Scrubbing paints dashed "not yet married"
   // couple chrome that reads as suggested pairs — hide that surface entirely.
   const isDemo = treeSource === "demo";
+  const canCreateTicket = permissions.canCreateTicket && !isDemo;
   const canvasAsOfYear = isDemo ? null : timeline.year;
   const canvasVisibleIds = useMemo(
     () =>
@@ -681,15 +683,25 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
       const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
       root.style.setProperty("--keyboard-inset", `${inset}px`);
 
-      // Full-height sheet must stop under the app topbar (it lives in a lower
-      // stacking context, so 100dvh otherwise tucks behind the header).
+      // Full-height sheet must stop under sticky chrome (app topbar or the
+      // public site header on /demo). Otherwise the close control sits behind.
       const immersive = document.body.dataset.immersive === "true";
-      const topbar = document.querySelector("[data-app-topbar]");
-      const headerBottom =
-        !immersive && topbar instanceof HTMLElement
-          ? topbar.getBoundingClientRect().bottom
-          : 0;
-      const available = Math.max(0, vv.height - Math.max(0, headerBottom - vv.offsetTop));
+      const edges: number[] = [];
+      if (!immersive) {
+        const topbar = document.querySelector("[data-app-topbar]");
+        if (topbar instanceof HTMLElement) {
+          edges.push(topbar.getBoundingClientRect().bottom);
+        }
+      }
+      const siteHeader = document.querySelector("[data-site-header]");
+      if (siteHeader instanceof HTMLElement) {
+        edges.push(siteHeader.getBoundingClientRect().bottom);
+      }
+      const headerBottom = edges.length > 0 ? Math.max(...edges) : 0;
+      const available = Math.max(
+        0,
+        vv.height - Math.max(0, headerBottom - vv.offsetTop),
+      );
       root.style.setProperty("--sheet-available", `${available}px`);
     };
     sync();
@@ -897,247 +909,96 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     />
   );
 
-  return (
-    <section
-      className={
-        fullscreen.active ? `${styles.root} ${styles.immersive}` : styles.root
-      }
-    >
-      <PedigreeHeader
-        treeId={treeId}
-        treeName={tree.treeName}
-        personCount={persons.length}
-        marriageCount={marriages.length}
-        busy={busy}
-        searchPeople={searchPeople}
-        hint={personSearchHint}
-        onPickSearchResult={(person) => {
-          // Leave path/branch clips first so the hit is on the full tree,
-          // then open the detail card after framing the person.
-          revealPerson(person.id);
-          onSelect(person.id);
-        }}
-        canReadPersons={permissions.canReadPersons}
-        canCreatePerson={permissions.canCreatePerson}
-        canCreateMarriage={permissions.canCreateMarriage}
-        canDownloadSample={permissions.canDownloadSample}
-        canImportExcel={permissions.canImportExcel}
-        canExportExcel={permissions.canExportExcel}
-        canCreateTicket={permissions.canCreateTicket}
-        canAccessSettings={canAccessTreeSettings(tree.treeMeta, user?.id)}
-        branchActive={Boolean(focus.branchRootId)}
-        fullscreen={fullscreen.active}
-        foldedCount={branches.hiddenPersonIds.size}
-        onExpandFolded={branches.expandAll}
-        fileInputRef={excel.fileInputRef}
-        onAddPerson={() => openCreatePerson()}
-        onAddMarriage={() => openCreateMarriage()}
-        onTidyLayout={bumpLayout}
-        layoutDensity={layoutDensity}
-        onToggleLayoutDensity={() => {
-          setDensityOverride(layoutDensity === "layered" ? "compact" : "layered");
-          bumpLayout();
-        }}
-        onFitView={handleFitView}
-        onToggleFullscreen={fullscreen.toggle}
-        onExport={() => {
-          // Selection greys out the rest of the graph; export should capture
-          // (and show) the full tree in normal colours.
-          setSelectedId(null);
-          setPanel({ kind: "none" });
-          exportDialog.openTreeExport();
-        }}
-        onExitBranch={focus.clearBranchPreview}
-        onDownloadSample={() => void excel.downloadSample()}
-        onExportExcel={() => void excel.exportExcel()}
-        onPickFile={(file) => void excel.openPreview(file)}
-        onCreateTicket={() => setTicketOpen(true)}
-      />
-
-      {!permissions.canReadPersons ? (
-        <Alert tone="error">{t("needPersonRead")}</Alert>
+  const sideSheet = (
+    <>
+      {panelOpen && sheetSnap !== "peek" ? (
+        <button
+          type="button"
+          className={
+            sheetLayout
+              ? `${styles.panelBackdrop} ${styles.panelSheetPortaled}`
+              : styles.panelBackdrop
+          }
+          aria-label={t("close")}
+          onClick={dismissBackdrop}
+        />
       ) : null}
 
-      <div
-        className={
-          sheetSnap === "peek" && pathDockActive
-            ? `${styles.workspace} ${styles.workspacePathDock}`
-            : styles.workspace
-        }
-      >
-        <div className={styles.stage}>
-          <div className={styles.canvasWrap}>
-            {permissions.canReadPersons ? (
-              <div className={styles.canvasChrome}>
-                <div
-                  className={styles.canvasPersonCount}
-                  title={t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
-                  aria-label={t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
-                >
-                  {t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
-                </div>
-                <BirthdayCalendarButton
-                  prominent
-                  people={persons}
-                  canViewBirthDate={permissions.canViewBirthDate}
-                  open={birthdayOpen}
-                  onOpenChange={setBirthdayOpen}
-                  onSelectPerson={(personId) => {
-                    revealPerson(personId);
-                    onSelect(personId);
-                  }}
-                />
-                {permissions.canCreateTicket ? (
-                  <button
-                    type="button"
-                    className={styles.canvasTicketBtn}
-                    title={t("createTicket")}
-                    aria-label={t("createTicket")}
-                    onClick={() => setTicketOpen(true)}
-                  >
-                    <HiOutlineTicket aria-hidden />
-                    <span>{t("createTicket")}</span>
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-            {persons.length === 0 && permissions.canReadPersons ? (
-              <div className={styles.emptyState}>
-                <h2>{t("emptyTitle")}</h2>
-                <p>{t("emptySupport")}</p>
-                {permissions.canCreatePerson ? (
-                  <Button onClick={() => openCreatePerson()}>
-                    {t("addPerson")}
-                  </Button>
-                ) : null}
-              </div>
-            ) : (
-              <PedigreeCanvas
-                layoutNodes={graph.nodes}
-                layoutEdges={graph.edges}
-                layoutToken={focus.layoutToken}
-                layoutAnchor={focus.layoutAnchor}
-                cameraToken={focus.cameraToken}
-                cameraNodeIds={focus.cameraNodeIds}
-                selectedId={selectedId}
-                focusIds={focusIds}
-                pathIds={focus.highlightIds}
-                pathOrder={focus.highlightPathOrder}
-                altPathOrders={focus.relationPaths
-                  .filter((_, index) => index !== focus.activePathIndex)
-                  .map((path) => path.ids)}
-                altPathIds={canvasAltPathIds}
-                pathLaneById={focus.pathLaneById}
-                visiblePersonIds={canvasVisibleIds}
-                onSelect={onSelect}
-                asOfYear={canvasAsOfYear}
-                dataAccess={dataAccess}
-                branchActions={branchActions}
-                exportApiRef={canvasApiRef}
-              />
-            )}
-          </div>
-
-          {!isDemo &&
-          timeline.bounds &&
-          timeline.year !== null &&
-          permissions.canReadPersons ? (
-            <TimelineBar
-              bounds={timeline.bounds}
-              year={timeline.year}
-              visibleCount={timeline.visiblePersons.length}
-              totalCount={persons.length}
-              onYearChange={timeline.setYear}
-            />
-          ) : null}
-        </div>
-
-        {panelOpen && sheetSnap !== "peek" ? (
+      {panelOpen ? (
+        <aside
+          className={[
+            styles.panel,
+            sheetSnap === "full"
+              ? styles.panelExpanded
+              : sheetSnap === "peek"
+                ? styles.panelPeek
+                : null,
+            sheetLayout ? styles.panelSheetPortaled : null,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          aria-live="polite"
+        >
           <button
             type="button"
-            className={styles.panelBackdrop}
-            aria-label={t("close")}
-            onClick={dismissBackdrop}
-          />
-        ) : null}
-
-        {panelOpen ? (
-          <aside
-            className={
-              sheetSnap === "full"
-                ? `${styles.panel} ${styles.panelExpanded}`
-                : sheetSnap === "peek"
-                  ? `${styles.panel} ${styles.panelPeek}`
-                  : styles.panel
+            className={styles.panelGrabber}
+            aria-label={
+              sheetSnap === "peek"
+                ? t("sheetExpand")
+                : sheetSnap === "full"
+                  ? pathDockActive
+                    ? t("sheetPeek")
+                    : t("sheetCollapse")
+                  : t("sheetExpand")
             }
-            aria-live="polite"
+            aria-expanded={sheetSnap === "full"}
+            onClick={toggleSheetExpanded}
+            onPointerDown={onSheetGrabberPointerDown}
+            onPointerMove={onSheetGrabberPointerMove}
+            onPointerUp={onSheetGrabberPointerUp}
+            onPointerCancel={() => {
+              sheetDrag.current = null;
+            }}
+          />
+          <div
+            ref={panelBodyRef}
+            className={styles.panelBody}
+            onScroll={() => {
+              if (sheetSnap !== "half") return;
+              const node = panelBodyRef.current;
+              if (node && node.scrollTop > 10) setSheetSnap("full");
+            }}
           >
-            <button
-              type="button"
-              className={styles.panelGrabber}
-              aria-label={
-                sheetSnap === "peek"
-                  ? t("sheetExpand")
-                  : sheetSnap === "full"
-                    ? pathDockActive
-                      ? t("sheetPeek")
-                      : t("sheetCollapse")
-                    : t("sheetExpand")
-              }
-              aria-expanded={sheetSnap === "full"}
-              onClick={toggleSheetExpanded}
-              onPointerDown={onSheetGrabberPointerDown}
-              onPointerMove={onSheetGrabberPointerMove}
-              onPointerUp={onSheetGrabberPointerUp}
-              onPointerCancel={() => {
-                sheetDrag.current = null;
-              }}
-            />
-            <div
-              ref={panelBodyRef}
-              className={styles.panelBody}
-              onScroll={() => {
-                if (sheetSnap !== "half") return;
-                const node = panelBodyRef.current;
-                if (node && node.scrollTop > 10) setSheetSnap("full");
-              }}
-            >
-              {sheetSnap === "peek" && pathDockActive ? (
-                <div className={styles.pathPeekDock}>
-                  <p className={styles.pathPeekHint}>{t("pathPeekHint")}</p>
-                  {relationResult}
-                  <div className={styles.pathPeekActions}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSheetSnap("half")}
-                    >
-                      {t("sheetExpand")}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        relationRequestSeq.current += 1;
-                        setAlternativesLoading(false);
-                        clearRelationHighlight();
-                        setRelateToId("");
-                        setSheetSnap("half");
-                        setSelectedId(null);
-                        closePanel();
-                      }}
-                    >
-                      {t("close")}
-                    </Button>
-                  </div>
+            {sheetSnap === "peek" && pathDockActive ? (
+              <div className={styles.pathPeekDock}>
+                <p className={styles.pathPeekHint}>{t("pathPeekHint")}</p>
+                {relationResult}
+                <div className={styles.pathPeekActions}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSheetSnap("half")}
+                  >
+                    {t("sheetExpand")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      relationRequestSeq.current += 1;
+                      setAlternativesLoading(false);
+                      clearRelationHighlight();
+                      setRelateToId("");
+                      setSheetSnap("half");
+                      setSelectedId(null);
+                      closePanel();
+                    }}
+                  >
+                    {t("close")}
+                  </Button>
                 </div>
-              ) : (
+              </div>
+            ) : (
               <PedigreeSidePanels
                 panel={panel}
                 selectedPerson={selectedPerson}
@@ -1293,10 +1154,179 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                   closePanel();
                 }}
               />
-              )}
-            </div>
-          </aside>
-        ) : null}
+            )}
+          </div>
+        </aside>
+      ) : null}
+    </>
+  );
+
+  return (
+    <section
+      className={
+        fullscreen.active ? `${styles.root} ${styles.immersive}` : styles.root
+      }
+    >
+      <PedigreeHeader
+        treeId={treeId}
+        treeName={tree.treeName}
+        personCount={persons.length}
+        marriageCount={marriages.length}
+        busy={busy}
+        searchPeople={searchPeople}
+        hint={personSearchHint}
+        onPickSearchResult={(person) => {
+          // Leave path/branch clips first so the hit is on the full tree,
+          // then open the detail card after framing the person.
+          revealPerson(person.id);
+          onSelect(person.id);
+        }}
+        canReadPersons={permissions.canReadPersons}
+        canCreatePerson={permissions.canCreatePerson}
+        canCreateMarriage={permissions.canCreateMarriage}
+        canDownloadSample={permissions.canDownloadSample}
+        canImportExcel={permissions.canImportExcel}
+        canExportExcel={permissions.canExportExcel}
+        canCreateTicket={canCreateTicket}
+        canAccessSettings={canAccessTreeSettings(tree.treeMeta, user?.id)}
+        branchActive={Boolean(focus.branchRootId)}
+        fullscreen={fullscreen.active}
+        foldedCount={branches.hiddenPersonIds.size}
+        onExpandFolded={branches.expandAll}
+        fileInputRef={excel.fileInputRef}
+        onAddPerson={() => openCreatePerson()}
+        onAddMarriage={() => openCreateMarriage()}
+        onTidyLayout={bumpLayout}
+        layoutDensity={layoutDensity}
+        onToggleLayoutDensity={() => {
+          setDensityOverride(layoutDensity === "layered" ? "compact" : "layered");
+          bumpLayout();
+        }}
+        onFitView={handleFitView}
+        onToggleFullscreen={fullscreen.toggle}
+        onExport={() => {
+          // Selection greys out the rest of the graph; export should capture
+          // (and show) the full tree in normal colours.
+          setSelectedId(null);
+          setPanel({ kind: "none" });
+          exportDialog.openTreeExport();
+        }}
+        onExitBranch={focus.clearBranchPreview}
+        onDownloadSample={() => void excel.downloadSample()}
+        onExportExcel={() => void excel.exportExcel()}
+        onPickFile={(file) => void excel.openPreview(file)}
+        onCreateTicket={() => setTicketOpen(true)}
+      />
+
+      {!permissions.canReadPersons ? (
+        <Alert tone="error">{t("needPersonRead")}</Alert>
+      ) : null}
+
+      <div
+        className={
+          sheetSnap === "peek" && pathDockActive
+            ? `${styles.workspace} ${styles.workspacePathDock}`
+            : styles.workspace
+        }
+      >
+        <div className={styles.stage}>
+          <div className={styles.canvasWrap}>
+            {permissions.canReadPersons ? (
+              <div className={styles.canvasChrome}>
+                <div
+                  className={styles.canvasPersonCount}
+                  title={t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                  aria-label={t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                >
+                  {t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                </div>
+                <BirthdayCalendarButton
+                  prominent
+                  people={persons}
+                  canViewBirthDate={permissions.canViewBirthDate}
+                  open={birthdayOpen}
+                  onOpenChange={setBirthdayOpen}
+                  onSelectPerson={(personId) => {
+                    revealPerson(personId);
+                    onSelect(personId);
+                  }}
+                />
+                {canCreateTicket ? (
+                  <button
+                    type="button"
+                    className={styles.canvasTicketBtn}
+                    title={t("createTicket")}
+                    aria-label={t("createTicket")}
+                    onClick={() => setTicketOpen(true)}
+                  >
+                    <HiOutlineTicket aria-hidden />
+                    <span>{t("createTicket")}</span>
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {persons.length === 0 && permissions.canReadPersons ? (
+              <div className={styles.emptyState}>
+                <h2>{t("emptyTitle")}</h2>
+                <p>{t("emptySupport")}</p>
+                {permissions.canCreatePerson ? (
+                  <Button onClick={() => openCreatePerson()}>
+                    {t("addPerson")}
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              <PedigreeCanvas
+                layoutNodes={graph.nodes}
+                layoutEdges={graph.edges}
+                layoutToken={focus.layoutToken}
+                layoutAnchor={focus.layoutAnchor}
+                cameraToken={focus.cameraToken}
+                cameraNodeIds={focus.cameraNodeIds}
+                selectedId={selectedId}
+                focusIds={focusIds}
+                pathIds={focus.highlightIds}
+                pathOrder={focus.highlightPathOrder}
+                altPathOrders={focus.relationPaths
+                  .filter((_, index) => index !== focus.activePathIndex)
+                  .map((path) => path.ids)}
+                altPathIds={canvasAltPathIds}
+                pathLaneById={focus.pathLaneById}
+                visiblePersonIds={canvasVisibleIds}
+                onSelect={onSelect}
+                asOfYear={canvasAsOfYear}
+                dataAccess={dataAccess}
+                branchActions={branchActions}
+                exportApiRef={canvasApiRef}
+              />
+            )}
+          </div>
+
+          {!isDemo &&
+          timeline.bounds &&
+          timeline.year !== null &&
+          permissions.canReadPersons ? (
+            <TimelineBar
+              bounds={timeline.bounds}
+              year={timeline.year}
+              visibleCount={timeline.visiblePersons.length}
+              totalCount={persons.length}
+              onYearChange={timeline.setYear}
+            />
+          ) : null}
+        </div>
+
+        {sheetLayout ? (
+          <DocumentPortal>{sideSheet}</DocumentPortal>
+        ) : (
+          sideSheet
+        )}
       </div>
 
       <PedigreeOverlays

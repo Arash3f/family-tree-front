@@ -1312,6 +1312,15 @@ button.ghostBtnActive {
     background: color-mix(in srgb, var(--foreground) 40%, transparent);
   }
 
+  /* Escapes demo canvas overflow:hidden and paints above the site header. */
+  .panelSheetPortaled.panelBackdrop {
+    z-index: var(--z-site-sheet);
+  }
+
+  .panelSheetPortaled.panel {
+    z-index: calc(var(--z-site-sheet) + 1);
+  }
+
   /*
    * Bottom sheet: 80% of the viewport, then the remaining space under the app
    * topbar. Side padding lives on the body so the scrollbar sits on the card

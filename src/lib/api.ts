@@ -53,8 +53,10 @@ export async function allOrCancelled<T extends readonly unknown[] | []>(
   const results = await Promise.allSettled(requests);
   if (signal?.aborted) return null;
 
-  const rejections = results.filter(
-    (result): result is PromiseRejectedResult => result.status === "rejected",
+  // flatMap keeps PromiseRejectedResult narrowing (filter type-predicates on
+  // allSettled tuples are dropped by some TypeScript versions).
+  const rejections = results.flatMap((result) =>
+    result.status === "rejected" ? [result] : [],
   );
   // Cancel can surface as AbortError on every sibling even when the signal
   // check above races a tick behind; walking away is still not a failure.
@@ -69,9 +71,12 @@ export async function allOrCancelled<T extends readonly unknown[] | []>(
     throw result.reason;
   }
 
-  return results.map(
-    (result) => (result as PromiseFulfilledResult<unknown>).value,
-  ) as Answers<T>;
+  return results.map((result) => {
+    if (result.status !== "fulfilled") {
+      throw new Error("unreachable: rejected results already handled");
+    }
+    return result.value;
+  }) as Answers<T>;
 }
 
 export async function fetchHealth(

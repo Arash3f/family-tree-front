@@ -66,14 +66,54 @@
   "updates": {
     "title": "What's new",
     "subtitle": "The latest improvements to Family Tree.",
+    "paginationLabel": "What's new pages",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "pageStatus": "Page {current} of {total}",
     "items": {
       "u1": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Edit people via Excel import",
+        "body": "Re-importing a spreadsheet marks changed rows as updates — existing people are edited, and the matching id stays hidden in the file."
+      },
+      "u2": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Public demo tree",
+        "body": "Browse a read-only sample tree without signing in. Persian and English can show different demo trees."
+      },
+      "u3": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Underage marriage warning",
+        "body": "Marriages below the usual legal age no longer block saving — you get a clear warning in the form and in Excel import."
+      },
+      "u4": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Bilingual FAQ",
+        "body": "A frequently asked questions section is on the landing page, available in Persian and English."
+      },
+      "u5": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Redesigned birthday calendar",
+        "body": "A cleaner month grid, avatar marks on birthday days, and a single place for upcoming birthdays."
+      },
+      "u6": {
+        "iso": "2026-09-25",
+        "date": "Sep 2026",
+        "title": "Refined pedigree page layout",
+        "body": "A steadier toolbar, people count and calendar fixed in the tree frame corner, and a more reliable demo canvas and search."
+      },
+      "u7": {
         "iso": "2026-09-13",
         "date": "Sep 2026",
         "title": "Relationship through the male line",
         "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
-      "u2": {
+      "u8": {
         "iso": "2026-09-07",
         "date": "Sep 2026",
         "title": "Free sign-up with sample trees",
@@ -495,10 +535,40 @@
     "updates": {
       "u1": {
         "date": "Sep 2026",
+        "title": "Edit people via Excel import",
+        "body": "Re-importing marks changed rows as updates — existing people are edited, and the matching id stays hidden in the file."
+      },
+      "u2": {
+        "date": "Sep 2026",
+        "title": "Public demo tree",
+        "body": "Browse a read-only sample tree without signing in; Persian and English can use different demos."
+      },
+      "u3": {
+        "date": "Sep 2026",
+        "title": "Underage marriage warning",
+        "body": "Marriages below the usual legal age no longer block saving — you see a warning in the form and Excel import."
+      },
+      "u4": {
+        "date": "Sep 2026",
+        "title": "Bilingual FAQ",
+        "body": "A bilingual FAQ section is available on the landing page."
+      },
+      "u5": {
+        "date": "Sep 2026",
+        "title": "Redesigned birthday calendar",
+        "body": "A cleaner month grid, avatar marks on birthday days, and upcoming birthdays at a glance."
+      },
+      "u6": {
+        "date": "Sep 2026",
+        "title": "Refined pedigree page layout",
+        "body": "A steadier toolbar, people count and calendar in the tree frame corner, and more reliable demo and search."
+      },
+      "u7": {
+        "date": "Sep 2026",
         "title": "Relationship through the male line",
         "body": "Trace how two people are related through the men of the family only — handy for paternal lineage. Couples on the path are highlighted."
       },
-      "u2": {
+      "u8": {
         "date": "Sep 2026",
         "title": "Free sign-up with sample trees",
         "body": "Anyone can create a free account and start right away with two ready-made family trees to explore."

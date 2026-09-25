@@ -288,7 +288,10 @@ export function Header() {
       <a className={styles.skip} href="#main">
         {t("skipToContent")}
       </a>
-      <header className={`${styles.header} ${open ? styles.headerOpen : ""}`}>
+      <header
+        className={`${styles.header} ${open ? styles.headerOpen : ""}`}
+        data-site-header
+      >
         <Link
           className={styles.brand}
           href="/#top"

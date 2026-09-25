@@ -2,7 +2,7 @@
   position: absolute;
   inset-inline-start: 1rem;
   top: 0.75rem;
-  z-index: 80;
+  z-index: var(--z-site-header);
   padding: 0.65rem 0.9rem;
   border-radius: var(--radius-md);
   background: var(--accent);
@@ -19,7 +19,7 @@
 .header {
   position: sticky;
   top: max(0.75rem, var(--safe-top));
-  z-index: 80;
+  z-index: var(--z-site-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
