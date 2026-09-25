@@ -75,6 +75,7 @@ type Props = {
   onFindRelation: () => void;
   onToggleBranch: () => void;
   onDownloadLineage: () => void;
+  onDownloadMaleLine: () => void;
   onDeletePerson: () => void;
   relateToId: string;
   relateToName: string | null;
@@ -147,6 +148,7 @@ export function PedigreeSidePanels({
   onFindRelation,
   onToggleBranch,
   onDownloadLineage,
+  onDownloadMaleLine,
   onDeletePerson,
   relateToId,
   relateToName,
@@ -245,6 +247,7 @@ export function PedigreeSidePanels({
           onFindRelation={onFindRelation}
           onToggleBranch={onToggleBranch}
           onDownloadLineage={onDownloadLineage}
+          onDownloadMaleLine={onDownloadMaleLine}
           onDelete={onDeletePerson}
         />
       ) : null}

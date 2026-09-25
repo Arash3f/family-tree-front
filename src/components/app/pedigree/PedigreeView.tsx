@@ -178,6 +178,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   const [relateToId, setRelateToId] = useState("");
   const [divorceDate, setDivorceDate] = useState(todayIso());
   const [ticketOpen, setTicketOpen] = useState(false);
+  const [maleLinePerson, setMaleLinePerson] = useState<Person | null>(null);
   const [birthdayOpen, setBirthdayOpen] = useState(false);
   const [alternativesLoading, setAlternativesLoading] = useState(false);
   const relationRequestSeq = useRef(0);
@@ -1131,6 +1132,9 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                     ? exportDialog.openLineageExport(selectedPerson)
                     : undefined
                 }
+                onDownloadMaleLine={() =>
+                  selectedPerson ? setMaleLinePerson(selectedPerson) : undefined
+                }
                 onDeletePerson={() =>
                   selectedPerson
                     ? void handleDeletePerson(selectedPerson)
@@ -1366,6 +1370,16 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
           open: ticketOpen,
           onClose: () => setTicketOpen(false),
         }}
+        maleLine={
+          maleLinePerson
+            ? {
+                person: maleLinePerson,
+                persons,
+                treeName: tree.treeName,
+                onClose: () => setMaleLinePerson(null),
+              }
+            : null
+        }
       />
 
     </section>

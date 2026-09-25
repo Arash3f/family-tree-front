@@ -7,6 +7,7 @@ import { TicketCreateDialog } from "@/components/app/TicketCreateDialog";
 import { DocumentPortal } from "@/components/ui/DocumentPortal";
 import { ExcelPreviewDialog } from "./ExcelPreviewDialog";
 import { ExportDialogHost } from "./ExportDialogHost";
+import { MaleLineExportDialog } from "./MaleLineExportDialog";
 import type { ExportFlow } from "./useExportFlow";
 import type { PersonLineagePosterHandle } from "./PersonLineagePoster";
 
@@ -41,17 +42,25 @@ type TicketOverlay = {
   onClose: () => void;
 };
 
+type MaleLineOverlay = {
+  person: Person;
+  persons: Person[];
+  treeName: string;
+  onClose: () => void;
+};
+
 type Props = {
   excel: ExcelOverlay | null;
   exportHost: ExportOverlay | null;
   ticket: TicketOverlay;
+  maleLine: MaleLineOverlay | null;
 };
 
 /**
  * Heavy dialogs kept out of the main pedigree render tree so the canvas
  * shell can paint first.
  */
-export function PedigreeOverlays({ excel, exportHost, ticket }: Props) {
+export function PedigreeOverlays({ excel, exportHost, ticket, maleLine }: Props) {
   return (
     <DocumentPortal>
       {excel ? (
@@ -88,6 +97,15 @@ export function PedigreeOverlays({ excel, exportHost, ticket }: Props) {
         open={ticket.open}
         onClose={ticket.onClose}
       />
+
+      {maleLine ? (
+        <MaleLineExportDialog
+          person={maleLine.person}
+          persons={maleLine.persons}
+          treeName={maleLine.treeName}
+          onClose={maleLine.onClose}
+        />
+      ) : null}
     </DocumentPortal>
   );
 }

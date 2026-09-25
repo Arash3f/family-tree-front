@@ -946,6 +946,15 @@
     "downloadLineageError": "دانلود کارت مشخصات انجام نشد. دوباره تلاش کنید.",
     "downloadLineagePdfSuccess": "فایل PDF کارت مشخصات دانلود شد.",
     "downloadLineagePdfError": "دانلود PDF کارت مشخصات انجام نشد. دوباره تلاش کنید.",
+    "downloadMaleLine": "شجرهٔ مردان",
+    "maleLine": {
+      "title": "شجرهٔ مردان",
+      "hint": "از {name} فقط پسران و پسرانِ پسران — {count} نفر. دامادها و نسل از دختر نیست.",
+      "empty": "این فرد در شجره پیدا نشد.",
+      "fileSuffix": "مردان",
+      "downloadSvg": "دانلود SVG",
+      "downloadSuccess": "فایل SVG شجرهٔ مردان دانلود شد."
+    },
     "exportPreview": {
       "titleTree": "پیش‌نمایش خروجی درخت",
       "titleCard": "پیش‌نمایش کارت مشخصات",

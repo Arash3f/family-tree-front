@@ -158,8 +158,8 @@ function MenuItem({
  * Overflow for the pedigree chrome. On phones this is the only action control
  * beside search and holds every tool the wide bar shows inline.
  *
- * The panel portals to `document.body` so the mobile path sheet (`--z-modal`)
- * cannot paint over it — chrome alone sits at `--z-sticky`.
+ * The panel portals to `document.body` so the mobile path sheet and the
+ * portaled person sheet (`--z-site-sheet`) cannot paint over it.
  */
 export function MoreMenu({
   treeId,

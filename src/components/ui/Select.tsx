@@ -32,8 +32,7 @@ export type SelectOption = {
 };
 
 type Position = {
-  top?: number;
-  bottom?: number;
+  top: number;
   left: number;
   width: number;
   maxHeight: number;
@@ -91,20 +90,49 @@ export function optionsFromChildren(children: ReactNode): SelectOption[] {
   return out;
 }
 
+/**
+ * Visible layout box. On mobile the soft keyboard shrinks `visualViewport`
+ * without changing `innerHeight`, so a list measured against the layout
+ * viewport can sit under the keyboard (or vanish against the sheet edge).
+ */
+function visibleBox() {
+  const vv = window.visualViewport;
+  if (vv) {
+    return {
+      top: vv.offsetTop,
+      left: vv.offsetLeft,
+      width: vv.width,
+      height: vv.height,
+      bottom: vv.offsetTop + vv.height,
+    };
+  }
+  return {
+    top: 0,
+    left: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    bottom: window.innerHeight,
+  };
+}
+
 function measure(trigger: HTMLElement, minWidth = 0): Position {
   const rect = trigger.getBoundingClientRect();
-  const below = window.innerHeight - rect.bottom - GAP - MARGIN;
-  const above = rect.top - GAP - MARGIN;
+  const view = visibleBox();
+  const below = view.bottom - rect.bottom - GAP - MARGIN;
+  const above = rect.top - view.top - GAP - MARGIN;
   const flip = below < MIN_ROOM && above > below;
   const maxHeight = Math.min(Math.max(flip ? above : below, 140), MAX_HEIGHT);
   const width = Math.max(rect.width, minWidth);
   const left = Math.min(
-    Math.max(MARGIN, rect.left),
-    Math.max(MARGIN, window.innerWidth - width - MARGIN),
+    Math.max(view.left + MARGIN, rect.left),
+    Math.max(view.left + MARGIN, view.left + view.width - width - MARGIN),
   );
-  return flip
-    ? { bottom: window.innerHeight - rect.top + GAP, left, width, maxHeight }
-    : { top: rect.bottom + GAP, left, width, maxHeight };
+  // Always pin with `top` (not `bottom`) so iOS keyboard / visualViewport
+  // offsets stay consistent with getBoundingClientRect.
+  const top = flip
+    ? Math.max(view.top + MARGIN, rect.top - GAP - maxHeight)
+    : rect.bottom + GAP;
+  return { top, left, width, maxHeight };
 }
 
 function matchesFilter(option: SelectOption, query: string): boolean {
@@ -346,7 +374,7 @@ export function Select({
       const trigger = triggerRef.current;
       if (trigger) setPosition(measure(trigger, minPanelWidth));
     };
-    const onPointerDown = (event: MouseEvent) => {
+    const onPointerDown = (event: Event) => {
       const target = event.target as Node;
       if (panelRef.current?.contains(target)) return;
       if (triggerRef.current?.contains(target)) return;
@@ -366,12 +394,22 @@ export function Select({
     window.addEventListener("keydown", onKeyDown, true);
     window.addEventListener("scroll", reposition, true);
     window.addEventListener("resize", reposition);
+    // iOS finishes the keyboard resize a beat after focus on filterable lists.
+    const vv = window.visualViewport;
+    vv?.addEventListener("resize", reposition);
+    vv?.addEventListener("scroll", reposition);
     document.addEventListener("mousedown", onPointerDown);
+    // Touch outside must close too: some mobile browsers skip a synthetic
+    // mousedown when the tap lands on a scrolling sheet body.
+    document.addEventListener("touchstart", onPointerDown, { passive: true });
     return () => {
       window.removeEventListener("keydown", onKeyDown, true);
       window.removeEventListener("scroll", reposition, true);
       window.removeEventListener("resize", reposition);
+      vv?.removeEventListener("resize", reposition);
+      vv?.removeEventListener("scroll", reposition);
       document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
     };
   }, [close, filterable, minPanelWidth, open]);
 
@@ -479,7 +517,6 @@ export function Select({
               className={styles.panel}
               style={{
                 top: position.top,
-                bottom: position.bottom,
                 left: position.left,
                 width: position.width,
                 maxHeight: position.maxHeight,

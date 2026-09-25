@@ -62,6 +62,7 @@ type Props = {
   onFindRelation: () => void;
   onToggleBranch: () => void;
   onDownloadLineage: () => void;
+  onDownloadMaleLine: () => void;
   onDelete: () => void;
 };
 
@@ -109,6 +110,7 @@ export function PersonDetailPanel({
   onFindRelation,
   onToggleBranch,
   onDownloadLineage,
+  onDownloadMaleLine,
   onDelete,
 }: Props) {
   const t = useTranslations("pedigree");
@@ -412,6 +414,16 @@ export function PersonDetailPanel({
             onClick={onDownloadLineage}
           >
             {t("downloadLineage")}
+          </Button>
+        ) : null}
+        {canReadPersons ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={busy}
+            onClick={onDownloadMaleLine}
+          >
+            {t("downloadMaleLine")}
           </Button>
         ) : null}
         {canDeletePerson ? (

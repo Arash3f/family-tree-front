@@ -94,13 +94,21 @@
   --z-drawer: 40;
   --z-overlay: 50;
   --z-modal: 60;
-  /* Full-screen app dialogs (export/excel/ticket) above mobile sheets & immersive workspace. */
-  --z-app-dialog: calc(var(--z-modal) + 2);
   --z-toast: 70;
   /* Public site sticky chrome (landing / demo). Above toasts so nav stays usable. */
   --z-site-header: 80;
   /* Pedigree bottom sheet when portaled over the site header. */
   --z-site-sheet: calc(var(--z-site-header) + 10);
+  /*
+   * Full-screen app dialogs (export / excel / ticket / calendar). Must clear
+   * --z-site-sheet; otherwise export opens under the mobile person sheet.
+   */
+  --z-app-dialog: calc(var(--z-site-sheet) + 2);
+  /*
+   * Portaled popovers (Select lists, typeahead). Above sheets and app dialogs
+   * so filterable fields stay usable inside either surface.
+   */
+  --z-popover: calc(var(--z-app-dialog) + 3);
 
   --duration-fast: 120ms;
   --duration-md: 200ms;

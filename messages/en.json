@@ -946,6 +946,15 @@
     "downloadLineageError": "Could not download the info card.",
     "downloadLineagePdfSuccess": "Info card PDF downloaded.",
     "downloadLineagePdfError": "Could not download the info card PDF.",
+    "downloadMaleLine": "Male line",
+    "maleLine": {
+      "title": "Male line",
+      "hint": "From {name}: sons and sons of sons only — {count} people. No sons-in-law or descent through daughters.",
+      "empty": "This person was not found in the tree.",
+      "fileSuffix": "male-line",
+      "downloadSvg": "Download SVG",
+      "downloadSuccess": "Male-line SVG downloaded."
+    },
     "exportPreview": {
       "titleTree": "Tree export preview",
       "titleCard": "Info card preview",
