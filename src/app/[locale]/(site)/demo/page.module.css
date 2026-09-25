@@ -1,21 +1,25 @@
 .page {
   display: grid;
-  gap: var(--space-5);
-  padding-block: clamp(2rem, 6vh, 3.5rem) clamp(2rem, 6vh, 4rem);
+  gap: var(--space-4);
+  padding-block: clamp(1.15rem, 3vh, 2rem) clamp(1.5rem, 4vh, 2.5rem);
   padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+  /*
+   * Intro + a tall pedigree. Avoid locking the whole page to 100dvh — the site
+   * footer sits below this main and would otherwise force a double scroll.
+   */
+  grid-template-rows: auto auto;
 }
 
 .intro {
-  width: min(100%, var(--content-max));
-  margin-inline: auto;
+  width: 100%;
+  max-width: 40rem;
   display: grid;
-  gap: var(--space-3);
-  max-width: 44rem;
+  gap: var(--space-2);
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: var(--text-3xl);
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
   font-weight: var(--weight-bold);
   letter-spacing: -0.025em;
   line-height: var(--leading-tight);
@@ -28,14 +32,16 @@
 }
 
 .support {
+  margin: 0;
   color: var(--muted);
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   line-height: var(--leading-relaxed);
   text-wrap: pretty;
 }
 
 .note {
   justify-self: start;
+  margin: 0;
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--accent) 10%, transparent);
@@ -45,23 +51,58 @@
 }
 
 /*
- * The pedigree canvas sizes itself to its container, so it needs a height here
- * rather than the intrinsic one a document-flow section would give it.
+ * Tall locked frame: chrome + graph share this box so toolbar panels do not
+ * stretch the page. Sized to dominate the first screen under the intro.
  */
 .canvas {
-  width: min(100%, var(--content-max));
-  margin-inline: auto;
-  min-height: min(72vh, 44rem);
-  display: grid;
+  --demo-canvas-h: min(76dvh, 50rem);
+  width: 100%;
+  height: var(--demo-canvas-h);
+  min-height: var(--demo-canvas-h);
+  max-height: var(--demo-canvas-h);
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--surface);
 }
 
+.canvas > * {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
 @media (max-width: 479.98px) {
+  .page {
+    gap: var(--space-3);
+  }
+
+  .intro {
+    max-width: none;
+  }
+
+  .title {
+    font-size: var(--text-xl);
+  }
+
   .canvas {
-    min-height: 68vh;
+    --demo-canvas-h: min(70dvh, 38rem);
     border-radius: var(--radius-md);
+  }
+}
+
+@media (min-width: 1100px) {
+  .page {
+    gap: var(--space-5);
+  }
+
+  .intro {
+    max-width: 44rem;
+  }
+
+  .canvas {
+    --demo-canvas-h: min(80dvh, 56rem);
   }
 }

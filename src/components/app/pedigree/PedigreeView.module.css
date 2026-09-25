@@ -580,6 +580,7 @@
   gap: 0.85rem;
   min-height: 0;
   flex: 1;
+  overflow: hidden;
   --sheet-dock-inset: 0px;
 }
 
@@ -592,6 +593,8 @@
   gap: 0.75rem;
   min-width: 0;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
   grid-template-rows: minmax(0, 1fr) auto;
   padding-bottom: var(--sheet-dock-inset);
   transition: padding-bottom var(--duration-slow) var(--ease-out);
@@ -600,7 +603,7 @@
 .canvasWrap {
   position: relative;
   min-height: 0;
-  height: auto;
+  height: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -1509,16 +1512,28 @@ button.ghostBtnActive {
 }
 
 @media (min-width: 1100px) {
-  /* The tool strip alone is ~40rem, so it gets its own row until the bar can
-   * hold title, search and tools side by side (see the 1680px block). */
+  /*
+   * Mid desktop: tool strip is still ~40rem — keep it on its own row so it
+   * cannot crush search. Equal side tracks + an empty cell keep search centered
+   * on the title row.
+   */
   .chrome {
-    grid-template-columns: minmax(12rem, 1fr) minmax(16rem, 26rem);
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 26rem) minmax(0, 1fr);
     grid-template-areas:
-      "identity search"
-      "actions actions";
+      "identity search ."
+      "actions actions actions";
     align-items: center;
     gap: 0.9rem 1rem;
     padding: 0.9rem 1rem;
+  }
+
+  .chromeIdentity {
+    justify-self: start;
+    max-width: 100%;
+  }
+
+  .title {
+    font-size: var(--text-xl);
   }
 
   .chromeSearch {
@@ -1528,7 +1543,7 @@ button.ghostBtnActive {
   }
 
   .chromeActions {
-    justify-self: end;
+    justify-self: stretch;
     justify-content: flex-end;
     flex-wrap: wrap;
     max-width: 100%;
@@ -1555,7 +1570,8 @@ button.ghostBtnActive {
     width: auto;
     height: auto;
     max-width: none;
-    max-height: none;
+    max-height: 100%;
+    min-height: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     border-bottom: 1px solid var(--border);
@@ -1585,15 +1601,15 @@ button.ghostBtnActive {
     display: none;
   }
 
-  .canvasWrap,
-  .panel {
-    height: auto;
+  .canvasWrap {
+    height: 100%;
     max-height: none;
     min-height: 0;
   }
 
   .stage {
     min-height: 0;
+    height: 100%;
   }
 
   /*
@@ -1622,13 +1638,26 @@ button.ghostBtnActive {
 }
 
 @media (min-width: 1680px) {
+  /*
+   * Wide desktop: name | search | tools on one row. Equal 1fr sides keep search
+   * centered when the tool strip is wider than the title.
+   */
   .chrome {
-    grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 26rem) auto;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 28rem) minmax(0, 1fr);
     grid-template-areas: "identity search actions";
   }
 
+  .chromeSearch {
+    max-width: 28rem;
+  }
+
   .chromeActions {
+    justify-self: end;
     flex-wrap: nowrap;
+  }
+
+  .title {
+    font-size: var(--text-2xl);
   }
 }
 
