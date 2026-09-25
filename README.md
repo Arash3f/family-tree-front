@@ -4,11 +4,22 @@
 > kinship paths on a canvas, and manage users, roles and support tickets — in English
 > and Persian, light or dark.
 
+## Live production
+
+**This repository is the frontend of the live product:**
+
+### https://family.arash-alfooneh.ir
+
+The site above is what this Next.js app deploys. Its API companion is
+[family-tree-backend](https://github.com/Arash3f/family-tree-backend) (same product,
+same deployment).
+
 **Next.js · React · TypeScript · next-intl · Zustand · XYFlow — same-origin `/backend` proxy to the API.**
 
 | | |
 |---|---|
-| Version | `1.0.0` |
+| Live site | **https://family.arash-alfooneh.ir** |
+| Version | `2.0.0` |
 | Node | `22` (Alpine in Docker) |
 | Package manager | [pnpm](https://pnpm.io) `10.34.5` |
 | Companion API | [family-tree-backend](https://github.com/Arash3f/family-tree-backend) |
@@ -17,6 +28,7 @@
 
 ## Contents
 
+- [Live production](#live-production)
 - [What it does](#what-it-does)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
