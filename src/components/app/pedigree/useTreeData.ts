@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import {
@@ -62,9 +62,9 @@ type SavePersonInput = {
  * Which tree is being read, and therefore under which authorization.
  *
  * `"member"` is the normal case: a signed-in member of that tree. `"demo"` is
- * the single tree published for anyone to read — it is resolved by name rather
- * than by id, needs no session, and comes back carrying only read capabilities,
- * so everything downstream renders it read-only without knowing it is the demo.
+ * a tree published for anyone to read — resolved by locale rather than by id,
+ * needs no session, and comes back carrying only read capabilities, so
+ * everything downstream renders it read-only without knowing it is the demo.
  */
 export type TreeSource = "member" | "demo";
 
@@ -111,6 +111,7 @@ export function useTreeData(
   source: TreeSource = "member",
 ): TreeData {
   const isDemo = source === "demo";
+  const locale = useLocale();
   const t = useTranslations("pedigree");
   const router = useRouter();
   const { status, user, hasPermission } = useAuth();
@@ -150,31 +151,38 @@ export function useTreeData(
   /** Resolves `null` when the caller was cancelled before the data arrived. */
   const fetchSnapshot = useCallback(
     async (signal?: AbortSignal): Promise<TreeSnapshot | null> => {
-      const tree = isDemo
-        ? await getDemoFamilyTree(signal)
-        : await getFamilyTree(treeId, signal);
-      if (signal?.aborted) return null;
+      try {
+        const tree = isDemo
+          ? await getDemoFamilyTree(locale, signal)
+          : await getFamilyTree(treeId, signal);
+        if (signal?.aborted) return null;
 
-      const canView = (tree.my_permissions ?? []).includes(TreeAccess.VIEW);
-      if (!canView) {
-        return { tree, personList: [], marriageList: [] };
+        const canView = (tree.my_permissions ?? []).includes(TreeAccess.VIEW);
+        if (!canView) {
+          return { tree, personList: [], marriageList: [] };
+        }
+
+        const loaded = await allOrCancelled(
+          [
+            // `tree.id`, not `treeId`: identical for a member tree, and the only
+            // way to know the id of the demo tree, which is resolved by name.
+            listAllPersons(tree.id, signal),
+            listAllMarriages(tree.id, signal),
+          ] as const,
+          signal,
+        );
+        if (!loaded) return null;
+
+        const [personList, marriageList] = loaded;
+        return { tree, personList, marriageList };
+      } catch (err) {
+        // Abort must not escape as a rejection — Next's dev overlay reports
+        // those as `unhandledRejection` even when a later catch would swallow.
+        if (signal?.aborted || isAbortError(err)) return null;
+        throw err;
       }
-
-      const loaded = await allOrCancelled(
-        [
-          // `tree.id`, not `treeId`: identical for a member tree, and the only
-          // way to know the id of the demo tree, which is resolved by name.
-          listAllPersons(tree.id, signal),
-          listAllMarriages(tree.id, signal),
-        ] as const,
-        signal,
-      );
-      if (!loaded) return null;
-
-      const [personList, marriageList] = loaded;
-      return { tree, personList, marriageList };
     },
-    [treeId, isDemo],
+    [treeId, isDemo, locale],
   );
 
   const applySnapshot = useCallback((snapshot: TreeSnapshot) => {
@@ -222,29 +230,27 @@ export function useTreeData(
         return;
       }
     }
-    // Navigating between trees must not let the slower response win.
-    const controller = new AbortController();
+    // Prefer a cancel flag over AbortController.abort(): in Next/Chrome the
+    // aborted fetch still surfaces as `Uncaught (in promise) AbortError` even
+    // when the awaiting try/catch swallows it. Ignoring a stale response is
+    // enough to keep tree switches from painting the wrong snapshot.
+    let cancelled = false;
     async function run() {
       try {
-        // A cleanup abort (tree switch, unmount, React StrictMode remount)
-        // cancels the in-flight requests and resolves without a snapshot.
-        const snapshot = await fetchSnapshot(controller.signal);
-        // A cancel that lands after the data arrived still has to be honoured,
-        // or a tree switch could paint the tree that was left behind.
-        if (!snapshot || controller.signal.aborted) return;
+        const snapshot = await fetchSnapshot();
+        if (cancelled || !snapshot) return;
         applySnapshot(snapshot);
       } catch (err) {
-        if (controller.signal.aborted || isAbortError(err)) return;
+        if (cancelled || isAbortError(err)) return;
         applyLoadFailure(err);
       } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     }
     void run();
-    return () =>
-      controller.abort(
-        new DOMException("Tree view navigated away", "AbortError"),
-      );
+    return () => {
+      cancelled = true;
+    };
   }, [
     isDemo,
     status,

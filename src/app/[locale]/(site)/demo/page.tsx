@@ -59,10 +59,9 @@ export default async function DemoPage({ params }: Props) {
         <p className={styles.note}>{t("readOnlyNote")}</p>
       </header>
       {/*
-       * The same component the dashboard renders, against the same endpoints.
-       * Nothing here decides what a visitor may do: the tree comes back with
-       * read-only capabilities and the view hides the rest on its own, so the
-       * demo cannot drift away from how the product actually behaves.
+       * Same component as the dashboard. Locale picks which published demo
+       * tree loads (`DEMO_TREE_ID_FA` / `DEMO_TREE_ID_EN`, with `DEMO_TREE_ID`
+       * as fallback). Capabilities come back read-only.
        */}
       <section className={styles.canvas} aria-label={t("canvasLabel")}>
         <PedigreeView treeId={DEMO_TREE_KEY} treeSource="demo" />

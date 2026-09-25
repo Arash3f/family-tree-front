@@ -820,10 +820,16 @@ function CanvasInner({
 
   const buildGraphic = useCallback(
     async (theme: ExportTheme) => {
-      // Serialised: two concurrent builds would both fetch every photo.
+      // Export always shows the full palette — selection/path dimming is a
+      // screen affordance, not something that should bake into the download.
+      const nodes = getNodes().map((node) => {
+        const data = node.data as { dimmed?: boolean } | undefined;
+        if (!data?.dimmed) return node;
+        return { ...node, data: { ...data, dimmed: false } };
+      });
       const run = captureLock.current.then(() =>
         buildPedigreeGraphic({
-          nodes: getNodes(),
+          nodes,
           edges: getEdges(),
           pathIds: pathRef.current,
           theme,

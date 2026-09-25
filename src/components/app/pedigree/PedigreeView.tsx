@@ -139,6 +139,9 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   }, [treeId, bumpLayout]);
   const tree = useTreeData(treeId, onTreeLoaded, treeSource);
   const { busy, marriages, persons } = tree;
+  // Demo pages pass a UI key (`"demo"`); API routes need the real UUID that
+  // arrives with the tree snapshot. Member pages have the same value in both.
+  const apiTreeId = tree.treeMeta?.id ?? treeId;
   const permissions = usePedigreePermissions(tree.hasTreeAccess);
   const branches = useBranchCollapse(treeId, persons, marriages);
 
@@ -199,7 +202,23 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
   );
 
   const timeline = useTimelineSlice(persons, marriages, locale);
-  const excel = useExcelTransfer(treeId, tree.treeName, tree.setBusy, tree.reload);
+  // Public demo: no year scrub. Scrubbing paints dashed "not yet married"
+  // couple chrome that reads as suggested pairs — hide that surface entirely.
+  const isDemo = treeSource === "demo";
+  const canvasAsOfYear = isDemo ? null : timeline.year;
+  const canvasVisibleIds = useMemo(
+    () =>
+      isDemo
+        ? new Set(persons.map((person) => person.id))
+        : timeline.visiblePersonIds,
+    [isDemo, persons, timeline.visiblePersonIds],
+  );
+  const excel = useExcelTransfer(
+    apiTreeId,
+    tree.treeName,
+    tree.setBusy,
+    tree.reload,
+  );
   const { posterRef, ...exportDialog } = useExportFlow({
     canvasApiRef,
     treeName: tree.treeName,
@@ -386,7 +405,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     ? ageInYearsAtYear(
         selectedPerson.birth_date,
         selectedPerson.death_date,
-        timeline.year,
+        canvasAsOfYear,
         locale,
       )
     : null;
@@ -750,7 +769,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     setAlternativesLoading(false);
     try {
       const result = await getClosestRelationship(
-        treeId,
+        apiTreeId,
         selectedId,
         relateToId,
         { maleOnly },
@@ -782,7 +801,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     setAlternativesLoading(true);
     try {
       const alternatives = await getAlternativeRelationshipPaths(
-        treeId,
+        apiTreeId,
         selectedId,
         relateToId,
         { maleOnly },
@@ -918,7 +937,13 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
         }}
         onFitView={handleFitView}
         onToggleFullscreen={fullscreen.toggle}
-        onExport={() => exportDialog.openTreeExport()}
+        onExport={() => {
+          // Selection greys out the rest of the graph; export should capture
+          // (and show) the full tree in normal colours.
+          setSelectedId(null);
+          setPanel({ kind: "none" });
+          exportDialog.openTreeExport();
+        }}
         onExitBranch={focus.clearBranchPreview}
         onDownloadSample={() => void excel.downloadSample()}
         onExportExcel={() => void excel.exportExcel()}
@@ -972,9 +997,9 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                   .map((path) => path.ids)}
                 altPathIds={canvasAltPathIds}
                 pathLaneById={focus.pathLaneById}
-                visiblePersonIds={timeline.visiblePersonIds}
+                visiblePersonIds={canvasVisibleIds}
                 onSelect={onSelect}
-                asOfYear={timeline.year}
+                asOfYear={canvasAsOfYear}
                 dataAccess={dataAccess}
                 branchActions={branchActions}
                 exportApiRef={canvasApiRef}
@@ -982,7 +1007,8 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
             )}
           </div>
 
-          {timeline.bounds &&
+          {!isDemo &&
+          timeline.bounds &&
           timeline.year !== null &&
           permissions.canReadPersons ? (
             <TimelineBar
@@ -1141,7 +1167,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                 }
                 selectedPersonPhoto={selectedPersonPhoto}
                 selectedPersonAge={selectedPersonAge}
-                asOfYear={timeline.year}
+                asOfYear={canvasAsOfYear}
                 selectedMarriages={selectedMarriages}
                 descendantStats={descendantStats}
                 hasFather={Boolean(selectedPersonParents.father)}

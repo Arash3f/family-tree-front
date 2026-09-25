@@ -700,24 +700,28 @@ export async function getFamilyTree(
 }
 
 /**
- * The one tree published for anyone to read, without signing in.
+ * The tree published for anyone to read for a UI locale, without signing in.
  *
- * Its id is server-side configuration, so the client asks for "the demo tree"
- * rather than being told which id that is. `my_permissions` comes back as the
- * read-only demo set, which is what makes the pedigree render without any of
- * its editing affordances ΓÇö the same field a member tree is rendered from.
+ * Ids are server-side configuration (`DEMO_TREE_ID_FA` / `DEMO_TREE_ID_EN`, with
+ * `DEMO_TREE_ID` as fallback), so the client asks for "the demo tree for this
+ * locale" rather than being told which id that is. `my_permissions` comes back
+ * as the read-only demo set, which is what makes the pedigree render without
+ * any of its editing affordances — the same field a member tree is rendered from.
  *
+ * @param locale - UI locale (`fa` / `en`).
  * @param signal - Abort signal for the request.
  *
- * @returns The demo tree.
+ * @returns The demo tree for that locale.
  *
- * @throws {AuthApiError} 404 - When no demo tree is configured.
+ * @throws {AuthApiError} 404 - When no demo tree is configured for the locale.
  * @throws {AuthApiError} 429 - When the per-IP demo rate limit is exhausted.
  */
 export async function getDemoFamilyTree(
+  locale: string,
   signal?: AbortSignal,
 ): Promise<FamilyTree> {
-  const response = await apiFetch("/family-trees/demo", { signal });
+  const params = new URLSearchParams({ locale });
+  const response = await apiFetch(`/family-trees/demo?${params}`, { signal });
   return jsonOrThrow(response);
 }
 
