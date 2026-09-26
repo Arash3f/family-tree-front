@@ -26,6 +26,7 @@ import {
   personDisplayName,
   resolvePersonParents,
 } from "@/lib/pedigree/layout";
+import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
 import type { PedigreeLayoutJob } from "@/lib/pedigree/layout-compute";
 import {
   buildTreeIndex,
@@ -34,7 +35,11 @@ import {
 import { subsetWithoutHidden } from "@/lib/pedigree/collapse";
 import { countDescendantsByGeneration } from "@/lib/pedigree/descendants";
 import { ageInYearsAtYear, todayIso } from "@/lib/pedigree/dates";
-import { HiOutlineTicket } from "react-icons/hi2";
+import {
+  HiOutlineArrowUturnLeft,
+  HiOutlineMap,
+  HiOutlineTicket,
+} from "react-icons/hi2";
 import { Link } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
 import { Button } from "@/components/ui/Button";
@@ -111,9 +116,15 @@ type Props = {
    * state (collapsed branches, opening fit) — the real id arrives with it.
    */
   treeSource?: TreeSource;
+  /** Person card style chosen when the tree was opened. */
+  cardVariant?: PedigreeCardVariant;
 };
 
-export function PedigreeView({ treeId, treeSource = "member" }: Props) {
+export function PedigreeView({
+  treeId,
+  treeSource = "member",
+  cardVariant = "full",
+}: Props) {
   const t = useTranslations("pedigree");
   const tTrees = useTranslations("trees");
   const locale = useLocale();
@@ -128,6 +139,8 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     relayoutFraming,
     clearRelationHighlight,
     revealPerson,
+    framePerson,
+    focusCameraOn,
   } = focus;
   /**
    * Opening-shot fit runs once per tree. Later reloads (auth refresh, manual
@@ -176,6 +189,8 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     married_at: todayIso(),
   });
   const [relateToId, setRelateToId] = useState("");
+  /** Origin of the last relation search — reopens the pathfinding panel. */
+  const [relateFromId, setRelateFromId] = useState<string | null>(null);
   const [divorceDate, setDivorceDate] = useState(todayIso());
   const [ticketOpen, setTicketOpen] = useState(false);
   const [maleLinePerson, setMaleLinePerson] = useState<Person | null>(null);
@@ -384,6 +399,11 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
 
   const onSelect = useCallback(
     (personId: string | null) => {
+      // Pathfinding owns the canvas until the user leaves it on purpose (exit
+      // button, closing the person card, or a search): clicks on people or on
+      // empty space only browse, they never drop the route.
+      const pathActive = focus.coverPathIds.size > 0;
+      if (personId === null && pathActive) return;
       if (personId) {
         panelOpenedAt.current = Date.now();
         if (sheetLayout) setSheetSnap("half");
@@ -392,10 +412,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
       }
       setSelectedId(personId);
       setPanel({ kind: "none" });
-      // Keep the highlighted route when the user inspects someone who is
-      // already on it — only leave the path when they pick elsewhere or
-      // clear the canvas.
-      if (personId !== null && focus.coverPathIds.has(personId)) return;
+      if (pathActive) return;
       clearRelationHighlight();
     },
     [clearRelationHighlight, focus.coverPathIds, sheetLayout],
@@ -778,9 +795,66 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
     if (removed) relayoutKeeping([]);
   };
 
+  /** Drops any in-flight relation request so a late answer cannot redraw it. */
+  const abandonRelationRequest = () => {
+    relationRequestSeq.current += 1;
+    setAlternativesLoading(false);
+    setRelateToId("");
+  };
+
+  /** Leaves pathfinding and returns the canvas to the overall tree view. */
+  const exitPathfinding = () => {
+    abandonRelationRequest();
+    // A clipped path view rebuilds the full tree on clear; the full view
+    // needs its own nudge back to the opening shot.
+    if (focus.pathViewMode === "full") bumpLayout();
+    clearRelationHighlight();
+  };
+
+  /**
+   * Brings back the pathfinding panel (origin, destination and the route
+   * choices) after it was hidden with its close button.
+   */
+  const reopenPathfindingPanel = () => {
+    if (!relateFromId) return;
+    panelOpenedAt.current = Date.now();
+    setSelectedId(relateFromId);
+    setPanel({ kind: "relate", fromId: relateFromId });
+  };
+
+  /** A search/calendar pick leaves pathfinding and frames that person. */
+  const revealAndSelect = (personId: string) => {
+    abandonRelationRequest();
+    revealPerson(personId);
+    onSelect(personId);
+  };
+
+  /**
+   * Selecting someone from the detail panel (parent, spouse, descendant) also
+   * moves the camera to them — unlike a click on the canvas, where the person
+   * is already in view. Someone missing from the clipped graph brings the main
+   * tree back first: a pathfinding route is kept only when they are on it
+   * (e.g. an alternative path hidden by "selected path only"); anyone else
+   * leaves pathfinding, and a branch preview is left either way.
+   */
+  const selectAndFrame = (personId: string) => {
+    if (graph.nodes.some((node) => node.id === personId)) {
+      focusCameraOn([personId]);
+      onSelect(personId);
+      return;
+    }
+    if (focus.coverPathIds.has(personId)) {
+      framePerson(personId);
+      onSelect(personId);
+      return;
+    }
+    revealAndSelect(personId);
+  };
+
   const runRelation = async (maleOnly = false) => {
     if (!selectedId || !relateToId) return;
     const seq = ++relationRequestSeq.current;
+    setRelateFromId(selectedId);
     tree.setBusy(true);
     setAlternativesLoading(false);
     try {
@@ -986,10 +1060,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      relationRequestSeq.current += 1;
-                      setAlternativesLoading(false);
-                      clearRelationHighlight();
-                      setRelateToId("");
+                      exitPathfinding();
                       setSheetSnap("half");
                       setSelectedId(null);
                       closePanel();
@@ -1085,8 +1156,12 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                 canDeletePerson={permissions.canDeletePerson}
                 canCreatePerson={permissions.canCreatePerson}
                 canCreateMarriage={permissions.canCreateMarriage}
-                onCloseDetail={() => setSelectedId(null)}
-                onSelectPerson={onSelect}
+                onCloseDetail={() => {
+                  // The card's close is the "back" out of pathfinding too.
+                  if (focus.coverPathIds.size > 0) exitPathfinding();
+                  setSelectedId(null);
+                }}
+                onSelectPerson={selectAndFrame}
                 onEditPerson={() =>
                   selectedPerson ? openEditPerson(selectedPerson) : undefined
                 }
@@ -1149,11 +1224,17 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                 onClearRelatePick={() => setRelateToId("")}
                 onSubmitRelate={() => void runRelation()}
                 onSubmitRelateMaleOnly={() => void runRelation(true)}
+                onCloseRelate={() => {
+                  // With a route on screen the × only hides the panel — the
+                  // route stays and the canvas button brings the panel back.
+                  if (focus.coverPathIds.size > 0) {
+                    setSelectedId(null);
+                    setSheetSnap("half");
+                  }
+                  closePanel();
+                }}
                 onCancelRelate={() => {
-                  relationRequestSeq.current += 1;
-                  setAlternativesLoading(false);
-                  clearRelationHighlight();
-                  setRelateToId("");
+                  exitPathfinding();
                   setSheetSnap("half");
                   closePanel();
                 }}
@@ -1182,8 +1263,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
         onPickSearchResult={(person) => {
           // Leave path/branch clips first so the hit is on the full tree,
           // then open the detail card after framing the person.
-          revealPerson(person.id);
-          onSelect(person.id);
+          revealAndSelect(person.id);
         }}
         canReadPersons={permissions.canReadPersons}
         canCreatePerson={permissions.canCreatePerson}
@@ -1258,10 +1338,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                   canViewBirthDate={permissions.canViewBirthDate}
                   open={birthdayOpen}
                   onOpenChange={setBirthdayOpen}
-                  onSelectPerson={(personId) => {
-                    revealPerson(personId);
-                    onSelect(personId);
-                  }}
+                  onSelectPerson={revealAndSelect}
                 />
                 {canCreateTicket ? (
                   <button
@@ -1273,6 +1350,28 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                   >
                     <HiOutlineTicket aria-hidden />
                     <span>{t("createTicket")}</span>
+                  </button>
+                ) : null}
+                {focus.coverPathIds.size > 0 ? (
+                  <button
+                    type="button"
+                    className={styles.pathExitBtn}
+                    onClick={exitPathfinding}
+                  >
+                    <HiOutlineArrowUturnLeft aria-hidden />
+                    <span>{t("exitPathfinding")}</span>
+                  </button>
+                ) : null}
+                {focus.coverPathIds.size > 0 &&
+                relateFromId &&
+                panel.kind !== "relate" ? (
+                  <button
+                    type="button"
+                    className={styles.pathExitBtn}
+                    onClick={reopenPathfindingPanel}
+                  >
+                    <HiOutlineMap aria-hidden />
+                    <span>{t("showPathfindingPanel")}</span>
                   </button>
                 ) : null}
               </div>
@@ -1310,6 +1409,7 @@ export function PedigreeView({ treeId, treeSource = "member" }: Props) {
                 dataAccess={dataAccess}
                 branchActions={branchActions}
                 exportApiRef={canvasApiRef}
+                cardVariant={cardVariant}
               />
             )}
           </div>

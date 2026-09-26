@@ -63,6 +63,11 @@ export type GraphFocus = {
   clearBranchPreview: (focusPersonId?: string | null) => void;
   /** Leave path/branch clips, restore the full tree, then frame this person. */
   revealPerson: (personId: string) => void;
+  /**
+   * Frame this person on the full tree, leaving any path/branch clip that
+   * hides them but keeping the highlighted route itself.
+   */
+  framePerson: (personId: string) => void;
   showRelationPath: (pathIds: string[], label: string) => void;
   showRelationPaths: (paths: RelationPathView[], label: string) => void;
   selectRelationPath: (index: number) => void;
@@ -245,12 +250,25 @@ export function useGraphFocus(): GraphFocus {
     [branchRootId, relayout, relayoutFraming],
   );
 
-  const revealPerson = useCallback(
+  const framePerson = useCallback(
     (personId: string) => {
       const needsFullRebuild =
         pathViewMode !== "full" || branchRootId !== null;
-
       setBranchRootId(null);
+      setPathViewMode("full");
+      if (needsFullRebuild) {
+        // Clipped path/branch graphs omit other people — rebuild the full
+        // tree first, then frame the person after layout settles.
+        relayoutFraming([personId]);
+        return;
+      }
+      focusCameraOn([personId]);
+    },
+    [pathViewMode, branchRootId, relayoutFraming, focusCameraOn],
+  );
+
+  const revealPerson = useCallback(
+    (personId: string) => {
       setHighlightIds(new Set());
       setHighlightPathOrder([]);
       setAltPathIds(new Set());
@@ -259,17 +277,9 @@ export function useGraphFocus(): GraphFocus {
       setRelationPaths([]);
       setActivePathIndex(0);
       setRelationLabel(null);
-      setPathViewMode("full");
-
-      if (needsFullRebuild) {
-        // Clipped path/branch graphs omit other people — rebuild the full
-        // tree first, then frame the search hit after layout settles.
-        relayoutFraming([personId]);
-        return;
-      }
-      focusCameraOn([personId]);
+      framePerson(personId);
     },
-    [pathViewMode, branchRootId, relayoutFraming, focusCameraOn],
+    [framePerson],
   );
 
   const showRelationPath = useCallback(
@@ -349,6 +359,7 @@ export function useGraphFocus(): GraphFocus {
     openBranchPreview,
     clearBranchPreview,
     revealPerson,
+    framePerson,
     showRelationPath,
     showRelationPaths,
     selectRelationPath,

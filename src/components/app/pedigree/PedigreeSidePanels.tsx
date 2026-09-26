@@ -85,6 +85,8 @@ type Props = {
   onSubmitRelate: () => void;
   onSubmitRelateMaleOnly: () => void;
   onCancelRelate: () => void;
+  /** The relate panel's close (×); pathfinding hides it instead of ending. */
+  onCloseRelate: () => void;
 };
 
 export function PedigreeSidePanels({
@@ -158,6 +160,7 @@ export function PedigreeSidePanels({
   onSubmitRelate,
   onSubmitRelateMaleOnly,
   onCancelRelate,
+  onCloseRelate,
 }: Props) {
   return (
     <>
@@ -265,7 +268,7 @@ export function PedigreeSidePanels({
           onSubmit={onSubmitRelate}
           onSubmitMaleOnly={onSubmitRelateMaleOnly}
           onCancel={onCancelRelate}
-          onClose={onClosePanel}
+          onClose={onCloseRelate}
           relationResult={relationResult}
         />
       ) : null}

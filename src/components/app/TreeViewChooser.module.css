@@ -1,0 +1,224 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-app-dialog);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--foreground) 42%, transparent);
+  animation: fadeIn 160ms ease-out;
+}
+
+.modal {
+  width: min(36rem, 100%);
+  max-height: min(90svh, 40rem);
+  overflow: auto;
+  display: grid;
+  gap: 1rem;
+  padding: 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+  animation: popIn 200ms var(--ease-out, ease-out);
+}
+
+.header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.heading {
+  min-width: 0;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.08rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.hint {
+  margin: 0.28rem 0 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  font-weight: 500;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+@media (max-width: 479.98px) {
+  .options {
+    grid-template-columns: 1fr;
+  }
+}
+
+.option {
+  --option-accent: var(--accent);
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--option-accent) 10%, var(--surface)),
+    var(--surface) 55%
+  );
+  color: var(--foreground);
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.optionMinimal {
+  --option-accent: var(--pedigree-female, var(--accent));
+}
+
+.option:hover,
+.option:focus-visible {
+  border-color: var(--option-accent);
+  box-shadow:
+    var(--shadow-md),
+    0 0 0 3px color-mix(in srgb, var(--option-accent) 22%, transparent);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.preview {
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.85rem 0.5rem;
+  margin-block-end: 0.25rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--option-accent) 7%, var(--surface-sunken, var(--surface)));
+}
+
+.optionTitle {
+  font-weight: 750;
+  font-size: 0.98rem;
+}
+
+.optionHint {
+  color: var(--ink-soft, var(--muted));
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Card sketches — same 5:4 proportions as the real 220×176 person card. */
+.sketchCard {
+  width: 4.4rem;
+  height: 3.52rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  padding: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--option-accent) 30%, var(--border));
+  border-radius: 0.5rem;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.sketchMinimal {
+  align-items: center;
+  justify-content: center;
+}
+
+.sketchHead {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-block-end: 0.1rem;
+}
+
+.sketchAvatar,
+.sketchAvatarLarge {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--option-accent) 45%, var(--surface));
+}
+
+.sketchAvatar {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.sketchAvatarLarge {
+  width: 1.45rem;
+  height: 1.45rem;
+  margin-block-end: 0.05rem;
+}
+
+.sketchLine {
+  display: block;
+  width: 100%;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--foreground) 28%, transparent);
+}
+
+.sketchMinimal .sketchLine {
+  width: 70%;
+}
+
+.sketchMinimal .sketchLineShort {
+  width: 45%;
+  opacity: 0.6;
+}
+
+.sketchLineFact {
+  width: 85%;
+  opacity: 0.45;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal {
+    animation: none;
+  }
+
+  .option {
+    transition: none;
+  }
+}

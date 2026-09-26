@@ -39,7 +39,9 @@ import {
 } from "@/lib/pedigree/layout";
 import type { CoupleNodeData, PersonNodeData } from "@/lib/pedigree/layout";
 import type { LayoutAnchor } from "./useGraphFocus";
+import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
 import { CoupleNode } from "./CoupleNode";
+import { MinimalPersonNode } from "./MinimalPersonNode";
 import { PathTraveler } from "./PathTraveler";
 import { PersonNode } from "./PersonNode";
 import { UnionNode } from "./UnionNode";
@@ -58,11 +60,11 @@ import {
 import { type ExportTheme } from "@/lib/pedigree/export-theme";
 import styles from "./PedigreeCanvas.module.css";
 
-const nodeTypes = {
-  person: PersonNode,
-  union: UnionNode,
-  couple: CoupleNode,
-};
+// Module-level so React Flow sees a stable `nodeTypes` identity per variant.
+const NODE_TYPES_BY_VARIANT = {
+  full: { person: PersonNode, union: UnionNode, couple: CoupleNode },
+  minimal: { person: MinimalPersonNode, union: UnionNode, couple: CoupleNode },
+} satisfies Record<PedigreeCardVariant, object>;
 
 /** Past this many targets a camera move fits bounds instead of framing each node. */
 const FIT_ALL_NODE_LIMIT = 18;
@@ -249,6 +251,7 @@ type CanvasProps = {
   dataAccess: PedigreeDataAccess;
   branchActions: PedigreeBranchActions;
   exportApiRef?: MutableRefObject<PedigreeCanvasHandle | null>;
+  cardVariant?: PedigreeCardVariant;
 };
 
 function CanvasInner({
@@ -271,6 +274,7 @@ function CanvasInner({
   dataAccess,
   branchActions,
   exportApiRef,
+  cardVariant = "full",
 }: CanvasProps) {
   const {
     fitView,
@@ -865,7 +869,7 @@ function CanvasInner({
         <ReactFlow
         nodes={nodes}
         edges={edges}
-        nodeTypes={nodeTypes}
+        nodeTypes={NODE_TYPES_BY_VARIANT[cardVariant]}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeDragStart={onNodeDragStart}

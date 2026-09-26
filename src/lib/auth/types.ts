@@ -92,6 +92,8 @@ export type TicketSummary = {
   status: TicketStatus;
   category: TicketCategory;
   created_by_user_id: string;
+  /** Null only for responses from an API that predates the field. */
+  created_by_username?: string | null;
   created_by_can_manage: boolean;
   viewer_can_manage: boolean;
   family_tree_id: string | null;

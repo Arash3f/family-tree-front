@@ -444,13 +444,23 @@ export async function updateMyPreferences(input: {
   await jsonOrThrow(response);
 }
 
-export async function listUsers(page = 1, pageSize = 30): Promise<Paginated<AppUser>> {
+export async function listUsers(options?: {
+  page?: number;
+  pageSize?: number;
+  /** Case-insensitive match on username, full name, email or phone. */
+  search?: string;
+  signal?: AbortSignal;
+}): Promise<Paginated<AppUser>> {
+  const page = options?.page ?? 1;
+  const pageSize = options?.pageSize ?? 30;
+  const search = options?.search?.trim();
   const response = await apiFetch("/users/list", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    signal: options?.signal,
     body: JSON.stringify({
       pagination: { page, page_size: pageSize, offset: 0 },
-      filters: {},
+      filters: search ? { search } : {},
       sort: { sort_order: "desc", sort_by: "id" },
     }),
   });
@@ -641,6 +651,19 @@ export async function listTickets(options?: {
     }),
   });
   return jsonOrThrow(response);
+}
+
+/**
+ * How many of the caller's visible tickets still need attention (open or in
+ * progress). Reads only each status's `total`, so it costs two one-row pages.
+ */
+export async function countOpenTickets(): Promise<number> {
+  const pages = await Promise.all(
+    (["open", "in_progress"] as const).map((status) =>
+      listTickets({ status, pageSize: 1 }),
+    ),
+  );
+  return pages.reduce((sum, page) => sum + page.total, 0);
 }
 
 export async function getTicket(ticketId: string): Promise<TicketDetail> {

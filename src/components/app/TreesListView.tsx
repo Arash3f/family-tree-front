@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/Button";
 import { Alert } from "@/components/ui/Feedback";
 import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
+import { TreeViewChooser } from "./TreeViewChooser";
 import styles from "./TreesView.module.css";
 
 type TreeScope = "all" | "owned" | "joined";
@@ -26,6 +27,7 @@ export function TreesListView() {
   const [scope, setScope] = useState<TreeScope>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openingTree, setOpeningTree] = useState<FamilyTree | null>(null);
   const canCreate = hasPermission(Permissions.TREE_CREATE);
   const atFreeTreeLimit = freeUserAtTreeLimit(me, trees);
 
@@ -184,6 +186,15 @@ export function TreesListView() {
                       href={`/dashboard/trees/${tree.id}`}
                       draggable={false}
                       onContextMenu={(event) => event.preventDefault()}
+                      onClick={(event) => {
+                        // Modified clicks keep the browser's own behaviour
+                        // (new tab/window) and open the full view directly.
+                        if (event.metaKey || event.ctrlKey || event.shiftKey) {
+                          return;
+                        }
+                        event.preventDefault();
+                        setOpeningTree(tree);
+                      }}
                     >
                       <p className={styles.treeName}>
                         <OverflowMarquee title={tree.name}>{tree.name}</OverflowMarquee>
@@ -216,6 +227,11 @@ export function TreesListView() {
           </ul>
         </Panel>
       ) : null}
+
+      <TreeViewChooser
+        tree={openingTree}
+        onClose={() => setOpeningTree(null)}
+      />
     </Page>
   );
 }

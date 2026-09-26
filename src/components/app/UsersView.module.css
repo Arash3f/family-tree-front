@@ -40,44 +40,205 @@
   border-block-end: 0;
 }
 
-/* 7 cols: username | fullname | email | role | status | lastSession | action */
+/* 6 cols: user (name + @username) | contact | role | status | lastSession | action */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 12%;
+  width: 30%;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  width: 14%;
+  width: 25%;
 }
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 22%;
+  width: 13%;
 }
 
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  width: 12%;
+  width: 10%;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 8%;
-  white-space: nowrap;
-  overflow-wrap: normal;
+  width: 15%;
 }
 
 .table th:nth-child(6),
 .table td:nth-child(6) {
-  width: 18%;
-  white-space: nowrap;
-  overflow-wrap: normal;
+  width: 7%;
 }
 
-.table th:nth-child(7),
-.table td:nth-child(7) {
-  width: 14%;
+.tableWrap[data-busy] {
+  opacity: 0.55;
+  transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-block-end: var(--space-3);
+}
+
+.search {
+  position: relative;
+  flex: 1 1 18rem;
+  max-width: 28rem;
+}
+
+.search input {
+  width: 100%;
+  min-height: 2.6rem;
+  padding-block: 0.5rem;
+  padding-inline: 2.4rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.search input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--ring);
+}
+
+.searchIcon {
+  position: absolute;
+  inset-inline-start: 0.85rem;
+  top: 50%;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.count {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.avatar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-full);
+  background: var(--accent-muted);
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-sm);
+}
+
+.userText {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.fullname {
+  font-weight: var(--weight-bold);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.username {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: start;
+  unicode-bidi: plaintext;
+  overflow-wrap: anywhere;
+}
+
+.contact {
+  display: grid;
+  gap: 0.1rem;
+  font-size: var(--text-sm);
+  text-align: start;
+  unicode-bidi: plaintext;
+  overflow-wrap: anywhere;
+}
+
+.phone {
+  color: var(--muted);
+}
+
+.roleBadge,
+.statusBadge {
+  display: inline-block;
+  /* Phone cards lay cells out as a grid — keep the badge its own size. */
+  justify-self: start;
+  max-width: 100%;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.roleBadge {
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+}
+
+.statusActive {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.statusInactive {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.pagerBtn {
+  min-height: 2.25rem;
+  padding-inline: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.pagerBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.pagerStatus {
+  color: var(--muted);
+  font-size: var(--text-sm);
 }
 
 .cellName {

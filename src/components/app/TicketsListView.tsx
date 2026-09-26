@@ -306,7 +306,12 @@ export function TicketsListView() {
                 ticket.status !== "closed"
                   ? t("replyAction")
                   : t("open");
+              const requester =
+                ticket.created_by_username && role !== "mine"
+                  ? `@${ticket.created_by_username}`
+                  : null;
               const metaParts = [
+                requester,
                 t(`category.${ticket.category}`),
                 ticket.family_tree_name,
                 formatDate(ticket.updated_at ?? ticket.created_at, locale),

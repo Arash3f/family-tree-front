@@ -2,19 +2,22 @@
 
 import {
   useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { Button } from "@/components/ui/Button";
 import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
+import { countOpenTickets } from "@/lib/auth/client";
+import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Permissions } from "@/lib/auth/types";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { DashboardBackdrop } from "./DashboardBackdrop";
@@ -51,8 +54,34 @@ function useIsDesktopNav(): boolean {
   );
 }
 
+/**
+ * Open + in-progress tickets for the menu badge. Refetched on every route
+ * change so creating, answering or closing a ticket shows up on the next page.
+ */
+function useOpenTicketCount(enabled: boolean, pathname: string): number {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    countOpenTickets()
+      .then((next) => {
+        if (!cancelled) setCount(next);
+      })
+      .catch(() => {
+        // The badge is a hint; a failed count must not surface as an error.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, pathname]);
+
+  return enabled ? count : 0;
+}
+
 export function AppShell({ children }: Props) {
   const t = useTranslations("app");
+  const locale = useLocale();
   const { confirm } = useFeedback();
   const { user, logout, logoutAll, hasPermission } = useAuth();
   const pathname = usePathname();
@@ -79,6 +108,7 @@ export function AppShell({ children }: Props) {
   const canReadRoles = hasPermission(Permissions.ROLE_READ);
   const canReadTickets = hasPermission(Permissions.TICKET_READ);
   const canReadTrees = hasPermission(Permissions.TREE_READ);
+  const openTicketCount = useOpenTicketCount(canReadTickets, pathname);
 
   const handleLogout = async () => {
     setBusy("logout");
@@ -126,6 +156,8 @@ export function AppShell({ children }: Props) {
     /^\/dashboard\/trees\/[^/]+\/settings$/.test(pathname);
   const treeWorkspace =
     /^\/dashboard\/trees\/[^/]+$/.test(pathname);
+  /** Data tables need more room than the reading width of other pages. */
+  const tableMain = pathname === "/dashboard/users";
 
   return (
     <div
@@ -265,6 +297,16 @@ export function AppShell({ children }: Props) {
               onClick={closeMenu}
             >
               {t("tickets")}
+              {openTicketCount > 0 ? (
+                <span
+                  className={styles.navBadge}
+                  title={t("openTicketsBadge", {
+                    count: formatLocaleDigits(openTicketCount, locale),
+                  })}
+                >
+                  {formatLocaleDigits(openTicketCount, locale)}
+                </span>
+              ) : null}
             </Link>
           ) : null}
         </nav>
@@ -301,6 +343,7 @@ export function AppShell({ children }: Props) {
         className={[
           styles.main,
           wideMain ? styles.mainWide : "",
+          tableMain ? styles.mainTable : "",
           treeWorkspace ? styles.mainFill : "",
         ]
           .filter(Boolean)

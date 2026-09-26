@@ -170,7 +170,11 @@ export function TicketDetailView({ ticketId }: Props) {
     if (mine) {
       return isOwner ? t("you") : t("youAsSupport");
     }
-    if (fromRequester) return t("requester");
+    if (fromRequester) {
+      return ticket.created_by_username
+        ? `${t("requester")} · @${ticket.created_by_username}`
+        : t("requester");
+    }
     return t("supportStaff");
   };
 
@@ -209,6 +213,12 @@ export function TicketDetailView({ ticketId }: Props) {
         </div>
 
         <dl className={styles.metaGrid}>
+          {ticket.created_by_username ? (
+            <div className={styles.metaItem}>
+              <dt>{t("requester")}</dt>
+              <dd dir="ltr">@{ticket.created_by_username}</dd>
+            </div>
+          ) : null}
           {ticket.family_tree_name ? (
             <div className={styles.metaItem}>
               <dt>{t("relatedTree")}</dt>

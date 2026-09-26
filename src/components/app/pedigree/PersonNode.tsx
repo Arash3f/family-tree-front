@@ -1,6 +1,13 @@
 "use client";
 
-import { memo, useRef, type MouseEvent, type PointerEvent, type ReactNode } from "react";
+import {
+  memo,
+  useRef,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
 import {
   Handle,
   Position,
@@ -36,7 +43,7 @@ import styles from "./PersonNode.module.css";
 
 type PersonFlowNode = Node<PersonNodeData, "person">;
 
-function initials(name: string): string {
+export function initials(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "?";
   if (parts.length === 1) return parts[0]!.slice(0, 2);
@@ -59,6 +66,73 @@ function stopThen(action: () => void) {
     event.preventDefault();
     action();
   };
+}
+
+/**
+ * Press handling shared by every person card variant: a short press (or
+ * Enter/Space) selects the person; a press that turned into a pan/drag, or one
+ * that lands on a card button (fold/hide), does not.
+ */
+export function usePersonCardPress(personId: string) {
+  const onSelect = usePedigreeSelect();
+  const pressOrigin = useRef<{ x: number; y: number } | null>(null);
+
+  return {
+    onPointerDown: (event: PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) return;
+      pressOrigin.current = { x: event.clientX, y: event.clientY };
+    },
+    onPointerUp: (event: PointerEvent<HTMLDivElement>) => {
+      if (event.button !== 0) return;
+      const origin = pressOrigin.current;
+      pressOrigin.current = null;
+      if (!origin) return;
+      // Fold / hide controls own their presses.
+      if ((event.target as HTMLElement | null)?.closest?.("button")) return;
+      const dx = event.clientX - origin.x;
+      const dy = event.clientY - origin.y;
+      // Ignore presses that turned into a pan/drag.
+      if (dx * dx + dy * dy > 64) return;
+      onSelect(personId);
+    },
+    onPointerCancel: () => {
+      pressOrigin.current = null;
+    },
+    onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        onSelect(personId);
+      }
+    },
+  };
+}
+
+/** "+N" chip on a folded card; pressing it unfolds the branch. */
+export function CollapsedChip({
+  personId,
+  count,
+}: {
+  personId: string;
+  count: number;
+}) {
+  const t = useTranslations("pedigree");
+  const locale = useLocale();
+  const branch = usePedigreeBranchActions();
+  const label = t("branchExpand", { count: formatLocaleDigits(count, locale) });
+  return (
+    <button
+      type="button"
+      className={styles.foldChip}
+      onClick={stopThen(() => branch.toggleCollapse(personId))}
+      onMouseDown={swallow}
+      onPointerDown={swallow}
+      title={label}
+      aria-label={label}
+    >
+      <HiOutlineChevronDown aria-hidden />
+      <span>+{formatLocaleDigits(count, locale)}</span>
+    </button>
+  );
 }
 
 function FactRow({
@@ -95,11 +169,9 @@ function FactRow({
 function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
-  const onSelect = usePedigreeSelect();
   const asOfYear = usePedigreeAsOfYear();
   const branch = usePedigreeBranchActions();
   const { canViewBirthDate, canViewPhoto } = usePedigreeDataAccess();
-  const pressOrigin = useRef<{ x: number; y: number } | null>(null);
   const {
     person,
     selected,
@@ -111,6 +183,7 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
     hasDescendants,
     collapsedCount = 0,
   } = data;
+  const press = usePersonCardPress(person.id);
   const collapsed = collapsedCount > 0;
   const label = personDisplayName(person);
   const photoSrc = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
@@ -144,32 +217,7 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
       ]
         .filter(Boolean)
         .join(" ")}
-      onPointerDown={(event: PointerEvent<HTMLDivElement>) => {
-        if (event.button !== 0) return;
-        pressOrigin.current = { x: event.clientX, y: event.clientY };
-      }}
-      onPointerUp={(event: PointerEvent<HTMLDivElement>) => {
-        if (event.button !== 0) return;
-        const origin = pressOrigin.current;
-        pressOrigin.current = null;
-        if (!origin) return;
-        // Fold / hide controls own their presses.
-        if ((event.target as HTMLElement | null)?.closest?.("button")) return;
-        const dx = event.clientX - origin.x;
-        const dy = event.clientY - origin.y;
-        // Ignore presses that turned into a pan/drag.
-        if (dx * dx + dy * dy > 64) return;
-        onSelect(person.id);
-      }}
-      onPointerCancel={() => {
-        pressOrigin.current = null;
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect(person.id);
-        }
-      }}
+      {...press}
       aria-pressed={selected}
       aria-label={label}
       dir={locale === "fa" ? "rtl" : "ltr"}
@@ -236,22 +284,7 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
         className={`${styles.foldBar} ${collapsed ? styles.foldBarPinned : ""} nodrag nopan`}
       >
         {collapsed ? (
-          <button
-            type="button"
-            className={styles.foldChip}
-            onClick={stopThen(() => branch.toggleCollapse(person.id))}
-            onMouseDown={swallow}
-            onPointerDown={swallow}
-            title={t("branchExpand", {
-              count: formatLocaleDigits(collapsedCount, locale),
-            })}
-            aria-label={t("branchExpand", {
-              count: formatLocaleDigits(collapsedCount, locale),
-            })}
-          >
-            <HiOutlineChevronDown aria-hidden />
-            <span>+{formatLocaleDigits(collapsedCount, locale)}</span>
-          </button>
+          <CollapsedChip personId={person.id} count={collapsedCount} />
         ) : null}
         {hasDescendants && !collapsed ? (
           <button

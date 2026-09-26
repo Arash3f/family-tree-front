@@ -808,6 +808,42 @@
     0 0 0 1px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
+/* Pathfinding exit — in the canvas chrome, under "create ticket", while a route is shown. */
+.pathExitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.15rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--pedigree-path) 70%, var(--border));
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--pedigree-path) 16%, var(--surface-raised));
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  cursor: pointer;
+  animation: pathPeekIn 200ms var(--ease-out);
+}
+
+.pathExitBtn > svg {
+  flex-shrink: 0;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.pathExitBtn:hover {
+  background: color-mix(in srgb, var(--pedigree-path) 28%, var(--surface-raised));
+}
+
+.pathExitBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring), var(--shadow-md);
+}
+
 .toolLabel {
   display: inline;
 }
@@ -1595,15 +1631,16 @@ button.ghostBtnActive {
 }
 
 @media (min-width: 1100px) {
-  /* The side column exists only while a panel is open; otherwise the canvas
-   * takes the full width. */
+  /*
+   * The canvas always keeps the full width and the side panel floats over it.
+   * A side column would resize the canvas on every selection, and React Flow
+   * keeps its viewport pinned to the canvas's left edge — in RTL that edge
+   * moves, so the tree visibly jumped each time someone was clicked.
+   */
   .workspace {
+    position: relative;
     grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
-  }
-
-  .workspace:has(> .panel) {
-    grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
   }
 
   .panelBackdrop {
@@ -1611,17 +1648,22 @@ button.ghostBtnActive {
   }
 
   .panel {
-    position: static;
+    position: absolute;
+    z-index: var(--z-raised);
     inset: auto;
-    width: auto;
+    inset-block-start: 0.75rem;
+    inset-inline-end: 0.75rem;
+    width: min(24rem, 40vw);
     height: auto;
     max-width: none;
-    max-height: 100%;
+    /* Sized to its content, never taller than the canvas it floats on. */
+    max-height: calc(100% - 1.5rem);
     min-height: 0;
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     border-bottom: 1px solid var(--border);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    transform: none;
     animation: none;
     padding: 1rem;
     overflow: auto;
@@ -1656,30 +1698,6 @@ button.ghostBtnActive {
   .stage {
     min-height: 0;
     height: 100%;
-  }
-
-  /*
-   * Fullscreen keeps the canvas the full width and floats the side panel over
-   * it. The side-by-side layout would otherwise take a column away from the
-   * canvas, which is the one thing fullscreen is meant to avoid.
-   */
-  .root.immersive .workspace {
-    position: relative;
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .root.immersive .panel {
-    position: absolute;
-    z-index: var(--z-raised);
-    inset-block: 0;
-    inset-inline-end: 0;
-    width: min(24rem, 40vw);
-    height: auto;
-    min-height: 0;
-    max-height: none;
-    transform: none;
-    animation: none;
-    box-shadow: var(--shadow-lg);
   }
 }
 
