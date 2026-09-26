@@ -79,7 +79,7 @@ export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
       [marriages, person.id],
     );
 
-    const photo = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
+    const photo = resolvePersonPhotoUrl(person.photo_url);
     const age = ageInYears(person.birth_date, person.death_date);
     const dateText = (value: string | null | undefined) =>
       value

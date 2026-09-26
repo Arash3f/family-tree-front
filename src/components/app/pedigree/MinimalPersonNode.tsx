@@ -42,7 +42,7 @@ function MinimalPersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
   } = data;
   const press = usePersonCardPress(person.id);
   const photoSrc = canViewPhoto
-    ? resolvePersonPhotoUrl(person.photo_url, person.photo_object_key)
+    ? resolvePersonPhotoUrl(person.photo_url)
     : null;
   const familyName = person.family_name?.trim();
 

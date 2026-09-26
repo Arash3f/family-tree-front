@@ -186,7 +186,7 @@ function PersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
   const press = usePersonCardPress(person.id);
   const collapsed = collapsedCount > 0;
   const label = personDisplayName(person);
-  const photoSrc = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
+  const photoSrc = resolvePersonPhotoUrl(person.photo_url);
   const birthDate = formatPersonDate(person.birth_date, locale);
   const birthPlace = person.birth_place?.trim() || "—";
   const age = ageInYearsAtYear(

@@ -267,10 +267,7 @@ export function PedigreeView({
     [persons, selectedId],
   );
   const selectedPersonPhoto = selectedPerson
-    ? resolvePersonPhotoUrl(
-        selectedPerson.photo_url,
-        selectedPerson.photo_object_key,
-      )
+    ? resolvePersonPhotoUrl(selectedPerson.photo_url)
     : null;
   const panelOpen = panel.kind !== "none" || Boolean(selectedPerson);
   const panelBodyRef = useRef<HTMLDivElement | null>(null);
@@ -1111,10 +1108,7 @@ export function PedigreeView({
                 }}
                 existingPhotoUrl={
                   editingPerson
-                    ? resolvePersonPhotoUrl(
-                        editingPerson.photo_url,
-                        editingPerson.photo_object_key,
-                      )
+                    ? resolvePersonPhotoUrl(editingPerson.photo_url)
                     : null
                 }
                 divorceDate={divorceDate}

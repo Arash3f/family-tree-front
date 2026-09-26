@@ -304,7 +304,7 @@ function personCard(
   const fillMid = d.onPath ? tint(theme.pathSoft, 55, surface) : surface;
   const border = d.onPath ? theme.path : tint(accent, 22, theme.border);
   const name = personDisplayName(person);
-  const photoUrl = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
+  const photoUrl = resolvePersonPhotoUrl(person.photo_url);
   const photo = photoUrl ? photos.get(photoUrl) : null;
   const age = ageInYearsAtYear(
     person.birth_date,
@@ -681,7 +681,7 @@ async function collectPhotos(nodes: Node[]): Promise<Map<string, string>> {
   for (const node of nodes) {
     if (node.type !== "person") continue;
     const person = (node.data as PersonNodeData).person;
-    const url = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
+    const url = resolvePersonPhotoUrl(person.photo_url);
     if (url) urls.add(url);
   }
   await Promise.all(

@@ -167,7 +167,7 @@ function PersonAvatar({
   person: Person;
   className: string;
 }) {
-  const photo = resolvePersonPhotoUrl(person.photo_url, person.photo_object_key);
+  const photo = resolvePersonPhotoUrl(person.photo_url);
   return (
     <span
       className={[className, genderClass(person.gender)].filter(Boolean).join(" ")}
