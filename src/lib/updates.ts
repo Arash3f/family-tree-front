@@ -1,5 +1,8 @@
-/** Keys for landing + in-app «What's new» copy (newest first in messages). */
+/** Keys for landing + in-app «What's new» copy, in display order (newest first). */
 export const UPDATE_KEYS = [
+  "u9",
+  "u10",
+  "u11",
   "u1",
   "u2",
   "u3",

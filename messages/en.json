@@ -71,6 +71,24 @@
     "nextPage": "Next",
     "pageStatus": "Page {current} of {total}",
     "items": {
+      "u9": {
+        "iso": "2026-09-27",
+        "date": "Sep 2026",
+        "title": "Male-line tree export",
+        "body": "From any person card, export a paternal-line SVG — sons and sons' sons only, with no sons-in-law or descent through daughters."
+      },
+      "u10": {
+        "iso": "2026-09-27",
+        "date": "Sep 2026",
+        "title": "Lighter, faster person cards",
+        "body": "Details, parents, marriages, and descendant stats now come from the server, so person cards open smoothly even on large trees."
+      },
+      "u11": {
+        "iso": "2026-09-27",
+        "date": "Sep 2026",
+        "title": "Steadier pathfinding and mobile",
+        "body": "Leaving pathfinding returns to the same person, the path dock leaves no empty gap, the route marker restarts after you move cards, and cards can be dragged on mobile too."
+      },
       "u1": {
         "iso": "2026-09-25",
         "date": "Sep 2026",
@@ -534,6 +552,21 @@
       }
     },
     "updates": {
+      "u9": {
+        "date": "Sep 2026",
+        "title": "Male-line tree export",
+        "body": "Export a paternal-line SVG from a person card — sons only along the father's line, no sons-in-law."
+      },
+      "u10": {
+        "date": "Sep 2026",
+        "title": "Lighter, faster person cards",
+        "body": "Details and descendant stats come from the server, so person cards open smoothly on large trees."
+      },
+      "u11": {
+        "date": "Sep 2026",
+        "title": "Steadier pathfinding and mobile",
+        "body": "Exit pathfinding onto the same person, no empty gap under the path dock, the route marker restarts after moving cards, and drag cards on mobile."
+      },
       "u1": {
         "date": "Sep 2026",
         "title": "Edit people via Excel import",
