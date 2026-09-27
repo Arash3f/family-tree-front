@@ -23,6 +23,10 @@ export type LayoutAnchor = {
 export type RelationPathView = {
   ids: string[];
   distance: number;
+  /** Locale-picked short kinship phrase; null when API omitted labels. */
+  kinship: string | null;
+  /** Locale-picked step-by-step chain; null when omitted or unused. */
+  kinshipDetail: string | null;
 };
 
 /** How the relationship highlight is framed on the canvas. */
@@ -335,7 +339,14 @@ export function useGraphFocus(): GraphFocus {
 
   const showRelationPath = useCallback(
     (pathIds: string[], label: string) => {
-      const paths = [{ ids: pathIds, distance: Math.max(0, pathIds.length - 1) }];
+      const paths: RelationPathView[] = [
+        {
+          ids: pathIds,
+          distance: Math.max(0, pathIds.length - 1),
+          kinship: null,
+          kinshipDetail: null,
+        },
+      ];
       setBranchRootId(null);
       setRelationPaths(paths);
       setActivePathIndex(0);

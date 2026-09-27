@@ -275,6 +275,14 @@ export type ClosestRelationshipPath = {
   distance: number;
   path_person_ids: string[];
   relationship_types: string[];
+  /** Short kinship phrase (Persian); may be null on older backends. */
+  label_fa?: string | null;
+  /** Short kinship phrase (English); may be null on older backends. */
+  label_en?: string | null;
+  /** Step-by-step chain (Persian); may be null on older backends. */
+  description_fa?: string | null;
+  /** Step-by-step chain (English); may be null on older backends. */
+  description_en?: string | null;
 };
 
 export type ClosestRelationship = {
@@ -284,6 +292,11 @@ export type ClosestRelationship = {
   distance: number | null;
   path_person_ids: string[];
   relationship_types: string[];
+  /** Mirrors paths[0] when present; may be null on older backends. */
+  label_fa?: string | null;
+  label_en?: string | null;
+  description_fa?: string | null;
+  description_en?: string | null;
   paths: ClosestRelationshipPath[];
 };
 

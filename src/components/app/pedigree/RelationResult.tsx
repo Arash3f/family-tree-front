@@ -10,10 +10,16 @@ export type RelationPathChoice = {
   label: string;
   /** 0 = selected (gold); 1..N = alternative lane colors. */
   lane: number;
+  /** Optional kinship phrase for the native tooltip. */
+  title?: string;
 };
 
 type Props = {
   label: string | null;
+  /** Short kinship phrase for the active path; updates with path selection. */
+  kinship?: string | null;
+  /** Step-by-step chain when different from kinship. */
+  kinshipDetail?: string | null;
   /** False when the lookup found nothing, so there is no view to switch. */
   hasPath: boolean;
   viewMode: PathViewMode;
@@ -31,6 +37,8 @@ function laneSwatchClass(lane: number): string {
 
 export function RelationResult({
   label,
+  kinship = null,
+  kinshipDetail = null,
   hasPath,
   viewMode,
   onApplyView,
@@ -41,8 +49,22 @@ export function RelationResult({
 }: Props) {
   const t = useTranslations("pedigree");
   if (!label) return null;
+  const showDetail =
+    kinshipDetail != null &&
+    kinshipDetail.length > 0 &&
+    kinshipDetail !== kinship;
   return (
     <div>
+      {kinship ? (
+        <p className={styles.relationKinship}>
+          {t("relationKinship", { label: kinship })}
+        </p>
+      ) : null}
+      {showDetail ? (
+        <p className={styles.relationKinshipDetail}>
+          {t("relationKinshipDetail", { detail: kinshipDetail })}
+        </p>
+      ) : null}
       <p className={styles.relationNote}>{label}</p>
       {alternativesLoading ? (
         <p className={styles.relationNote}>{t("relationAlternativesLoading")}</p>
@@ -58,6 +80,7 @@ export function RelationResult({
               key={path.key}
               variant="ghost"
               size="sm"
+              title={path.title}
               className={
                 index === activePathIndex ? styles.ghostBtnActive : undefined
               }

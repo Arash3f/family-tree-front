@@ -1,5 +1,6 @@
 /** Keys for landing + in-app «What's new» copy, in display order (newest first). */
 export const UPDATE_KEYS = [
+  "u12",
   "u9",
   "u10",
   "u11",

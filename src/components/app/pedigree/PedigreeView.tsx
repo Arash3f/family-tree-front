@@ -15,7 +15,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { getAlternativeRelationshipPaths, getClosestRelationship, getPersonCard } from "@/lib/auth/client";
 import {
   getApiErrorMessage,
-  type ClosestRelationship,
   type Marriage,
   type Person,
   type PersonCard,
@@ -67,35 +66,14 @@ import { useBranchCollapse } from "./useBranchCollapse";
 import { useExcelTransfer } from "./useExcelTransfer";
 import { useExportFlow } from "./useExportFlow";
 import { useFullscreen } from "./useFullscreen";
-import {
-  useGraphFocus,
-  type RelationPathView,
-} from "./useGraphFocus";
+import { relationshipToPathViews } from "./relationshipPathViews";
+import { useGraphFocus } from "./useGraphFocus";
 import { usePedigreeLayout } from "./usePedigreeLayout";
 import { usePedigreePermissions } from "./usePedigreePermissions";
 import { useTimelineSlice } from "./useTimelineSlice";
 import { useTreeData, type TreeSource } from "./useTreeData";
 
 const EMPTY_PATH_IDS = new Set<string>();
-
-function relationshipToPathViews(
-  result: ClosestRelationship,
-): RelationPathView[] {
-  const raw =
-    result.paths?.length > 0
-      ? result.paths
-      : [
-          {
-            distance: result.distance ?? 0,
-            path_person_ids: result.path_person_ids,
-            relationship_types: result.relationship_types,
-          },
-        ];
-  return raw.map((path) => ({
-    ids: path.path_person_ids.map(String),
-    distance: path.distance,
-  }));
-}
 
 const PedigreeCanvas = dynamic(
   () =>
@@ -967,7 +945,7 @@ export function PedigreeView({
         );
         return;
       }
-      const shortestPaths = relationshipToPathViews(result);
+      const shortestPaths = relationshipToPathViews(result, locale);
       focus.showRelationPaths(
         shortestPaths,
         t(maleOnly ? "relationFoundMaleOnly" : "relationFound", {
@@ -994,7 +972,7 @@ export function PedigreeView({
       );
       if (seq !== relationRequestSeq.current) return;
       if (!alternatives.found) return;
-      const paths = relationshipToPathViews(alternatives);
+      const paths = relationshipToPathViews(alternatives, locale);
       if (paths.length <= 1) return;
       focus.showRelationPaths(
         paths,
@@ -1039,14 +1017,18 @@ export function PedigreeView({
   }
 
   const shortestPathIds = new Set(focus.relationPaths[0]?.ids ?? []);
+  const activeRelationPath =
+    focus.relationPaths[focus.activePathIndex] ?? focus.relationPaths[0];
   const pathChoices = focus.relationPaths.map((path, index) => {
     const distance = formatLocaleDigits(path.distance, locale);
     const lane = index === focus.activePathIndex ? 0 : 1;
+    const title = path.kinship ?? undefined;
     if (index === 0) {
       return {
         key: `closest-${path.ids.join("-")}`,
         label: t("relationPathClosest", { distance }),
         lane,
+        title,
       };
     }
     const viaId = path.ids.slice(1, -1).find((id) => !shortestPathIds.has(id));
@@ -1061,6 +1043,7 @@ export function PedigreeView({
             distance,
           }),
       lane,
+      title,
     };
   });
 
@@ -1070,6 +1053,8 @@ export function PedigreeView({
   const relationResult = (
     <RelationResult
       label={focus.relationLabel}
+      kinship={activeRelationPath?.kinship ?? null}
+      kinshipDetail={activeRelationPath?.kinshipDetail ?? null}
       hasPath={focus.highlightIds.size > 0}
       viewMode={focus.pathViewMode}
       onApplyView={focus.applyPathView}

@@ -71,6 +71,12 @@
     "nextPage": "Next",
     "pageStatus": "Page {current} of {total}",
     "items": {
+      "u12": {
+        "iso": "2026-09-27",
+        "date": "Sep 2026",
+        "title": "Relationships in plain words",
+        "body": "When a path is found, the relationship is spelled out — e.g. \"paternal uncle's wife's sister's son\". Uncles, aunts, cousins and in-laws are named directly, and picking another path shows that path's relationship."
+      },
       "u9": {
         "iso": "2026-09-27",
         "date": "Sep 2026",
@@ -552,6 +558,11 @@
       }
     },
     "updates": {
+      "u12": {
+        "date": "Sep 2026",
+        "title": "Relationships in plain words",
+        "body": "The selected path's relationship is spelled out (e.g. \"paternal uncle's wife's sister's son\") and updates when you switch paths."
+      },
       "u9": {
         "date": "Sep 2026",
         "title": "Male-line tree export",
@@ -1194,6 +1205,8 @@
     "relationFrom": "From {name}",
     "relationFound": "Closest path distance: {distance}",
     "relationFoundMaleOnly": "Closest male-line path distance: {distance}",
+    "relationKinship": "Relation: {label}",
+    "relationKinshipDetail": "Path: {detail}",
     "relationAlternativesLoading": "Looking for other paths…",
     "relationNotFound": "No path found between these people.",
     "relationNotFoundMaleOnly": "No male-line path found between these people.",
