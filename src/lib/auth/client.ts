@@ -29,6 +29,7 @@ import {
   type MediaUploadResult,
   type Paginated,
   type Person,
+  type PersonCard,
   type PersonCreateInput,
   type PersonUpdateData,
   type PreferredLocale,
@@ -868,6 +869,18 @@ export async function getPerson(
 ): Promise<Person> {
   const response = await apiFetch(
     `/family-trees/${treeId}/persons/${personId}`,
+  );
+  return jsonOrThrow(response);
+}
+
+export async function getPersonCard(
+  treeId: string,
+  personId: string,
+  signal?: AbortSignal,
+): Promise<PersonCard> {
+  const response = await apiFetch(
+    `/family-trees/${treeId}/persons/${personId}/card`,
+    { signal },
   );
   return jsonOrThrow(response);
 }

@@ -52,6 +52,8 @@ type Props = {
   asOfYear: number | null;
   selectedMarriages: Marriage[];
   descendantStats: DescendantStats | null;
+  /** True while the person-card API is in flight for the open person. */
+  cardLoading?: boolean;
   hasFather: boolean;
   hasMother: boolean;
   branchActive: boolean;
@@ -127,6 +129,7 @@ export function PedigreeSidePanels({
   asOfYear,
   selectedMarriages,
   descendantStats,
+  cardLoading = false,
   hasFather,
   hasMother,
   branchActive,
@@ -223,6 +226,7 @@ export function PedigreeSidePanels({
           asOfYear={asOfYear}
           marriages={selectedMarriages}
           descendantStats={descendantStats}
+          cardLoading={cardLoading}
           hasFather={hasFather}
           hasMother={hasMother}
           branchActive={branchActive}

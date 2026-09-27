@@ -194,6 +194,7 @@
  * there; in fullscreen the flex column already hands out the space. The side
  * panel keeps its own height so it stays a bottom sheet on a narrow screen. */
 .root.immersive .stage,
+.root.immersive .canvasArea,
 .root.immersive .canvasWrap {
   height: auto;
   min-height: 0;
@@ -688,6 +689,18 @@
   transition: padding-bottom var(--duration-slow) var(--ease-out);
 }
 
+/*
+ * Positions the floating desktop side panel against the pedigree frame only —
+ * not the whole workspace — so it never paints over the timeline row.
+ */
+.canvasArea {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 .canvasWrap {
   position: relative;
   min-height: 0;
@@ -922,6 +935,35 @@
   max-height: min(70svh, 36rem);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--ink-soft) 55%, transparent)
+    transparent;
+}
+
+.panel::-webkit-scrollbar,
+.panelBody::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.panel::-webkit-scrollbar-track,
+.panelBody::-webkit-scrollbar-track {
+  margin-block: 0.35rem;
+  background: transparent;
+}
+
+.panel::-webkit-scrollbar-thumb,
+.panelBody::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink-soft) 42%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.panel::-webkit-scrollbar-thumb:hover,
+.panelBody::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--ink-soft) 62%, transparent);
+  background-clip: padding-box;
+  border: 2px solid transparent;
 }
 
 .panelHeader {
@@ -977,6 +1019,31 @@
 .detail {
   display: grid;
   gap: var(--space-3);
+}
+
+.detailLoading {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--space-3);
+  min-height: 8rem;
+  padding: var(--space-5) var(--space-3);
+  color: var(--ink-soft);
+}
+
+.detailLoading p {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.detailLoadingSpinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2.5px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border-top-color: var(--accent);
+  animation: treeLoadSpin 0.75s linear infinite;
 }
 
 .photoField {
@@ -1394,11 +1461,8 @@ button.ghostBtnActive {
     box-shadow: var(--shadow-lg);
     overflow: hidden;
     transform: none;
-    transition:
-      height var(--duration-slow) var(--ease-out),
-      max-height var(--duration-slow) var(--ease-out),
-      border-radius var(--duration-slow) var(--ease-out);
-    animation: sheetUp var(--duration-slow) var(--ease-out) both;
+    transition: none;
+    animation: none;
   }
 
   .panelExpanded {
@@ -1479,6 +1543,9 @@ button.ghostBtnActive {
     overflow: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--ink-soft) 55%, transparent)
+      transparent;
   }
 
   .panelGrabber {
@@ -1632,10 +1699,12 @@ button.ghostBtnActive {
 
 @media (min-width: 1100px) {
   /*
-   * The canvas always keeps the full width and the side panel floats over it.
-   * A side column would resize the canvas on every selection, and React Flow
-   * keeps its viewport pinned to the canvas's left edge — in RTL that edge
-   * moves, so the tree visibly jumped each time someone was clicked.
+   * The canvas always keeps the full width and the side panel floats over it
+   * (anchored to `.canvasArea`, not the whole workspace) so it stays inside
+   * the pedigree frame and clear of the timeline. A side column would resize
+   * the canvas on every selection, and React Flow keeps its viewport pinned
+   * to the canvas's left edge — in RTL that edge moves, so the tree visibly
+   * jumped each time someone was clicked.
    */
   .workspace {
     position: relative;
@@ -1656,7 +1725,7 @@ button.ghostBtnActive {
     width: min(24rem, 40vw);
     height: auto;
     max-width: none;
-    /* Sized to its content, never taller than the canvas it floats on. */
+    /* Sized to its content, never taller than the pedigree frame. */
     max-height: calc(100% - 1.5rem);
     min-height: 0;
     border: 1px solid var(--border);
@@ -1667,6 +1736,7 @@ button.ghostBtnActive {
     animation: none;
     padding: 1rem;
     overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .panelBody {
@@ -1689,6 +1759,7 @@ button.ghostBtnActive {
     display: none;
   }
 
+  .canvasArea,
   .canvasWrap {
     height: 100%;
     max-height: none;

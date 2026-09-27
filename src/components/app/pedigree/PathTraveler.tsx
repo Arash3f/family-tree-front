@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
   ViewportPortal,
   useNodesInitialized,
@@ -25,6 +25,9 @@ type PathSegment = {
   reverse: boolean;
   length: number;
 };
+
+/** Skip micro-gaps (sub-pixel / handle vs center jitter). */
+const GAP_EPS = 2;
 
 function subscribeReducedMotion(onStoreChange: () => void) {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -186,6 +189,37 @@ function edgeEndpointCenters(
   return { start: source, end: target };
 }
 
+function pushChord(segments: PathSegment[], from: Point, to: Point) {
+  const length = dist(from, to);
+  if (length <= GAP_EPS) return;
+  segments.push({ from, to, reverse: false, length });
+}
+
+function appendOrientedSegment(
+  segments: PathSegment[],
+  cursor: Point | null,
+  start: Point,
+  end: Point,
+  toward: Point,
+  path?: SVGPathElement,
+  length?: number,
+): Point {
+  const from = cursor ?? start;
+  const reverse = segmentReverse(start, end, from, toward);
+  const enter = reverse ? end : start;
+  const leave = reverse ? start : end;
+  if (cursor) pushChord(segments, cursor, enter);
+  const segLength = length ?? dist(start, end);
+  if (segLength > 0) {
+    if (path) {
+      segments.push({ path, reverse, length: segLength });
+    } else {
+      segments.push({ from: start, to: end, reverse, length: segLength });
+    }
+  }
+  return leave;
+}
+
 function buildSegments(
   pathOrder: string[],
   pathEdges: Edge[],
@@ -217,11 +251,16 @@ function buildSegments(
         const length = path.getTotalLength();
         if (length <= 0) continue;
         const { start, end } = pathEndpoints(path, length);
-        const from = cursor ?? fromCenter ?? start;
         const toward = hopGoal ?? end;
-        const reverse = segmentReverse(start, end, from, toward);
-        cursor = reverse ? start : end;
-        segments.push({ path, reverse, length });
+        cursor = appendOrientedSegment(
+          segments,
+          cursor,
+          start,
+          end,
+          toward,
+          path,
+          length,
+        );
         hopAdded = true;
         continue;
       }
@@ -234,33 +273,30 @@ function buildSegments(
       if (!ends) continue;
       const length = dist(ends.start, ends.end);
       if (length <= 0) continue;
-      const from = cursor ?? fromCenter ?? ends.start;
       const toward = hopGoal ?? ends.end;
-      const reverse = segmentReverse(ends.start, ends.end, from, toward);
-      cursor = reverse ? ends.start : ends.end;
-      segments.push({
-        from: ends.start,
-        to: ends.end,
-        reverse,
+      cursor = appendOrientedSegment(
+        segments,
+        cursor,
+        ends.start,
+        ends.end,
+        toward,
+        undefined,
         length,
-      });
+      );
       hopAdded = true;
     }
 
     // No topology edges (e.g. couple virtual hop only) — chord person→person.
     if (!hopAdded && fromCenter && hopGoal) {
-      const length = dist(fromCenter, hopGoal);
-      if (length > 0) {
-        segments.push({
-          from: fromCenter,
-          to: hopGoal,
-          reverse: false,
-          length,
-        });
-      }
+      if (cursor) pushChord(segments, cursor, fromCenter);
+      pushChord(segments, fromCenter, hopGoal);
+      cursor = hopGoal;
+      continue;
     }
 
-    // Snap cursor to the hop's person so the next hop starts cleanly.
+    // Bridge onto the destination person when the last edge ends at a couple
+    // handle / union point instead of the person center.
+    if (hopGoal && cursor) pushChord(segments, cursor, hopGoal);
     if (hopGoal) cursor = hopGoal;
   }
 
@@ -310,17 +346,40 @@ function pointOnSegments(
  * Gold marker that rides the selected path's drawn edges from origin
  * to destination (person order), then pauses and loops.
  */
-export function PathTraveler({ pathOrder }: { pathOrder: string[] }) {
+export function PathTraveler({
+  pathOrder,
+  geometryToken = "",
+  hidden = false,
+}: {
+  pathOrder: string[];
+  /** Change after cards move so the orb re-reads edge geometry and restarts. */
+  geometryToken?: string;
+  hidden?: boolean;
+}) {
   const { getEdges, getInternalNode } = useReactFlow();
   const ready = useNodesInitialized();
   const [progress, setProgress] = useState(0);
-  const [tick, setTick] = useState(0);
-  const pathKey = pathOrder.join("\0");
+  const [geometryEpoch, setGeometryEpoch] = useState(0);
+  const pathKey = `${pathOrder.join("\0")}#${geometryToken}`;
   const reduceMotion = useSyncExternalStore(
     subscribeReducedMotion,
     getReducedMotion,
     () => false,
   );
+
+  // Rebuild polyline when the route changes; a few delayed passes wait for
+  // SVG edge paths to mount after fitView without rebuilding every RAF.
+  useEffect(() => {
+    if (!ready || pathOrder.length < 2) return;
+    const bump = () => setGeometryEpoch((value) => value + 1);
+    bump();
+    const t1 = window.setTimeout(bump, 50);
+    const t2 = window.setTimeout(bump, 200);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [pathKey, pathOrder.length, ready]);
 
   useEffect(() => {
     if (pathOrder.length < 2 || reduceMotion) return;
@@ -333,21 +392,32 @@ export function PathTraveler({ pathOrder }: { pathOrder: string[] }) {
     const frame = (now: number) => {
       const elapsed = (now - start) % cycle;
       setProgress(elapsed >= travelMs ? 1 : elapsed / travelMs);
-      setTick((value) => value + 1);
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
   }, [pathKey, pathOrder.length, reduceMotion]);
 
-  if (!ready || pathOrder.length < 2) return null;
+  const segments = useMemo(() => {
+    if (!ready || pathOrder.length < 2) return [];
+    void geometryEpoch;
+    const pathEdges = getEdges().filter((edge) =>
+      Boolean(edge.className?.includes("pedigree-path-edge")),
+    );
+    return buildSegments(pathOrder, pathEdges, getInternalNode);
+    // getEdges / getInternalNode are stable RF helpers; geometryEpoch triggers
+    // rebuilds after edge SVGs mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  }, [pathKey, pathOrder, ready, geometryEpoch]);
 
-  const pathEdges = getEdges().filter((edge) =>
-    Boolean(edge.className?.includes("pedigree-path-edge")),
-  );
-  const origin = nodeCenter(getInternalNode(pathOrder[0]));
-  const segments = buildSegments(pathOrder, pathEdges, getInternalNode);
-  void tick;
+  const origin = useMemo(() => {
+    if (!ready || pathOrder.length < 2) return null;
+    return nodeCenter(getInternalNode(pathOrder[0]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  }, [pathKey, pathOrder, ready, geometryEpoch]);
+
+  if (!ready || pathOrder.length < 2 || hidden) return null;
+
   const pos = pointOnSegments(
     segments,
     reduceMotion ? 1 : progress,

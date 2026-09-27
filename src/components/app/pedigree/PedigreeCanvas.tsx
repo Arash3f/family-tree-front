@@ -5,6 +5,7 @@ import {
   useEffect,
   useRef,
   useState,
+  startTransition,
   type MutableRefObject,
 } from "react";
 import {
@@ -246,6 +247,11 @@ type CanvasProps = {
   /** Person id → color lane (0 selected, 1..N alternatives). */
   pathLaneById: Map<string, number>;
   visiblePersonIds: Set<string>;
+  /**
+   * When true (mobile person sheet covering the canvas), skip selection/focus
+   * restyles so opening the sheet stays responsive.
+   */
+  deferStyle?: boolean;
   onSelect: (personId: string | null) => void;
   asOfYear: number | null;
   dataAccess: PedigreeDataAccess;
@@ -269,6 +275,7 @@ function CanvasInner({
   altPathIds,
   pathLaneById,
   visiblePersonIds,
+  deferStyle = false,
   onSelect,
   asOfYear,
   dataAccess,
@@ -296,6 +303,8 @@ function CanvasInner({
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [narrowViewport, setNarrowViewport] = useState(false);
+  const [travelerToken, setTravelerToken] = useState(0);
+  const [travelerHidden, setTravelerHidden] = useState(false);
   const nodesRef = useRef<Node[]>([]);
   const edgesRef = useRef<Edge[]>([]);
   const dragMoved = useRef(false);
@@ -463,7 +472,14 @@ function CanvasInner({
         pendingPreviewFit.current = false;
         awaitCanvasSize.current = false;
         staleLayoutForFitRef.current = null;
-        void fitView({ ...FIT_ALL_VIEW, duration: 560 });
+        const thenIds = layoutAnchor.thenFrameIds;
+        void fitView({ ...FIT_ALL_VIEW, duration: 560 }).then(() => {
+          if (!thenIds?.length) return;
+          void fitView({
+            nodes: thenIds.map((id) => ({ id })),
+            ...framingFor(thenIds.length),
+          });
+        });
         return;
       }
       if (!canvasReady) {
@@ -475,9 +491,16 @@ function CanvasInner({
       pendingPreviewFit.current = false;
       awaitCanvasSize.current = false;
       if (layoutAnchor.mode === "frame") {
+        const thenIds = layoutAnchor.thenFrameIds;
         void fitView({
           nodes: layoutAnchor.ids.map((id) => ({ id })),
           ...framingFor(layoutAnchor.ids.length),
+        }).then(() => {
+          if (!thenIds?.length) return;
+          void fitView({
+            nodes: thenIds.map((id) => ({ id })),
+            ...framingFor(thenIds.length),
+          });
         });
         return;
       }
@@ -592,21 +615,26 @@ function CanvasInner({
   // Selection / relation highlight — keep user-dragged positions.
   useEffect(() => {
     if (appliedLayoutToken.current !== layoutToken) return;
-    setNodes((current) => {
-      const styled = stylePedigreeGraph({
-        nodes: current,
-        edges: edgeTopology.current,
-        selectedId,
-        focusIds,
-        pathIds,
-        pathOrder,
-        altPathOrders,
-        altPathIds,
-        pathLaneById,
-        visiblePersonIds: visibleRef.current,
+    // Person sheet covers the canvas on mobile: skip the synchronous full-graph
+    // restyle so opening details stays interactive. Restyle when the sheet closes.
+    if (deferStyle) return;
+    startTransition(() => {
+      setNodes((current) => {
+        const styled = stylePedigreeGraph({
+          nodes: current,
+          edges: edgeTopology.current,
+          selectedId,
+          focusIds,
+          pathIds,
+          pathOrder,
+          altPathOrders,
+          altPathIds,
+          pathLaneById,
+          visiblePersonIds: visibleRef.current,
+        });
+        setEdges(styled.edges);
+        return styled.nodes;
       });
-      setEdges(styled.edges);
-      return styled.nodes;
     });
   }, [
     selectedId,
@@ -617,6 +645,7 @@ function CanvasInner({
     altPathIds,
     pathLaneById,
     layoutToken,
+    deferStyle,
     setNodes,
     setEdges,
   ]);
@@ -718,6 +747,7 @@ function CanvasInner({
   }, [getNodes]);
 
   const onNodeDrag = useCallback<OnNodeDrag>((_, node) => {
+    if (!dragMoved.current) setTravelerHidden(true);
     dragMoved.current = true;
     if (dragRaf.current != null) return;
     dragRaf.current = requestAnimationFrame(() => {
@@ -757,6 +787,10 @@ function CanvasInner({
     const personIds = dragPersonIds.current;
     dragPersonIds.current = [];
     dragCluster.current = null;
+    if (dragMoved.current) {
+      setTravelerHidden(false);
+      setTravelerToken((value) => value + 1);
+    }
     setNodes((current) => {
       const synced =
         personIds.length > 0
@@ -903,7 +937,11 @@ function CanvasInner({
           if (!event) return;
           endViewportGesture();
         }}
-        nodesDraggable={!narrowViewport}
+        // Phones used to disable drag entirely (stray micro-moves stole taps).
+        // Keep drag on every viewport; raise the threshold on narrow so a tap
+        // still selects and only a deliberate slide moves the card.
+        nodesDraggable
+        nodeDragThreshold={narrowViewport ? 14 : 5}
         nodesConnectable={false}
         elementsSelectable
         selectNodesOnDrag={false}
@@ -951,7 +989,11 @@ function CanvasInner({
             nodeColor={miniMapNodeColor}
           />
         ) : null}
-        <PathTraveler pathOrder={pathOrder} />
+        <PathTraveler
+          pathOrder={pathOrder}
+          geometryToken={`${layoutToken}:${travelerToken}`}
+          hidden={travelerHidden}
+        />
         </ReactFlow>
       </div>
       </PedigreeBranchProvider>

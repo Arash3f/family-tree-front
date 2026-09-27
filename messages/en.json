@@ -920,6 +920,7 @@
     "title": "Family tree",
     "support": "{people} people · {marriages} marriages",
     "loading": "Loading pedigree…",
+    "cardLoading": "Loading details…",
     "loadError": "Could not load the pedigree.",
     "settings": "Settings",
     "createTicket": "Create ticket",

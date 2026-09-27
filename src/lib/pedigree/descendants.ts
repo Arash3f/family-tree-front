@@ -1,4 +1,4 @@
-import type { Person } from "@/lib/auth/types";
+import type { Person, PersonCardSummary } from "@/lib/auth/types";
 import { parseIsoDate } from "@/lib/pedigree/dates";
 
 export type GenderCounts = {
@@ -9,7 +9,7 @@ export type GenderCounts = {
 
 export type GenerationStats = GenderCounts & {
   generation: number;
-  people: Person[];
+  people: PersonCardSummary[] | Person[];
 };
 
 export type DescendantStats = {

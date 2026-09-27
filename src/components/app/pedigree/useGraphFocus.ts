@@ -12,6 +12,12 @@ export type LayoutAnchor = {
    * it — an empty id list means "hold still".
    */
   mode: "frame" | "keep";
+  /**
+   * After the primary fit (e.g. whole-tree opening shot) finishes, frame
+   * these people — used when leaving branch preview so the user sees the
+   * full tree first, then the person they came from.
+   */
+  thenFrameIds?: string[];
 };
 
 export type RelationPathView = {
@@ -53,6 +59,11 @@ export type GraphFocus = {
   /** Empty target list means "fit the whole graph". */
   frameWholeGraph: () => void;
   clearRelationHighlight: (resetMinimalFit?: boolean) => void;
+  /**
+   * Leave pathfinding and restore the full tree. When `focusPersonId` is set,
+   * show the whole tree first then frame that person (same as branch exit).
+   */
+  exitPathfinding: (focusPersonId?: string | null) => void;
   applyPathView: (mode: PathViewMode) => void;
   openBranchPreview: (personId: string) => void;
   /**
@@ -207,6 +218,41 @@ export function useGraphFocus(): GraphFocus {
     [relayout],
   );
 
+  /**
+   * Leave pathfinding and return to the full tree. When `focusPersonId` is
+   * set, match branch-exit UX: show the whole tree first, then frame them.
+   */
+  const exitPathfinding = useCallback(
+    (focusPersonId?: string | null) => {
+      const wasClipped = pathViewMode !== "full";
+      setHighlightIds(new Set());
+      setHighlightPathOrder([]);
+      setAltPathIds(new Set());
+      setCoverPathIds(new Set());
+      setPathLaneById(new Map());
+      setRelationPaths([]);
+      setActivePathIndex(0);
+      setRelationLabel(null);
+      setPathViewMode("full");
+      if (focusPersonId) {
+        if (wasClipped) {
+          relayout({
+            ids: [],
+            mode: "frame",
+            thenFrameIds: [focusPersonId],
+          });
+        } else {
+          focusCameraOn([focusPersonId]);
+        }
+        return;
+      }
+      if (wasClipped) {
+        relayout(null);
+      }
+    },
+    [pathViewMode, relayout, focusCameraOn],
+  );
+
   const applyPathView = useCallback(
     (mode: PathViewMode) => {
       setPathViewMode(mode);
@@ -242,12 +288,17 @@ export function useGraphFocus(): GraphFocus {
       const frameId = focusPersonId ?? branchRootId;
       setBranchRootId(null);
       if (frameId) {
-        relayoutFraming([frameId]);
+        // Full tree first (empty frame), then land on the person.
+        relayout({
+          ids: [],
+          mode: "frame",
+          thenFrameIds: [frameId],
+        });
         return;
       }
       relayout(null);
     },
-    [branchRootId, relayout, relayoutFraming],
+    [branchRootId, relayout],
   );
 
   const framePerson = useCallback(
@@ -355,6 +406,7 @@ export function useGraphFocus(): GraphFocus {
     focusCameraOn,
     frameWholeGraph,
     clearRelationHighlight,
+    exitPathfinding,
     applyPathView,
     openBranchPreview,
     clearBranchPreview,

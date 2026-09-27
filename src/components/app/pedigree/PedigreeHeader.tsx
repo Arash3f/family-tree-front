@@ -11,7 +11,6 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import {
   HiOutlineArrowDownTray,
-  HiOutlineArrowUturnLeft,
   HiOutlineArrowsPointingIn,
   HiOutlineArrowsPointingOut,
   HiOutlineEyeSlash,
@@ -288,33 +287,20 @@ export function PedigreeHeader({
             setSearch("");
           }}
         />
-        {branchActive || foldedCount > 0 ? (
+        {foldedCount > 0 ? (
           <div className={styles.chipRow}>
-            {branchActive ? (
-              <button
-                type="button"
-                className={styles.chip}
-                disabled={busy}
-                onClick={onExitBranch}
-              >
-                <HiOutlineArrowUturnLeft aria-hidden />
-                {t("branchPreviewExit")}
-              </button>
-            ) : null}
-            {foldedCount > 0 ? (
-              <button
-                type="button"
-                className={styles.chip}
-                disabled={busy}
-                title={t("branchesFoldedHint")}
-                onClick={onExpandFolded}
-              >
-                <HiOutlineEyeSlash aria-hidden />
-                {t("branchesFolded", {
-                  count: formatLocaleDigits(foldedCount, locale),
-                })}
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className={styles.chip}
+              disabled={busy}
+              title={t("branchesFoldedHint")}
+              onClick={onExpandFolded}
+            >
+              <HiOutlineEyeSlash aria-hidden />
+              {t("branchesFolded", {
+                count: formatLocaleDigits(foldedCount, locale),
+              })}
+            </button>
           </div>
         ) : null}
       </div>

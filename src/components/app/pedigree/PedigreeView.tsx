@@ -12,12 +12,13 @@ import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import { useFeedback } from "@/components/feedback/FeedbackProvider";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { getAlternativeRelationshipPaths, getClosestRelationship } from "@/lib/auth/client";
+import { getAlternativeRelationshipPaths, getClosestRelationship, getPersonCard } from "@/lib/auth/client";
 import {
   getApiErrorMessage,
   type ClosestRelationship,
   type Marriage,
   type Person,
+  type PersonCard,
 } from "@/lib/auth/types";
 import { canAccessTreeSettings } from "@/lib/auth/tree-access";
 import { formatLocaleDigits } from "@/lib/localeDigits";
@@ -33,7 +34,6 @@ import {
   neighborhoodOf,
 } from "@/lib/pedigree/index-tree";
 import { subsetWithoutHidden } from "@/lib/pedigree/collapse";
-import { countDescendantsByGeneration } from "@/lib/pedigree/descendants";
 import { ageInYearsAtYear, todayIso } from "@/lib/pedigree/dates";
 import {
   HiOutlineArrowUturnLeft,
@@ -138,6 +138,7 @@ export function PedigreeView({
     relayoutKeeping,
     relayoutFraming,
     clearRelationHighlight,
+    exitPathfinding: exitPathfindingFocus,
     revealPerson,
     framePerson,
     focusCameraOn,
@@ -163,6 +164,10 @@ export function PedigreeView({
 
   const canvasApiRef = useRef<PedigreeCanvasHandle | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  /** Server-assembled detail payload for the open person card. */
+  const [personCard, setPersonCard] = useState<PersonCard | null>(null);
+  /** Set when the card fetch for `selectedId` finishes (ok or error). */
+  const [cardSettledForId, setCardSettledForId] = useState<string | null>(null);
   /**
    * null = follow auto rule (compact once the tree has loaded with ≥150 people).
    * Once the user toggles density, keep their choice for this session.
@@ -266,33 +271,58 @@ export function PedigreeView({
     () => persons.find((person) => person.id === selectedId) ?? null,
     [persons, selectedId],
   );
-  const selectedPersonPhoto = selectedPerson
-    ? resolvePersonPhotoUrl(selectedPerson.photo_url)
+  /** Card must match the open person — ignore a stale response while switching. */
+  const activeCard =
+    personCard && selectedId && personCard.person.id === selectedId
+      ? personCard
+      : null;
+  /** Prefer the card API person once loaded (fresher photo / parents). */
+  const detailPerson = activeCard?.person ?? selectedPerson;
+  const cardLoading =
+    Boolean(selectedId) && cardSettledForId !== selectedId;
+  const selectedPersonPhoto = detailPerson
+    ? resolvePersonPhotoUrl(detailPerson.photo_url)
     : null;
   const panelOpen = panel.kind !== "none" || Boolean(selectedPerson);
   const panelBodyRef = useRef<HTMLDivElement | null>(null);
+  /** Last person the user opened or branched from — used to frame after exit. */
+  const lastFocusPersonRef = useRef<string | null>(null);
   /** Mobile bottom sheet: peek leaves the path (and timeline) visible. */
-  const [sheetSnap, setSheetSnap] = useState<"peek" | "half" | "full">("half");
+  const [sheetSnap, setSheetSnap] = useState<"peek" | "half" | "full">("full");
   const sheetDrag = useRef<{ startY: number; moved: boolean } | null>(null);
   const sheetDragMoved = useRef(false);
   const pathDockActive =
     sheetLayout &&
     Boolean(focus.relationLabel) &&
     focus.highlightIds.size > 0;
+  /** Mobile sheet covers the canvas — skip expensive graph restyles until it closes. */
+  const sheetCoversCanvas =
+    sheetLayout && panelOpen && sheetSnap !== "peek";
 
   const branchRootPerson = useMemo(
     () => persons.find((person) => person.id === focus.branchRootId) ?? null,
     [persons, focus.branchRootId],
   );
 
-  const selectedMarriages = useMemo(() => {
+  const selectedMarriages = useMemo((): Marriage[] => {
+    if (activeCard) {
+      return activeCard.marriages.map(
+        ({ id, spouse_a_id, spouse_b_id, married_at, divorced_at }) => ({
+          id,
+          spouse_a_id,
+          spouse_b_id,
+          married_at,
+          divorced_at,
+        }),
+      );
+    }
     if (!selectedId) return [];
     return marriages.filter(
       (marriage) =>
         marriage.spouse_a_id === selectedId ||
         marriage.spouse_b_id === selectedId,
     );
-  }, [marriages, selectedId]);
+  }, [activeCard, marriages, selectedId]);
 
   const editingMarriages = useMemo(() => {
     if (panel.kind !== "edit-person") return [];
@@ -311,13 +341,7 @@ export function PedigreeView({
     [panel, persons],
   );
 
-  const descendantStats = useMemo(
-    () =>
-      selectedPerson
-        ? countDescendantsByGeneration(selectedPerson.id, persons)
-        : null,
-    [persons, selectedPerson],
-  );
+  const descendantStats = activeCard?.descendants ?? null;
 
   const personOptions = useMemo(
     () =>
@@ -327,13 +351,37 @@ export function PedigreeView({
     [persons, locale],
   );
 
-  const selectedPersonParents = useMemo(
-    () =>
-      selectedPerson
-        ? resolvePersonParents(selectedPerson, personById)
-        : { father: null, mother: null },
-    [selectedPerson, personById],
-  );
+  const selectedPersonParents = useMemo(() => {
+    if (activeCard) {
+      let father: Person | null = null;
+      let mother: Person | null = null;
+      for (const link of activeCard.parents) {
+        const summary = link.person;
+        if (!summary) continue;
+        const asPerson: Person = {
+          id: summary.id,
+          name: summary.name,
+          gender: summary.gender,
+          family_name: summary.family_name,
+          birth_date: summary.birth_date,
+          death_date: summary.death_date,
+          birth_place: null,
+          death_place: null,
+          notes: null,
+          parents: [],
+          marriage_id: null,
+          photo_object_key: null,
+          photo_url: summary.photo_url,
+        };
+        if (summary.gender === "male" && !father) father = asPerson;
+        else if (summary.gender === "female" && !mother) mother = asPerson;
+      }
+      return { father, mother };
+    }
+    return selectedPerson
+      ? resolvePersonParents(selectedPerson, personById)
+      : { father: null, mother: null };
+  }, [activeCard, selectedPerson, personById]);
 
   const creatingParent =
     panel.kind === "create-person" ? panel.linkAsParentOf : undefined;
@@ -368,12 +416,33 @@ export function PedigreeView({
     [marriages, personById],
   );
 
+  const cardNameById = useMemo(() => {
+    if (!activeCard) return null;
+    const map = new Map<string, string>();
+    for (const link of activeCard.parents) {
+      if (link.person) map.set(link.person.id, personDisplayName(link.person));
+    }
+    for (const marriage of activeCard.marriages) {
+      if (marriage.spouse) {
+        map.set(marriage.spouse.id, personDisplayName(marriage.spouse));
+      }
+    }
+    for (const generation of activeCard.descendants.generations) {
+      for (const person of generation.people) {
+        map.set(person.id, personDisplayName(person));
+      }
+    }
+    return map;
+  }, [activeCard]);
+
   const nameOf = useCallback(
     (personId: string) => {
+      const fromCard = cardNameById?.get(personId);
+      if (fromCard) return fromCard;
       const person = personById.get(personId);
       return person ? personDisplayName(person) : personId;
     },
-    [personById],
+    [cardNameById, personById],
   );
 
   const personSearchHint = useCallback(
@@ -402,12 +471,19 @@ export function PedigreeView({
       const pathActive = focus.coverPathIds.size > 0;
       if (personId === null && pathActive) return;
       if (personId) {
+        lastFocusPersonRef.current = personId;
         panelOpenedAt.current = Date.now();
-        if (sheetLayout) setSheetSnap("half");
+        if (sheetLayout) setSheetSnap("full");
       } else {
-        setSheetSnap("half");
+        setSheetSnap("full");
       }
       setSelectedId(personId);
+      if (personId) {
+        setCardSettledForId(null);
+      } else {
+        setPersonCard(null);
+        setCardSettledForId(null);
+      }
       setPanel({ kind: "none" });
       if (pathActive) return;
       clearRelationHighlight();
@@ -415,16 +491,37 @@ export function PedigreeView({
     [clearRelationHighlight, focus.coverPathIds, sheetLayout],
   );
 
+  useEffect(() => {
+    if (!selectedId || !apiTreeId) return;
+    const controller = new AbortController();
+    let cancelled = false;
+    const requestId = selectedId;
+    void getPersonCard(apiTreeId, requestId, controller.signal)
+      .then((card) => {
+        if (cancelled) return;
+        setPersonCard(card);
+        setCardSettledForId(requestId);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setCardSettledForId(requestId);
+      });
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [selectedId, apiTreeId, persons, marriages]);
+
   const focusIds = useMemo(() => {
     if (focus.highlightIds.size > 0) return focus.highlightIds;
     if (selectedId) return neighborhoodOf(treeIndex, selectedId);
     return EMPTY_FOCUS_IDS;
   }, [focus.highlightIds, selectedId, treeIndex]);
 
-  const selectedPersonAge = selectedPerson
+  const selectedPersonAge = detailPerson
     ? ageInYearsAtYear(
-        selectedPerson.birth_date,
-        selectedPerson.death_date,
+        detailPerson.birth_date,
+        detailPerson.death_date,
         canvasAsOfYear,
         locale,
       )
@@ -593,7 +690,7 @@ export function PedigreeView({
 
   const closePanel = () => setPanel({ kind: "none" });
   const dismissSidePanel = () => {
-    setSheetSnap("half");
+    setSheetSnap("full");
     closePanel();
     setSelectedId(null);
   };
@@ -609,7 +706,7 @@ export function PedigreeView({
     const sync = () => {
       const matches = mq.matches;
       setSheetLayout(matches);
-      if (!matches) setSheetSnap("half");
+      if (!matches) setSheetSnap("full");
     };
     sync();
     mq.addEventListener("change", sync);
@@ -762,6 +859,7 @@ export function PedigreeView({
     });
     if (!saved) return;
     closePanel();
+    setCardSettledForId(null);
     setSelectedId(saved.id);
     const frameIds =
       target.kind === "create" && target.linkAsSpouseOf
@@ -802,10 +900,11 @@ export function PedigreeView({
   /** Leaves pathfinding and returns the canvas to the overall tree view. */
   const exitPathfinding = () => {
     abandonRelationRequest();
-    // A clipped path view rebuilds the full tree on clear; the full view
-    // needs its own nudge back to the opening shot.
-    if (focus.pathViewMode === "full") bumpLayout();
-    clearRelationHighlight();
+    // Same as branch exit: full tree first, then land on the person they
+    // were looking at (selection → last tap → path origin).
+    exitPathfindingFocus(
+      selectedId ?? lastFocusPersonRef.current ?? relateFromId,
+    );
   };
 
   /**
@@ -1057,9 +1156,9 @@ export function PedigreeView({
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      exitPathfinding();
-                      setSheetSnap("half");
+                      // Match desktop ×: hide the peek dock, keep the route.
                       setSelectedId(null);
+                      setSheetSnap("full");
                       closePanel();
                     }}
                   >
@@ -1070,7 +1169,7 @@ export function PedigreeView({
             ) : (
               <PedigreeSidePanels
                 panel={panel}
-                selectedPerson={selectedPerson}
+                selectedPerson={detailPerson}
                 personForm={personForm}
                 setPersonForm={setPersonForm}
                 marriageForm={marriageForm}
@@ -1135,6 +1234,7 @@ export function PedigreeView({
                 asOfYear={canvasAsOfYear}
                 selectedMarriages={selectedMarriages}
                 descendantStats={descendantStats}
+                cardLoading={cardLoading}
                 hasFather={Boolean(selectedPersonParents.father)}
                 hasMother={Boolean(selectedPersonParents.mother)}
                 branchActive={focus.branchRootId === selectedPerson?.id}
@@ -1151,9 +1251,18 @@ export function PedigreeView({
                 canCreatePerson={permissions.canCreatePerson}
                 canCreateMarriage={permissions.canCreateMarriage}
                 onCloseDetail={() => {
-                  // The card's close is the "back" out of pathfinding too.
-                  if (focus.coverPathIds.size > 0) exitPathfinding();
+                  // Keep an active route — same as hiding the relate panel.
+                  // Leaving pathfinding is the canvas exit button (or Cancel).
                   setSelectedId(null);
+                  if (sheetLayout && pathDockActive && relateFromId) {
+                    // Restore the relate panel so the peek dock actually mounts.
+                    // Peek alone (without panelOpen) left --sheet-dock-inset
+                    // padding under the timeline with nothing filling it.
+                    setSheetSnap("peek");
+                    setPanel({ kind: "relate", fromId: relateFromId });
+                  } else if (sheetLayout) {
+                    setSheetSnap("full");
+                  }
                 }}
                 onSelectPerson={selectAndFrame}
                 onEditPerson={() =>
@@ -1188,6 +1297,8 @@ export function PedigreeView({
                 onToggleBranch={() => {
                   if (!selectedPerson) return;
                   const personId = selectedPerson.id;
+                  lastFocusPersonRef.current = personId;
+                  // Close the sheet so the (branch / full) tree is visible.
                   setSelectedId(null);
                   setPanel({ kind: "none" });
                   if (focus.branchRootId === personId) {
@@ -1223,13 +1334,13 @@ export function PedigreeView({
                   // route stays and the canvas button brings the panel back.
                   if (focus.coverPathIds.size > 0) {
                     setSelectedId(null);
-                    setSheetSnap("half");
+                    setSheetSnap("full");
                   }
                   closePanel();
                 }}
                 onCancelRelate={() => {
                   exitPathfinding();
-                  setSheetSnap("half");
+                  setSheetSnap("full");
                   closePanel();
                 }}
               />
@@ -1289,9 +1400,11 @@ export function PedigreeView({
           setPanel({ kind: "none" });
           exportDialog.openTreeExport();
         }}
-        onExitBranch={() =>
-          focus.clearBranchPreview(selectedId ?? focus.branchRootId)
-        }
+        onExitBranch={() => {
+          focus.clearBranchPreview(
+            selectedId ?? lastFocusPersonRef.current ?? focus.branchRootId,
+          );
+        }}
         onDownloadSample={() => void excel.downloadSample()}
         onExportExcel={() => void excel.exportExcel()}
         onPickFile={(file) => void excel.openPreview(file)}
@@ -1304,108 +1417,135 @@ export function PedigreeView({
 
       <div
         className={
-          sheetSnap === "peek" && pathDockActive
+          // Only reserve canvas space when the peek dock is actually mounted.
+          panelOpen && sheetSnap === "peek" && pathDockActive
             ? `${styles.workspace} ${styles.workspacePathDock}`
             : styles.workspace
         }
       >
         <div className={styles.stage}>
-          <div className={styles.canvasWrap}>
-            {permissions.canReadPersons ? (
-              <div className={styles.canvasChrome}>
-                <div
-                  className={styles.canvasPersonCount}
-                  title={t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
-                  aria-label={t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
-                >
-                  {t("statPeople", {
-                    count: formatLocaleDigits(persons.length, locale),
-                  })}
+          {/*
+           * Canvas + desktop side panel share one positioning box so the
+           * floating detail card stays inside the pedigree frame and never
+           * overlaps the timeline row below.
+           */}
+          <div className={styles.canvasArea}>
+            <div className={styles.canvasWrap}>
+              {permissions.canReadPersons ? (
+                <div className={styles.canvasChrome}>
+                  <div
+                    className={styles.canvasPersonCount}
+                    title={t("statPeople", {
+                      count: formatLocaleDigits(persons.length, locale),
+                    })}
+                    aria-label={t("statPeople", {
+                      count: formatLocaleDigits(persons.length, locale),
+                    })}
+                  >
+                    {t("statPeople", {
+                      count: formatLocaleDigits(persons.length, locale),
+                    })}
+                  </div>
+                  <BirthdayCalendarButton
+                    prominent
+                    people={persons}
+                    canViewBirthDate={permissions.canViewBirthDate}
+                    open={birthdayOpen}
+                    onOpenChange={setBirthdayOpen}
+                    onSelectPerson={revealAndSelect}
+                  />
+                  {canCreateTicket ? (
+                    <button
+                      type="button"
+                      className={styles.canvasTicketBtn}
+                      title={t("createTicket")}
+                      aria-label={t("createTicket")}
+                      onClick={() => setTicketOpen(true)}
+                    >
+                      <HiOutlineTicket aria-hidden />
+                      <span>{t("createTicket")}</span>
+                    </button>
+                  ) : null}
+                  {focus.branchRootId ? (
+                    <button
+                      type="button"
+                      className={styles.pathExitBtn}
+                      onClick={() => {
+                        focus.clearBranchPreview(
+                          selectedId ??
+                            lastFocusPersonRef.current ??
+                            focus.branchRootId,
+                        );
+                      }}
+                    >
+                      <HiOutlineArrowUturnLeft aria-hidden />
+                      <span>{t("branchPreviewExit")}</span>
+                    </button>
+                  ) : null}
+                  {focus.coverPathIds.size > 0 ? (
+                    <button
+                      type="button"
+                      className={styles.pathExitBtn}
+                      onClick={exitPathfinding}
+                    >
+                      <HiOutlineArrowUturnLeft aria-hidden />
+                      <span>{t("exitPathfinding")}</span>
+                    </button>
+                  ) : null}
+                  {focus.coverPathIds.size > 0 &&
+                  relateFromId &&
+                  panel.kind !== "relate" ? (
+                    <button
+                      type="button"
+                      className={styles.pathExitBtn}
+                      onClick={reopenPathfindingPanel}
+                    >
+                      <HiOutlineMap aria-hidden />
+                      <span>{t("showPathfindingPanel")}</span>
+                    </button>
+                  ) : null}
                 </div>
-                <BirthdayCalendarButton
-                  prominent
-                  people={persons}
-                  canViewBirthDate={permissions.canViewBirthDate}
-                  open={birthdayOpen}
-                  onOpenChange={setBirthdayOpen}
-                  onSelectPerson={revealAndSelect}
+              ) : null}
+              {persons.length === 0 && permissions.canReadPersons ? (
+                <div className={styles.emptyState}>
+                  <h2>{t("emptyTitle")}</h2>
+                  <p>{t("emptySupport")}</p>
+                  {permissions.canCreatePerson ? (
+                    <Button onClick={() => openCreatePerson()}>
+                      {t("addPerson")}
+                    </Button>
+                  ) : null}
+                </div>
+              ) : (
+                <PedigreeCanvas
+                  layoutNodes={graph.nodes}
+                  layoutEdges={graph.edges}
+                  layoutToken={focus.layoutToken}
+                  layoutAnchor={focus.layoutAnchor}
+                  cameraToken={focus.cameraToken}
+                  cameraNodeIds={focus.cameraNodeIds}
+                  selectedId={selectedId}
+                  focusIds={focusIds}
+                  pathIds={focus.highlightIds}
+                  pathOrder={focus.highlightPathOrder}
+                  altPathOrders={focus.relationPaths
+                    .filter((_, index) => index !== focus.activePathIndex)
+                    .map((path) => path.ids)}
+                  altPathIds={canvasAltPathIds}
+                  pathLaneById={focus.pathLaneById}
+                  visiblePersonIds={canvasVisibleIds}
+                  deferStyle={sheetCoversCanvas}
+                  onSelect={onSelect}
+                  asOfYear={canvasAsOfYear}
+                  dataAccess={dataAccess}
+                  branchActions={branchActions}
+                  exportApiRef={canvasApiRef}
+                  cardVariant={cardVariant}
                 />
-                {canCreateTicket ? (
-                  <button
-                    type="button"
-                    className={styles.canvasTicketBtn}
-                    title={t("createTicket")}
-                    aria-label={t("createTicket")}
-                    onClick={() => setTicketOpen(true)}
-                  >
-                    <HiOutlineTicket aria-hidden />
-                    <span>{t("createTicket")}</span>
-                  </button>
-                ) : null}
-                {focus.coverPathIds.size > 0 ? (
-                  <button
-                    type="button"
-                    className={styles.pathExitBtn}
-                    onClick={exitPathfinding}
-                  >
-                    <HiOutlineArrowUturnLeft aria-hidden />
-                    <span>{t("exitPathfinding")}</span>
-                  </button>
-                ) : null}
-                {focus.coverPathIds.size > 0 &&
-                relateFromId &&
-                panel.kind !== "relate" ? (
-                  <button
-                    type="button"
-                    className={styles.pathExitBtn}
-                    onClick={reopenPathfindingPanel}
-                  >
-                    <HiOutlineMap aria-hidden />
-                    <span>{t("showPathfindingPanel")}</span>
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
-            {persons.length === 0 && permissions.canReadPersons ? (
-              <div className={styles.emptyState}>
-                <h2>{t("emptyTitle")}</h2>
-                <p>{t("emptySupport")}</p>
-                {permissions.canCreatePerson ? (
-                  <Button onClick={() => openCreatePerson()}>
-                    {t("addPerson")}
-                  </Button>
-                ) : null}
-              </div>
-            ) : (
-              <PedigreeCanvas
-                layoutNodes={graph.nodes}
-                layoutEdges={graph.edges}
-                layoutToken={focus.layoutToken}
-                layoutAnchor={focus.layoutAnchor}
-                cameraToken={focus.cameraToken}
-                cameraNodeIds={focus.cameraNodeIds}
-                selectedId={selectedId}
-                focusIds={focusIds}
-                pathIds={focus.highlightIds}
-                pathOrder={focus.highlightPathOrder}
-                altPathOrders={focus.relationPaths
-                  .filter((_, index) => index !== focus.activePathIndex)
-                  .map((path) => path.ids)}
-                altPathIds={canvasAltPathIds}
-                pathLaneById={focus.pathLaneById}
-                visiblePersonIds={canvasVisibleIds}
-                onSelect={onSelect}
-                asOfYear={canvasAsOfYear}
-                dataAccess={dataAccess}
-                branchActions={branchActions}
-                exportApiRef={canvasApiRef}
-                cardVariant={cardVariant}
-              />
-            )}
+              )}
+            </div>
+
+            {!sheetLayout ? sideSheet : null}
           </div>
 
           {!isDemo &&
@@ -1422,11 +1562,7 @@ export function PedigreeView({
           ) : null}
         </div>
 
-        {sheetLayout ? (
-          <DocumentPortal>{sideSheet}</DocumentPortal>
-        ) : (
-          sideSheet
-        )}
+        {sheetLayout ? <DocumentPortal>{sideSheet}</DocumentPortal> : null}
       </div>
 
       <PedigreeOverlays

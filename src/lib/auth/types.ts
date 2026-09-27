@@ -177,6 +177,51 @@ export type Person = {
   photo_url: string | null;
 };
 
+/** Compact person fields on the person-card payload (parents, spouses, descendants). */
+export type PersonCardSummary = {
+  id: string;
+  name: string;
+  gender: Gender;
+  family_name: string | null;
+  birth_date: string | null;
+  death_date: string | null;
+  photo_url: string | null;
+};
+
+export type PersonCardParent = {
+  parent_id: string;
+  relationship_type: ParentRelationshipType;
+  person: PersonCardSummary | null;
+};
+
+export type PersonCardMarriage = Marriage & {
+  spouse: PersonCardSummary | null;
+};
+
+export type PersonCardGenderCounts = {
+  male: number;
+  female: number;
+  total: number;
+};
+
+export type PersonCardGenerationStats = PersonCardGenderCounts & {
+  generation: number;
+  people: PersonCardSummary[];
+};
+
+export type PersonCardDescendantStats = {
+  generations: PersonCardGenerationStats[];
+  total: PersonCardGenderCounts;
+};
+
+/** Assembled pedigree detail panel payload from `GET .../persons/{id}/card`. */
+export type PersonCard = {
+  person: Person;
+  parents: PersonCardParent[];
+  marriages: PersonCardMarriage[];
+  descendants: PersonCardDescendantStats;
+};
+
 export type PersonCreateInput = {
   name: string;
   gender: Gender;

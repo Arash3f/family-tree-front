@@ -33,6 +33,8 @@ type Props = {
   asOfYear: number | null;
   marriages: Marriage[];
   descendantStats: DescendantStats | null;
+  /** True while waiting for the person-card API. */
+  cardLoading?: boolean;
   hasFather: boolean;
   hasMother: boolean;
   /** True when this person is the root of the branch preview. */
@@ -83,6 +85,7 @@ export function PersonDetailPanel({
   asOfYear,
   marriages,
   descendantStats,
+  cardLoading = false,
   hasFather,
   hasMother,
   branchActive,
@@ -193,6 +196,18 @@ export function PersonDetailPanel({
         </button>
       </header>
 
+      {cardLoading ? (
+        <div
+          className={styles.detailLoading}
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <span className={styles.detailLoadingSpinner} aria-hidden />
+          <p>{t("cardLoading")}</p>
+        </div>
+      ) : (
+        <>
       <div className={styles.detailHero}>
         <span
           className={`${styles.detailAvatar} ${styles[person.gender]}`}
@@ -445,6 +460,8 @@ export function PersonDetailPanel({
       ) : null}
 
       {relationResult}
+        </>
+      )}
     </div>
   );
 }
