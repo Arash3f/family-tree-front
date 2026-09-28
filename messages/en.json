@@ -1179,6 +1179,8 @@
     "dateInvalid": "Invalid date — use a value like {example}",
     "photoRemove": "Remove photo",
     "photoChosen": "New photo selected",
+    "photoEnlarge": "Enlarge photo",
+    "photoEnlargeAlt": "Photo of {name}",
     "born": "Born",
     "timelineLabel": "Timeline",
     "timelineScrub": "Tree display year",

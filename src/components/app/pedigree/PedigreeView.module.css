@@ -194,9 +194,16 @@
  * there; in fullscreen the flex column already hands out the space. The side
  * panel keeps its own height so it stays a bottom sheet on a narrow screen. */
 .root.immersive .stage,
-.root.immersive .canvasArea,
-.root.immersive .canvasWrap {
+.root.immersive .canvasArea {
   height: auto;
+  min-height: 0;
+  max-height: none;
+}
+
+/* A block child of `.canvasArea`, not a grid item, so `auto` would collapse it
+ * to the React Flow content height (zero); fill the stretched parent instead. */
+.root.immersive .canvasWrap {
+  height: 100%;
   min-height: 0;
   max-height: none;
 }
@@ -1230,6 +1237,63 @@ button.ghostBtnActive {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.detailAvatarButton {
+  padding: 0;
+  margin: 0;
+  cursor: zoom-in;
+  font: inherit;
+  appearance: none;
+}
+
+.detailAvatarButton:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.photoLightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-app-dialog);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--foreground) 55%, transparent);
+}
+
+.photoLightboxDialog {
+  width: min(36rem, 100%);
+  max-height: min(92svh, 48rem);
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem 0.9rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.photoLightboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.photoLightboxHeader h2 {
+  margin: 0;
+  font-size: 1.02rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.photoLightboxImage {
+  width: 100%;
+  max-height: min(78svh, 40rem);
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
 }
 
 .detailAvatar.male {

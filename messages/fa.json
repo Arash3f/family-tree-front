@@ -1179,6 +1179,8 @@
     "dateInvalid": "تاریخ نامعتبر است؛ آن را به شکل {example} وارد کنید",
     "photoRemove": "حذف عکس",
     "photoChosen": "عکس جدید انتخاب شد",
+    "photoEnlarge": "بزرگ‌نمایی عکس",
+    "photoEnlargeAlt": "عکس {name}",
     "born": "تولد",
     "timelineLabel": "خط زمانی",
     "timelineScrub": "سال نمایش درخت",

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useCallback, useId, useRef, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   HiOutlineHeart,
@@ -20,6 +20,8 @@ import {
 import { personDisplayName } from "@/lib/pedigree/layout";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Feedback";
+import { DocumentPortal } from "@/components/ui/DocumentPortal";
+import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
 import { DescendantsSection } from "./DescendantsSection";
 import { marriagePeriodText } from "./marriage-text";
 import type { ParentRole } from "./person-form";
@@ -118,6 +120,12 @@ export function PersonDetailPanel({
 }: Props) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const photoDialogTitleId = useId();
+  const photoDialogRef = useRef<HTMLDivElement>(null);
+  const closePhoto = useCallback(() => setPhotoOpen(false), []);
+  useFocusTrap(photoDialogRef, photoOpen, closePhoto);
+  useScrollLock(photoOpen);
 
   const generationShortLabel = (generation: number, count: number) => {
     const key = namedGenerationKey(generation);
@@ -209,21 +217,28 @@ export function PersonDetailPanel({
       ) : (
         <>
       <div className={styles.detailHero}>
-        <span
-          className={`${styles.detailAvatar} ${styles[person.gender]}`}
-          title={canViewPhoto ? undefined : t("noAccessHint")}
-        >
-          {canViewPhoto ? (
-            photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={photoUrl} alt="" loading="lazy" decoding="async" />
-            ) : (
+        {canViewPhoto && photoUrl ? (
+          <button
+            type="button"
+            className={`${styles.detailAvatar} ${styles.detailAvatarButton} ${styles[person.gender]}`}
+            onClick={() => setPhotoOpen(true)}
+            aria-label={t("photoEnlarge")}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photoUrl} alt="" loading="lazy" decoding="async" />
+          </button>
+        ) : (
+          <span
+            className={`${styles.detailAvatar} ${styles[person.gender]}`}
+            title={canViewPhoto ? undefined : t("noAccessHint")}
+          >
+            {canViewPhoto ? (
               person.name.slice(0, 1).toUpperCase()
-            )
-          ) : (
-            <HiOutlineLockClosed aria-hidden />
-          )}
-        </span>
+            ) : (
+              <HiOutlineLockClosed aria-hidden />
+            )}
+          </span>
+        )}
         <div>
           <p className={styles.meta}>{t(`gender.${person.gender}`)}</p>
           {!canViewBirthDate ? (
@@ -462,6 +477,44 @@ export function PersonDetailPanel({
       {relationResult}
         </>
       )}
+
+      {photoOpen && photoUrl ? (
+        <DocumentPortal>
+          <div
+            className={styles.photoLightbox}
+            role="presentation"
+            onClick={closePhoto}
+          >
+            <div
+              ref={photoDialogRef}
+              className={styles.photoLightboxDialog}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby={photoDialogTitleId}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <header className={styles.photoLightboxHeader}>
+                <h2 id={photoDialogTitleId}>{personDisplayName(person)}</h2>
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={closePhoto}
+                  aria-label={t("close")}
+                  data-autofocus
+                >
+                  ×
+                </button>
+              </header>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.photoLightboxImage}
+                src={photoUrl}
+                alt={t("photoEnlargeAlt", { name: personDisplayName(person) })}
+              />
+            </div>
+          </div>
+        </DocumentPortal>
+      ) : null}
     </div>
   );
 }
