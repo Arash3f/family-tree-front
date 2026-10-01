@@ -23,9 +23,8 @@ type PersonFlowNode = Node<PersonNodeData, "person">;
 
 /**
  * The "minimal" tree view's person card: photo, name and family name only.
- * It fills the same box as the full card, so the layout, couples and exports
- * are unchanged — it just skips the facts, fold controls and marquee that make
- * a large tree slow to render.
+ * It fills the same box as the full card, so the layout and couples stay
+ * aligned. Tree image/PDF export follows the same variant via export-graphic.
  */
 function MinimalPersonNodeComponent({ data }: NodeProps<PersonFlowNode>) {
   const locale = useLocale();

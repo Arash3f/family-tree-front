@@ -14,6 +14,7 @@ import type { Edge, Node } from "@xyflow/react";
 
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { resolvePersonPhotoUrl } from "@/lib/media";
+import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
 import {
   ageInYearsAtYear,
   formatDateForLocale,
@@ -281,7 +282,196 @@ export function selectExportNodes(nodes: Node[], pathIds: Set<string>): Node[] {
 
 type UnionNodeData = { onPath?: boolean; onAltPath?: boolean };
 
-function personCard(
+/** Shared chrome colours for a person card (full or minimal). */
+function personCardChrome(
+  data: PersonNodeData,
+  theme: ExportTheme,
+): {
+  accent: string;
+  surface: string;
+  fillTop: string;
+  fillMid: string;
+  border: string;
+  opacity: number;
+} {
+  const accent = data.onPath
+    ? theme.path
+    : genderAccent(data.person.gender, theme);
+  const surface = theme.surface;
+  // Mirrors `.node` and `.onPath` in PersonNode.module.css.
+  return {
+    accent,
+    surface,
+    fillTop: data.onPath
+      ? tint(theme.path, 22, surface)
+      : tint(accent, 14, surface),
+    fillMid: data.onPath ? tint(theme.pathSoft, 55, surface) : surface,
+    border: data.onPath ? theme.path : tint(accent, 22, theme.border),
+    opacity: data.dimmed ? 0.28 : data.person.death_date ? 0.92 : 1,
+  };
+}
+
+function cardShellDefs(
+  gid: string,
+  fillTop: string,
+  fillMid: string,
+  surface: string,
+  accent: string,
+  avatarCx: number,
+  avatarCy: number,
+  avatarR: number,
+): string {
+  return `<defs>
+      <clipPath id="av-${gid}"><circle cx="${avatarCx}" cy="${avatarCy}" r="${avatarR}"/></clipPath>
+      <linearGradient id="bg-${gid}" x1="0" y1="0" x2="0.18" y2="1">
+        <stop offset="0" stop-color="${fillTop}"/>
+        <stop offset="0.4" stop-color="${fillMid}"/>
+        <stop offset="1" stop-color="${surface}"/>
+      </linearGradient>
+      <linearGradient id="rule-${gid}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="${accent}" stop-opacity="0"/>
+        <stop offset="0.5" stop-color="${accent}" stop-opacity="0.78"/>
+        <stop offset="1" stop-color="${accent}" stop-opacity="0"/>
+      </linearGradient>
+    </defs>`;
+}
+
+function collapsedChipDecoration(
+  ox: number,
+  oy: number,
+  count: number,
+  accent: string,
+  surface: string,
+  border: string,
+  locale: string,
+  opacity: number,
+  texts: TextRun[],
+): string {
+  const chipW = 58;
+  const chipH = 19;
+  const chipX = ox + PERSON_NODE_WIDTH / 2 - chipW / 2;
+  const chipY = oy + PERSON_NODE_HEIGHT - 28;
+  texts.push({
+    x: chipX + chipW / 2,
+    y: chipY + 13,
+    text: `+${formatLocaleDigits(count, locale)}`,
+    size: 10,
+    weight: 800,
+    fill: accent,
+    align: "center",
+    rtl: false,
+    opacity,
+  });
+  return `<rect x="${chipX}" y="${chipY}" width="${chipW}" height="${chipH}" rx="9.5" fill="${tint(accent, 14, surface)}" stroke="${tint(accent, 40, border)}" stroke-dasharray="4 3"/>`;
+}
+
+/**
+ * Matches MinimalPersonNode: large centered photo, given name, family name.
+ * Same outer box as the full card so layout and couple frames stay aligned.
+ */
+function minimalPersonCard(
+  node: Node<PersonNodeData>,
+  ox: number,
+  oy: number,
+  theme: ExportTheme,
+  locale: string,
+  photos: Map<string, string>,
+): { svg: string; texts: TextRun[] } {
+  const d = node.data;
+  const person = d.person;
+  const rtl = locale === "fa";
+  const { accent, surface, fillTop, fillMid, border, opacity } =
+    personCardChrome(d, theme);
+  const photoUrl = resolvePersonPhotoUrl(person.photo_url);
+  const photo = photoUrl ? photos.get(photoUrl) : null;
+  const familyName = person.family_name?.trim() || "";
+  const gid = `n-${node.id.replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const texts: TextRun[] = [];
+
+  // ~4.75rem avatar from MinimalPersonNode.module.css, centered in the box.
+  const avatarR = 38;
+  const avatarCx = ox + PERSON_NODE_WIDTH / 2;
+  const avatarCy = oy + 14 + avatarR;
+  const textMax = PERSON_NODE_WIDTH - 28;
+  const nameY = avatarCy + avatarR + 22;
+  const familyY = nameY + 20;
+
+  if (!photo) {
+    texts.push({
+      x: avatarCx,
+      y: avatarCy + 6,
+      text: initialsOf(person.name),
+      size: 18,
+      weight: 700,
+      fill: accent,
+      align: "center",
+      rtl,
+      opacity,
+    });
+  }
+  texts.push({
+    x: avatarCx,
+    y: nameY,
+    text: person.name,
+    size: 14.5,
+    weight: 750,
+    fill: theme.foreground,
+    align: "center",
+    rtl,
+    maxWidth: textMax,
+    opacity,
+  });
+  if (familyName) {
+    texts.push({
+      x: avatarCx,
+      y: familyY,
+      text: familyName,
+      size: 12,
+      weight: 600,
+      fill: theme.muted,
+      align: "center",
+      rtl,
+      maxWidth: textMax,
+      opacity,
+    });
+  }
+
+  const decorations: string[] = [];
+  const collapsedCount = d.collapsedCount ?? 0;
+  if (collapsedCount > 0) {
+    decorations.push(
+      collapsedChipDecoration(
+        ox,
+        oy,
+        collapsedCount,
+        accent,
+        surface,
+        theme.border,
+        locale,
+        opacity,
+        texts,
+      ),
+    );
+  }
+
+  const avatarSize = avatarR * 2;
+  const avatar = photo
+    ? `<image href="${xml(photo)}" x="${avatarCx - avatarR}" y="${avatarCy - avatarR}" width="${avatarSize}" height="${avatarSize}" preserveAspectRatio="xMidYMid slice" clip-path="url(#av-${gid})"/>`
+    : `<circle cx="${avatarCx}" cy="${avatarCy}" r="${avatarR}" fill="${tint(accent, 16, surface)}" stroke="${tint(accent, 24, surface)}" stroke-width="2"/>`;
+
+  const svg = `
+  <g opacity="${opacity}">
+    ${cardShellDefs(gid, fillTop, fillMid, surface, accent, avatarCx, avatarCy, avatarR)}
+    <rect x="${ox}" y="${oy}" width="${PERSON_NODE_WIDTH}" height="${PERSON_NODE_HEIGHT}" rx="16.8" fill="url(#bg-${gid})" stroke="${border}" stroke-width="${d.onPath ? 2.2 : 1}"/>
+    <rect x="${ox + 14}" y="${oy}" width="${PERSON_NODE_WIDTH - 28}" height="2.5" rx="2" fill="url(#rule-${gid})"/>
+    ${avatar}
+    ${decorations.join("\n    ")}
+  </g>`;
+
+  return { svg, texts };
+}
+
+function fullPersonCard(
   node: Node<PersonNodeData>,
   ox: number,
   oy: number,
@@ -294,15 +484,8 @@ function personCard(
   const d = node.data;
   const person = d.person;
   const rtl = locale === "fa";
-  const opacity = d.dimmed ? 0.28 : person.death_date ? 0.92 : 1;
-  const accent = d.onPath ? theme.path : genderAccent(person.gender, theme);
-  const surface = theme.surface;
-  // Mirrors `.node` and `.onPath` in PersonNode.module.css.
-  const fillTop = d.onPath
-    ? tint(theme.path, 22, surface)
-    : tint(accent, 14, surface);
-  const fillMid = d.onPath ? tint(theme.pathSoft, 55, surface) : surface;
-  const border = d.onPath ? theme.path : tint(accent, 22, theme.border);
+  const { accent, surface, fillTop, fillMid, border, opacity } =
+    personCardChrome(d, theme);
   const name = personDisplayName(person);
   const photoUrl = resolvePersonPhotoUrl(person.photo_url);
   const photo = photoUrl ? photos.get(photoUrl) : null;
@@ -449,24 +632,19 @@ function personCard(
   // The folded-branch chip, so a trimmed export still admits what it left out.
   const collapsedCount = d.collapsedCount ?? 0;
   if (collapsedCount > 0) {
-    const chipW = 58;
-    const chipH = 19;
-    const chipX = ox + PERSON_NODE_WIDTH / 2 - chipW / 2;
-    const chipY = oy + PERSON_NODE_HEIGHT - 28;
     decorations.push(
-      `<rect x="${chipX}" y="${chipY}" width="${chipW}" height="${chipH}" rx="9.5" fill="${tint(accent, 14, surface)}" stroke="${tint(accent, 40, theme.border)}" stroke-dasharray="4 3"/>`,
+      collapsedChipDecoration(
+        ox,
+        oy,
+        collapsedCount,
+        accent,
+        surface,
+        theme.border,
+        locale,
+        opacity,
+        texts,
+      ),
     );
-    texts.push({
-      x: chipX + chipW / 2,
-      y: chipY + 13,
-      text: `+${formatLocaleDigits(collapsedCount, locale)}`,
-      size: 10,
-      weight: 800,
-      fill: accent,
-      align: "center",
-      rtl: false,
-      opacity,
-    });
   }
 
   fact(factsY + 20, labels.gender, genderLabel, {
@@ -485,19 +663,7 @@ function personCard(
 
   const svg = `
   <g opacity="${opacity}">
-    <defs>
-      <clipPath id="av-${gid}"><circle cx="${avatarCx}" cy="${avatarCy}" r="${avatarR}"/></clipPath>
-      <linearGradient id="bg-${gid}" x1="0" y1="0" x2="0.18" y2="1">
-        <stop offset="0" stop-color="${fillTop}"/>
-        <stop offset="0.4" stop-color="${fillMid}"/>
-        <stop offset="1" stop-color="${surface}"/>
-      </linearGradient>
-      <linearGradient id="rule-${gid}" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="${accent}" stop-opacity="0"/>
-        <stop offset="0.5" stop-color="${accent}" stop-opacity="0.78"/>
-        <stop offset="1" stop-color="${accent}" stop-opacity="0"/>
-      </linearGradient>
-    </defs>
+    ${cardShellDefs(gid, fillTop, fillMid, surface, accent, avatarCx, avatarCy, avatarR)}
     <rect x="${ox}" y="${oy}" width="${PERSON_NODE_WIDTH}" height="${PERSON_NODE_HEIGHT}" rx="16.8" fill="url(#bg-${gid})" stroke="${border}" stroke-width="${d.onPath ? 2.2 : 1}"/>
     <rect x="${ox + 14}" y="${oy}" width="${PERSON_NODE_WIDTH - 28}" height="2.5" rx="2" fill="url(#rule-${gid})"/>
     ${avatar}
@@ -511,6 +677,32 @@ function personCard(
   </g>`;
 
   return { svg, texts };
+}
+
+function personCard(
+  node: Node<PersonNodeData>,
+  ox: number,
+  oy: number,
+  theme: ExportTheme,
+  locale: string,
+  labels: PedigreeExportLabels,
+  asOfYear: number | null,
+  photos: Map<string, string>,
+  variant: PedigreeCardVariant,
+): { svg: string; texts: TextRun[] } {
+  if (variant === "minimal") {
+    return minimalPersonCard(node, ox, oy, theme, locale, photos);
+  }
+  return fullPersonCard(
+    node,
+    ox,
+    oy,
+    theme,
+    locale,
+    labels,
+    asOfYear,
+    photos,
+  );
 }
 
 function coupleFrame(
@@ -710,7 +902,10 @@ export async function buildPedigreeGraphic(opts: {
   labels: PedigreeExportLabels;
   asOfYear: number | null;
   includePhotos: boolean;
+  /** Matches the on-canvas card style; defaults to the detailed full card. */
+  cardVariant?: PedigreeCardVariant;
 }): Promise<PedigreeGraphic> {
+  const cardVariant = opts.cardVariant ?? "full";
   const exportNodes = selectExportNodes(opts.nodes, opts.pathIds);
   if (exportNodes.length === 0) throw new Error("nothing-to-export");
 
@@ -774,6 +969,7 @@ export async function buildPedigreeGraphic(opts: {
           opts.labels,
           opts.asOfYear,
           photos,
+          cardVariant,
         );
         texts.push(...card.texts);
         return card.svg;

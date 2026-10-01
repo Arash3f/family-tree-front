@@ -875,6 +875,7 @@ function CanvasInner({
           labels: exportLabels(),
           asOfYear,
           includePhotos: true,
+          cardVariant,
         }),
       );
       captureLock.current = run.then(
@@ -883,7 +884,7 @@ function CanvasInner({
       );
       return run;
     },
-    [getNodes, getEdges, locale, exportLabels, asOfYear],
+    [getNodes, getEdges, locale, exportLabels, asOfYear, cardVariant],
   );
 
   useEffect(() => {
