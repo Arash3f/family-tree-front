@@ -617,6 +617,11 @@
         "date": "Sep 2026",
         "title": "Free sign-up with sample trees",
         "body": "Anyone can create a free account and start right away with two ready-made family trees to explore."
+      },
+      "u13": {
+        "date": "Oct 2026",
+        "title": "Profile view",
+        "body": "A third way to read a tree, with no tree map at all. Search a name, open that person's full profile — photo, dates, places and descendant counts — and walk the family by clicking their parents, spouses, children or siblings. Back and forward keep your path like browser history."
       }
     }
   },
