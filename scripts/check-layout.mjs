@@ -50,6 +50,35 @@ const ROUTES = [
     name: "tree-settings",
   },
   { path: `/dashboard/trees/${TREE_ID}`, auth: true, name: "tree-pedigree" },
+  {
+    path: `/dashboard/trees/${TREE_ID}?view=minimal`,
+    auth: true,
+    name: "tree-pedigree-minimal",
+  },
+  {
+    path: `/dashboard/trees/${TREE_ID}?view=profile`,
+    auth: true,
+    name: "tree-profile",
+  },
+  // The impersonation banner rides above every authenticated screen, so one
+  // route in that state is enough to cover it at each width.
+  {
+    path: "/dashboard/users",
+    auth: true,
+    name: "users-impersonating",
+    impersonating: true,
+  },
+  // Dialogs only exist after a click, so the route carries the interaction
+  // that opens one. Without this the chooser is never measured at any width.
+  {
+    path: "/dashboard/trees",
+    auth: true,
+    name: "trees-view-chooser",
+    async open(page) {
+      await page.locator("a[href*='/dashboard/trees/']").first().click();
+      await page.locator("[role='dialog']").first().waitFor({ state: "visible" });
+    },
+  },
 ];
 
 /**
@@ -58,6 +87,7 @@ const ROUTES = [
  */
 const VIEWPORTS = [
   { name: "320", width: 320, height: 720 },
+  { name: "400", width: 400, height: 870 },
   { name: "768", width: 768, height: 1024 },
   { name: "1440", width: 1440, height: 900 },
 ];
@@ -87,6 +117,23 @@ function auditPage() {
   // merely translated away is still focusable, which is a real defect, so
   // leave that one to be reported.
   const parked = (el) => el.closest("[inert]") !== null;
+
+  /**
+   * True when something scrolls between `child` and `box`. The reader can
+   * reach the content by scrolling, so `box` clipping it is the intended
+   * behaviour rather than a defect — a tall dialog inside its own scroll
+   * container is the usual case.
+   */
+  const scrollerBetween = (child, box) => {
+    let node = child.parentElement;
+    while (node && node !== box) {
+      const s = getComputedStyle(node);
+      if (["auto", "scroll"].includes(s.overflowX)) return true;
+      if (["auto", "scroll"].includes(s.overflowY)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  };
 
   const label = (el) => {
     const cls = el.className?.toString?.() ?? "";
@@ -142,6 +189,7 @@ function auditPage() {
       let worst = null;
       for (const child of el.querySelectorAll("*")) {
         if (decorative(child) || parked(child)) continue;
+        if (scrollerBetween(child, el)) continue;
         if (!child.textContent?.trim()) continue;
         const cr = child.getBoundingClientRect();
         if (cr.width === 0 && cr.height === 0) continue;
@@ -237,13 +285,21 @@ async function main() {
             },
           });
           const page = await context.newPage();
-          const unmatched = await installMockApi(page);
+          const unmatched = await installMockApi(page, {
+            impersonating: route.impersonating === true,
+          });
           const pageErrors = [];
           page.on("pageerror", (e) => pageErrors.push(String(e).slice(0, 120)));
 
           const url = `${BASE}/${locale}${route.path}`;
           await page.goto(url, { waitUntil: "networkidle" });
-          await page.waitForTimeout(route.name === "tree-pedigree" ? 2500 : 700);
+          // Tree screens build a graph (or fetch a person card) after load.
+          await page.waitForTimeout(route.name.startsWith("tree-") ? 2500 : 700);
+
+          if (route.open) {
+            await route.open(page);
+            await page.waitForTimeout(400);
+          }
 
           const report = await page.evaluate(auditPage);
           checks++;

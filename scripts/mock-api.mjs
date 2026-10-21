@@ -57,6 +57,7 @@ const ME = {
     description_fa: `به دارنده اجازه می‌دهد در هر درختی که به آن دسترسی دارد، ${name.replace(/_/g, " ")} را انجام دهد.`,
   })),
   session_id: "session-current",
+  is_impersonating: false,
   account_type: "free",
   preferred_locale: null,
   preferred_theme: null,
@@ -314,8 +315,13 @@ function paginate(items, body) {
  * mock did not recognise, so a route that quietly 404s is visible in the run
  * rather than showing up as an empty screen.
  */
-export async function installMockApi(page) {
+export async function installMockApi(page, options = {}) {
   const unmatched = [];
+  // `impersonating` mirrors what the API reports while an admin is signed
+  // in as someone else: no session, and the banner shown on every screen.
+  const me = options.impersonating
+    ? { ...ME, is_impersonating: true, session_id: null }
+    : ME;
 
   await page.route("**/backend/**", async (route) => {
     const request = route.request();
@@ -332,7 +338,7 @@ export async function installMockApi(page) {
       });
 
     if (p === "/health") return json({ status: "ok", postgres: "ok", neo4j: "ok" });
-    if (p === "/auth/me") return json(ME);
+    if (p === "/auth/me") return json(me);
     if (p === "/auth/sessions") return json(SESSIONS);
     if (p === "/auth/preferences" && method === "PUT") {
       const payload = body ? JSON.parse(body) : {};

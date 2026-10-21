@@ -61,6 +61,10 @@
 .title {
   margin: 0;
   min-width: 0;
+  /* The marquee inside is `white-space: nowrap`, so a long title gives this
+     flex item a max-content size that shrinking alone does not pull back
+     inside the row. Without this cap a long tree name spills off-screen. */
+  max-width: 100%;
   flex: 1 1 auto;
   font-family: var(--font-display);
   font-size: var(--text-2xl);
