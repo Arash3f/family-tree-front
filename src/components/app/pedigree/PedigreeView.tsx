@@ -26,7 +26,7 @@ import {
   personDisplayName,
   resolvePersonParents,
 } from "@/lib/pedigree/layout";
-import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
+import type { PedigreeCanvasVariant } from "@/lib/pedigree/card-variant";
 import type { PedigreeLayoutJob } from "@/lib/pedigree/layout-compute";
 import {
   buildTreeIndex,
@@ -95,7 +95,7 @@ type Props = {
    */
   treeSource?: TreeSource;
   /** Person card style chosen when the tree was opened. */
-  cardVariant?: PedigreeCardVariant;
+  cardVariant?: PedigreeCanvasVariant;
 };
 
 export function PedigreeView({

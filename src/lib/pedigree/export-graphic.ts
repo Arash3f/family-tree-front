@@ -14,7 +14,7 @@ import type { Edge, Node } from "@xyflow/react";
 
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { resolvePersonPhotoUrl } from "@/lib/media";
-import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
+import type { PedigreeCanvasVariant } from "@/lib/pedigree/card-variant";
 import {
   ageInYearsAtYear,
   formatDateForLocale,
@@ -688,7 +688,7 @@ function personCard(
   labels: PedigreeExportLabels,
   asOfYear: number | null,
   photos: Map<string, string>,
-  variant: PedigreeCardVariant,
+  variant: PedigreeCanvasVariant,
 ): { svg: string; texts: TextRun[] } {
   if (variant === "minimal") {
     return minimalPersonCard(node, ox, oy, theme, locale, photos);
@@ -903,7 +903,7 @@ export async function buildPedigreeGraphic(opts: {
   asOfYear: number | null;
   includePhotos: boolean;
   /** Matches the on-canvas card style; defaults to the detailed full card. */
-  cardVariant?: PedigreeCardVariant;
+  cardVariant?: PedigreeCanvasVariant;
 }): Promise<PedigreeGraphic> {
   const cardVariant = opts.cardVariant ?? "full";
   const exportNodes = selectExportNodes(opts.nodes, opts.pathIds);

@@ -16,10 +16,31 @@ type Props = {
   onClose: () => void;
 };
 
-const VARIANTS: PedigreeCardVariant[] = ["full", "minimal"];
+const VARIANTS: PedigreeCardVariant[] = ["full", "minimal", "profile"];
+
+const VARIANT_LABEL: Record<PedigreeCardVariant, { title: string; hint: string }> =
+  {
+    full: { title: "viewFull", hint: "viewFullHint" },
+    minimal: { title: "viewMinimal", hint: "viewMinimalHint" },
+    profile: { title: "viewProfile", hint: "viewProfileHint" },
+  };
 
 /** Sketch of one person card in the chosen style, drawn with plain boxes. */
 function CardSketch({ variant }: { variant: PedigreeCardVariant }) {
+  if (variant === "profile") {
+    // Not a card on a canvas: a search bar over a single profile page.
+    return (
+      <span className={`${styles.sketchCard} ${styles.sketchProfile}`} aria-hidden>
+        <span className={styles.sketchSearchBar} />
+        <span className={styles.sketchHead}>
+          <span className={styles.sketchAvatarLarge} />
+          <span className={styles.sketchLine} />
+        </span>
+        <span className={`${styles.sketchLine} ${styles.sketchLineFact}`} />
+        <span className={`${styles.sketchLine} ${styles.sketchLineFact}`} />
+      </span>
+    );
+  }
   if (variant === "minimal") {
     return (
       <span className={`${styles.sketchCard} ${styles.sketchMinimal}`} aria-hidden>
@@ -102,14 +123,16 @@ export function TreeViewChooser({ tree, onClose }: Props) {
               onClick={onClose}
             >
               <span className={styles.preview}>
+                {/* The canvas views show a field of cards; the profile view
+                    opens one person, so it previews a single page. */}
                 <CardSketch variant={variant} />
-                <CardSketch variant={variant} />
+                {variant === "profile" ? null : <CardSketch variant={variant} />}
               </span>
               <span className={styles.optionTitle}>
-                {t(variant === "minimal" ? "viewMinimal" : "viewFull")}
+                {t(VARIANT_LABEL[variant].title)}
               </span>
               <span className={styles.optionHint}>
-                {t(variant === "minimal" ? "viewMinimalHint" : "viewFullHint")}
+                {t(VARIANT_LABEL[variant].hint)}
               </span>
             </Link>
           ))}

@@ -10,7 +10,8 @@
 }
 
 .modal {
-  width: min(36rem, 100%);
+  /* Sized for three option columns; 36rem was set back when there were two. */
+  width: min(42rem, 100%);
   max-height: min(90svh, 40rem);
   overflow: auto;
   display: grid;
@@ -68,19 +69,36 @@
 
 .options {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
+}
+
+@media (max-width: 639.98px) {
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 479.98px) {
   .options {
     grid-template-columns: 1fr;
   }
+
+  /* One column means all three options stack, so the dialog gets tall enough
+     to outgrow the viewport. The sketch is a hint, not the content — give it
+     less room here and the whole dialog fits again. */
+  .preview {
+    min-height: 3.6rem;
+    padding-block: 0.45rem;
+  }
 }
 
 .option {
   --option-accent: var(--accent);
   display: grid;
+  /* preview | title | hint — the hint takes the slack so the three cards line
+     their titles up even when one description runs a line longer. */
+  grid-template-rows: auto auto 1fr;
   gap: 0.4rem;
   padding: 0.85rem;
   border: 1px solid var(--border);
@@ -115,8 +133,15 @@
 .preview {
   display: flex;
   justify-content: center;
-  gap: 0.55rem;
-  padding: 0.85rem 0.5rem;
+  align-items: center;
+  /* Fixed so every option's sketch box is the same size, whether it holds one
+     sketch or two — otherwise the titles below sit at different heights. */
+  min-height: 5.2rem;
+  gap: 0.4rem;
+  padding: 0.85rem 0.4rem;
+  /* Belt and braces: the sketches shrink to fit (below), and this guarantees
+     they can never paint outside the tinted box even at odd widths. */
+  overflow: hidden;
   margin-block-end: 0.25rem;
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--option-accent) 7%, var(--surface-sunken, var(--surface)));
@@ -133,9 +158,13 @@
   line-height: 1.5;
 }
 
-/* Card sketches — same 5:4 proportions as the real 220×176 person card. */
+/* Card sketches — same 5:4 proportions as the real 220×176 person card.
+   `flex: 0 1 <width>` keeps that size when there is room but lets the pair
+   shrink inside a narrow option column instead of spilling out of it. */
 .sketchCard {
+  flex: 0 1 4.4rem;
   width: 4.4rem;
+  min-width: 0;
   height: 3.52rem;
   display: flex;
   flex-direction: column;
@@ -197,6 +226,23 @@
 .sketchLineFact {
   width: 85%;
   opacity: 0.45;
+}
+
+/* Stands alone rather than paired, so it gets the width of the two it replaces. */
+.sketchProfile {
+  flex: 0 1 6.2rem;
+  width: 6.2rem;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.sketchSearchBar {
+  display: block;
+  width: 100%;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--option-accent) 40%, var(--surface));
+  margin-block-end: 0.12rem;
 }
 
 @keyframes fadeIn {

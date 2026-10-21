@@ -40,7 +40,7 @@ import {
 } from "@/lib/pedigree/layout";
 import type { CoupleNodeData, PersonNodeData } from "@/lib/pedigree/layout";
 import type { LayoutAnchor } from "./useGraphFocus";
-import type { PedigreeCardVariant } from "@/lib/pedigree/card-variant";
+import type { PedigreeCanvasVariant } from "@/lib/pedigree/card-variant";
 import { CoupleNode } from "./CoupleNode";
 import { MinimalPersonNode } from "./MinimalPersonNode";
 import { PathTraveler } from "./PathTraveler";
@@ -65,7 +65,7 @@ import styles from "./PedigreeCanvas.module.css";
 const NODE_TYPES_BY_VARIANT = {
   full: { person: PersonNode, union: UnionNode, couple: CoupleNode },
   minimal: { person: MinimalPersonNode, union: UnionNode, couple: CoupleNode },
-} satisfies Record<PedigreeCardVariant, object>;
+} satisfies Record<PedigreeCanvasVariant, object>;
 
 /** Past this many targets a camera move fits bounds instead of framing each node. */
 const FIT_ALL_NODE_LIMIT = 18;
@@ -257,7 +257,7 @@ type CanvasProps = {
   dataAccess: PedigreeDataAccess;
   branchActions: PedigreeBranchActions;
   exportApiRef?: MutableRefObject<PedigreeCanvasHandle | null>;
-  cardVariant?: PedigreeCardVariant;
+  cardVariant?: PedigreeCanvasVariant;
 };
 
 function CanvasInner({

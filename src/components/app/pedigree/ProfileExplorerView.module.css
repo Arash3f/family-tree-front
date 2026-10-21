@@ -1,0 +1,733 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  background: var(--background);
+}
+
+.center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  color: var(--muted);
+  padding: var(--space-6, 2rem);
+}
+
+.spinner {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: var(--radius-full);
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: explorer-spin 0.8s linear infinite;
+}
+
+@keyframes explorer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
+
+/* ---------------------------------------------------------------- topbar */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky, 20);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--surface-raised) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.navButtons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: var(--text-md);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, 120ms) var(--ease-out, ease),
+    border-color var(--duration-fast, 120ms) var(--ease-out, ease),
+    opacity var(--duration-fast, 120ms) var(--ease-out, ease);
+}
+
+.navBtn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.navBtn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.navBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Back/forward follow the reading direction: in RTL "back" points right.
+   Only the arrows mirror — the search glyph beside them must not. */
+:global([dir="rtl"]) .navArrow svg {
+  transform: scaleX(-1);
+}
+
+.searchToggleActive {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--background);
+}
+
+.treeMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.treeName {
+  font-weight: var(--weight-semibold);
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 14rem;
+}
+
+.treeCount {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.trail {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  margin-inline-start: auto;
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: thin;
+  padding-block: 2px;
+}
+
+.trailChip {
+  flex: none;
+  max-width: 10rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.trailChip:hover {
+  border-color: var(--accent);
+  color: var(--foreground);
+}
+
+.trailChipActive {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  border-color: var(--accent);
+  color: var(--accent-strong, var(--accent));
+  font-weight: var(--weight-semibold);
+}
+
+/* ---------------------------------------------------------------- search */
+
+.searchScreen {
+  flex: 1;
+  overflow-y: auto;
+  padding: clamp(1rem, 4vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5, 1.75rem);
+}
+
+.searchHero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+  margin-top: clamp(0.5rem, 4vh, 3rem);
+}
+
+.searchTitle {
+  font-family: var(--font-display, inherit);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight, normal);
+  color: var(--foreground);
+  margin: 0;
+}
+
+.searchSub {
+  color: var(--muted);
+  margin: 0;
+  max-width: 34rem;
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: min(100%, 36rem);
+  margin-top: var(--space-2);
+}
+
+.searchBoxIcon {
+  position: absolute;
+  inset-inline-start: 0.9rem;
+  color: var(--muted);
+  font-size: 1.15rem;
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.85rem 2.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font-size: var(--text-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.searchInput:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.searchClear {
+  position: absolute;
+  inset-inline-end: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.searchClear:hover {
+  background: var(--surface-hover);
+  color: var(--foreground);
+}
+
+.searchPrompt,
+.noResults {
+  text-align: center;
+  color: var(--muted);
+  padding: var(--space-5, 2rem);
+}
+
+.recentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.resultGrid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+/* The grid row already stretches each <li>; the button has to fill it too, or
+   a card whose person has no parents sits shorter than the one beside it. */
+.resultGrid > li {
+  display: flex;
+}
+
+.resultCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
+  text-align: start;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface-raised);
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast, 120ms) var(--ease-out, ease),
+    border-color var(--duration-fast, 120ms) var(--ease-out, ease),
+    box-shadow var(--duration-fast, 120ms) var(--ease-out, ease);
+}
+
+.resultCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+}
+
+.resultCard:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.resultBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.resultName {
+  font-weight: var(--weight-semibold);
+  color: var(--foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultHint {
+  font-size: var(--text-xs);
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.resultMeta {
+  display: flex;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+/* --------------------------------------------------------------- profile */
+
+.profileScreen {
+  flex: 1;
+  overflow-y: auto;
+  padding: clamp(0.75rem, 3vw, 2rem);
+}
+
+.profileCard {
+  max-width: 56rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 1.25rem);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4, 1.25rem);
+  padding: clamp(1rem, 3vw, 1.75rem);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--hero-tint) 14%, var(--surface-raised)),
+      var(--surface-raised) 70%
+    );
+}
+
+.hero.male {
+  --hero-tint: var(--pedigree-male, #3b82f6);
+}
+
+.hero.female {
+  --hero-tint: var(--pedigree-female, #ec4899);
+}
+
+.heroAvatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(4.5rem, 14vw, 6.5rem);
+  height: clamp(4.5rem, 14vw, 6.5rem);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--hero-tint) 22%, var(--surface));
+  color: var(--hero-tint);
+  font-size: 2rem;
+  font-weight: var(--weight-bold);
+  border: 3px solid color-mix(in srgb, var(--hero-tint) 45%, transparent);
+}
+
+.heroAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroAvatarButton {
+  cursor: zoom-in;
+  padding: 0;
+}
+
+.heroText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.heroName {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display, inherit);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--foreground);
+}
+
+.heroFacts,
+.heroPlaces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+}
+
+.heroFact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--ink-soft);
+}
+
+.heroDescendants {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--muted);
+}
+
+.cardLoadingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.cardLoadingRow .spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-width: 2px;
+}
+
+.notes {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--foreground);
+  white-space: pre-wrap;
+  line-height: var(--leading-relaxed, 1.7);
+}
+
+/* ------------------------------------------------------------- relatives */
+
+.relGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-3);
+}
+
+.relColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide, 0.02em);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.countPill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  color: var(--accent-strong, var(--accent));
+  font-size: var(--text-xs);
+}
+
+.relEmpty {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.relList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.3rem);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: start;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, 120ms) var(--ease-out, ease),
+    border-color var(--duration-fast, 120ms) var(--ease-out, ease);
+}
+
+.chip:hover {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.chipBody {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.chipName {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chipBadge {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.chipGo {
+  flex: none;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity var(--duration-fast, 120ms) var(--ease-out, ease);
+}
+
+.chip:hover .chipGo {
+  opacity: 1;
+}
+
+/* RTL: the up-right arrow should point up-left. */
+:global([dir="rtl"]) .chipGo {
+  transform: scaleX(-1);
+}
+
+/* ---------------------------------------------------------------- avatar */
+
+.avatar {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  font-weight: var(--weight-semibold);
+  background: var(--surface-sunken);
+  color: var(--ink-soft);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarSm {
+  width: 2rem;
+  height: 2rem;
+  font-size: var(--text-xs);
+}
+
+.avatarMd {
+  width: 3rem;
+  height: 3rem;
+  font-size: var(--text-md);
+}
+
+.avatar.male {
+  background: color-mix(in srgb, var(--pedigree-male, #3b82f6) 20%, var(--surface));
+  color: var(--pedigree-male, #3b82f6);
+}
+
+.avatar.female {
+  background: color-mix(in srgb, var(--pedigree-female, #ec4899) 20%, var(--surface));
+  color: var(--pedigree-female, #ec4899);
+}
+
+/* ------------------------------------------------------------ date lists */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.dateList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 0.3rem);
+}
+
+.dateList li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.dateValue {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------- lightbox */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay, 1000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4, 1.25rem);
+  background: color-mix(in srgb, #000 70%, transparent);
+}
+
+.lightboxDialog {
+  max-width: min(92vw, 40rem);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  background: var(--surface-raised);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  box-shadow: var(--shadow-md);
+}
+
+.lightboxHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.lightboxHeader h2 {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--foreground);
+}
+
+.lightboxImage {
+  max-width: 100%;
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+}
+
+/* --------------------------------------------------------------- mobile */
+
+@media (max-width: 640px) {
+  .topbar {
+    gap: var(--space-2);
+  }
+
+  .trail {
+    order: 3;
+    width: 100%;
+    margin-inline-start: 0;
+  }
+
+  .treeName {
+    max-width: 9rem;
+  }
+}

@@ -1,5 +1,6 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { PedigreeView } from "@/components/app/pedigree/PedigreeView";
+import { ProfileExplorerView } from "@/components/app/pedigree/ProfileExplorerView";
 import { CARD_VARIANT_PARAM, parseCardVariant } from "@/lib/pedigree/card-variant";
 
 type Props = {
@@ -17,10 +18,9 @@ export default async function TreePedigreePage({ params, searchParams }: Props) 
   const { locale, treeId } = await params;
   const query = await searchParams;
   setRequestLocale(locale);
-  return (
-    <PedigreeView
-      treeId={treeId}
-      cardVariant={parseCardVariant(query[CARD_VARIANT_PARAM])}
-    />
-  );
+  const variant = parseCardVariant(query[CARD_VARIANT_PARAM]);
+  if (variant === "profile") {
+    return <ProfileExplorerView treeId={treeId} />;
+  }
+  return <PedigreeView treeId={treeId} cardVariant={variant} />;
 }
