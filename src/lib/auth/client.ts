@@ -7,8 +7,11 @@ import {
 import {
   clearStoredTokens,
   getStoredTokens,
+  isImpersonating,
   isTokenStorageEventKey,
   setStoredTokens,
+  startImpersonation,
+  stopImpersonation,
 } from "./storage";
 import {
   isAccessTokenExpired,
@@ -141,6 +144,23 @@ async function withStorageRefreshLock<T>(run: () => Promise<T>): Promise<T> {
 
 async function performTokenRefresh(): Promise<AuthTokens | null> {
   const current = getStoredTokens();
+
+  // An impersonation token has no refresh counterpart and the server keeps no
+  // session for it, so there is nothing to renew. While it is still valid keep
+  // using it; once it lapses, hand the admin their own parked session back
+  // rather than signing everyone out.
+  if (isImpersonating()) {
+    if (
+      current?.access_token &&
+      !isAccessTokenExpired(current.access_token, 5_000)
+    ) {
+      return current;
+    }
+    stopImpersonation();
+    notifyAuthChange();
+    return null;
+  }
+
   if (!current?.refresh_token) {
     clearStoredTokens();
     notifyAuthChange();
@@ -373,7 +393,8 @@ export async function fetchCurrentUser(): Promise<AuthUser> {
     role_name: data.role_name ?? null,
     permissions: data.permissions ?? [],
     permission_details: data.permission_details ?? [],
-    session_id: data.session_id ?? "",
+    session_id: data.session_id ?? null,
+    is_impersonating: data.is_impersonating === true,
     account_type: data.account_type === "paid" ? "paid" : "free",
     preferred_locale:
       data.preferred_locale === "en" || data.preferred_locale === "fa"
@@ -445,11 +466,26 @@ export async function updateMyPreferences(input: {
   await jsonOrThrow(response);
 }
 
+/** Fields the users list can be ordered by; mirrors the backend `UserSortField`. */
+export type UserSortField =
+  | "id"
+  | "username"
+  | "fullname"
+  | "email"
+  | "role_id"
+  | "is_active"
+  | "account_type"
+  | "last_session_at";
+
+export type SortOrder = "asc" | "desc";
+
 export async function listUsers(options?: {
   page?: number;
   pageSize?: number;
   /** Case-insensitive match on username, full name, email or phone. */
   search?: string;
+  sortBy?: UserSortField;
+  sortOrder?: SortOrder;
   signal?: AbortSignal;
 }): Promise<Paginated<AppUser>> {
   const page = options?.page ?? 1;
@@ -462,7 +498,10 @@ export async function listUsers(options?: {
     body: JSON.stringify({
       pagination: { page, page_size: pageSize, offset: 0 },
       filters: search ? { search } : {},
-      sort: { sort_order: "desc", sort_by: "id" },
+      sort: {
+        sort_order: options?.sortOrder ?? "desc",
+        sort_by: options?.sortBy ?? "id",
+      },
     }),
   });
   return jsonOrThrow(response);
@@ -531,6 +570,49 @@ export async function deleteUser(userId: string): Promise<void> {
     method: "DELETE",
   });
   await jsonOrThrow(response);
+}
+
+/**
+ * Start acting as another user, without their password.
+ *
+ * Swaps the admin's tokens for a short-lived impersonation token (parking
+ * their own pair so {@link endImpersonation} can restore it). The token opens
+ * no server-side session, so it cannot be refreshed or revoked — it simply
+ * expires, at which point the admin's session comes back on its own.
+ *
+ * @param userId - The user to act as.
+ *
+ * @throws {AuthApiError} 403 - When the caller lacks `user_impersonate`, or the
+ *   target is the caller themselves or may impersonate others.
+ * @throws {AuthApiError} 404 - When no such user exists.
+ */
+export async function impersonateUser(userId: string): Promise<void> {
+  const response = await apiFetch(`/users/${userId}/impersonate`, {
+    method: "POST",
+  });
+  const data = await jsonOrThrow<{ access_token: string }>(response);
+
+  clearProactiveRefreshTimer();
+  startImpersonation(data.access_token);
+  notifyAuthChange();
+  scheduleProactiveTokenRefresh();
+}
+
+/**
+ * Leave impersonation and restore the admin's own session.
+ *
+ * Nothing is sent to the server: the impersonation token has no session to
+ * close, so dropping it locally is the whole exit.
+ *
+ * @returns True when the admin's session was restored, false when there was
+ *   none to restore (treat that as a sign-out).
+ */
+export function endImpersonation(): boolean {
+  clearProactiveRefreshTimer();
+  const restored = stopImpersonation();
+  notifyAuthChange();
+  if (restored) scheduleProactiveTokenRefresh();
+  return restored;
 }
 
 export async function listUserSessions(userId: string): Promise<UserSession[]> {

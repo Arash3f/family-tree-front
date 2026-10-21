@@ -35,42 +35,91 @@
   letter-spacing: var(--tracking-normal);
 }
 
+/* Sortable header: the whole label is the control, so it inherits the th's
+   type styling rather than looking like a button dropped into the row. */
+.sortBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  /* WCAG 2.5.8 target size: the label alone is only ~20px tall. */
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.sortBtn:hover:not(:disabled),
+.sortBtn:focus-visible {
+  color: var(--accent);
+}
+
+.sortBtn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+.sortBtn:disabled {
+  cursor: default;
+}
+
+.sortIcon {
+  display: inline-flex;
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+/* The neutral up/down glyph only hints that a column is sortable. */
+.sortIconIdle {
+  opacity: 0.4;
+}
+
 .table tbody tr:last-child th,
 .table tbody tr:last-child td {
   border-block-end: 0;
 }
 
-/* 6 cols: user (name + @username) | contact | role | status | lastSession | action */
+/* 6 cols: user (name + @username) | contact | role | status | lastSession | action
+ * The action column carries two controls ("Manage" + sign-in-as), so it needs
+ * real width — with table-layout:fixed a too-narrow last column pushes its
+ * content outside the table instead of shrinking it. */
 .table th:nth-child(1),
 .table td:nth-child(1) {
-  width: 30%;
+  width: 26%;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  width: 25%;
+  width: 21%;
 }
 
 .table th:nth-child(3),
 .table td:nth-child(3) {
-  width: 13%;
+  width: 12%;
 }
 
 .table th:nth-child(4),
 .table td:nth-child(4) {
-  width: 10%;
+  width: 9%;
   white-space: nowrap;
   overflow-wrap: normal;
 }
 
 .table th:nth-child(5),
 .table td:nth-child(5) {
-  width: 15%;
+  width: 14%;
 }
 
 .table th:nth-child(6),
 .table td:nth-child(6) {
-  width: 7%;
+  width: 18%;
 }
 
 .tableWrap[data-busy] {
@@ -266,7 +315,9 @@
 }
 
 .tableAction {
-  white-space: nowrap;
+  /* Each control keeps its own label on one line; the row between them may
+   * wrap, which is what stops a narrow column from overflowing the table. */
+  white-space: normal;
   padding-inline-end: 0;
   text-align: end;
 }
@@ -308,6 +359,55 @@
 
 .link:hover {
   color: var(--accent-strong);
+}
+
+/* Row actions: "Manage" plus the sign-in-as button, right-aligned. */
+.rowActions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+}
+
+.impersonateBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+}
+
+.impersonateBtn:hover:not(:disabled) {
+  color: var(--accent-strong);
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+
+.impersonateBtn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.impersonateBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* RTL: the "leave into another account" arrow should point the other way. */
+:global([dir="rtl"]) .impersonateBtn svg {
+  transform: scaleX(-1);
 }
 
 .hint {

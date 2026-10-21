@@ -40,6 +40,8 @@ export function useAuth() {
       register: s.register,
       logout: s.logout,
       logoutAll: s.logoutAll,
+      impersonate: s.impersonate,
+      stopImpersonating: s.stopImpersonating,
       refreshUser: s.refreshUser,
       patchUser: s.patchUser,
       hasPermission: s.hasPermission,

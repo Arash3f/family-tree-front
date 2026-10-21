@@ -3,7 +3,9 @@
 import { create } from "zustand";
 import {
   clearSession,
+  endImpersonation,
   fetchCurrentUser,
+  impersonateUser,
   loginRequest,
   logoutAllRequest,
   logoutRequest,
@@ -34,6 +36,10 @@ type AuthState = {
   register: (input: RegisterInput) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  /** Start acting as another user (admin only). */
+  impersonate: (userId: string) => Promise<void>;
+  /** Leave impersonation and come back as the admin. */
+  stopImpersonating: () => Promise<void>;
   refreshUser: () => Promise<void>;
   patchUser: (partial: Partial<AuthUser>) => void;
   hasPermission: (permission: string) => boolean;
@@ -96,6 +102,23 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   logoutAll: async () => {
     await logoutAllRequest();
     set({ user: null, status: "anonymous" });
+  },
+
+  impersonate: async (userId) => {
+    await impersonateUser(userId);
+    const next = await fetchCurrentUser();
+    set({ user: next, status: "authenticated" });
+  },
+
+  stopImpersonating: async () => {
+    const restored = endImpersonation();
+    if (!restored) {
+      set({ user: null, status: "anonymous" });
+      return;
+    }
+    const next = await loadUser();
+    set({ user: next, status: next ? "authenticated" : "anonymous" });
+    if (next) scheduleProactiveTokenRefresh();
   },
 
   refreshUser: async () => {

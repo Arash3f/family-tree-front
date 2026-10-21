@@ -22,6 +22,7 @@ import { Permissions } from "@/lib/auth/types";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { DashboardBackdrop } from "./DashboardBackdrop";
 import { HelpGuide } from "./HelpGuide";
+import { ImpersonationBanner } from "./ImpersonationBanner";
 import { UpdatesGuide } from "./UpdatesGuide";
 import { OverflowMarquee } from "@/components/ui/OverflowMarquee";
 import styles from "./AppShell.module.css";
@@ -349,6 +350,7 @@ export function AppShell({ children }: Props) {
           .filter(Boolean)
           .join(" ")}
       >
+        <ImpersonationBanner />
         {children}
       </main>
     </div>

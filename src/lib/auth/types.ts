@@ -26,7 +26,10 @@ export type AuthUser = {
   role_name: string | null;
   permissions: string[];
   permission_details: AuthPermissionDetail[];
-  session_id: string;
+  /** Null while an admin is impersonating — that token opens no session. */
+  session_id: string | null;
+  /** True when this session is an admin acting as someone else. */
+  is_impersonating: boolean;
   account_type: AccountType;
   preferred_locale: PreferredLocale | null;
   preferred_theme: PreferredTheme | null;
@@ -321,6 +324,7 @@ export const Permissions = {
   USER_DELETE: "user_delete",
   USER_READ: "user_read",
   USER_UPDATE: "user_update",
+  USER_IMPERSONATE: "user_impersonate",
   ROLE_CREATE: "role_create",
   ROLE_DELETE: "role_delete",
   ROLE_READ: "role_read",

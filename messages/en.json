@@ -752,7 +752,16 @@
     "currentSession": "Current",
     "unknownDevice": "Unknown device",
     "unknownIp": "Unknown IP",
-    "working": "Working…"
+    "working": "Working…",
+    "impersonate": "Sign in as",
+    "impersonateTitle": "Sign in as {name} without their password",
+    "impersonateConfirm": "You will be signed in as “{name}” without their password. Until it expires, everything you do is recorded as them. Continue?",
+    "impersonateCta": "Sign in as",
+    "impersonateError": "Could not sign in as this user.",
+    "impersonateSelf": "You cannot sign in as yourself.",
+    "impersonating": "You are using {name}'s account.",
+    "impersonatingExit": "Back to my account",
+    "impersonatingExitError": "Could not return to your account. Please sign in again."
   },
   "tickets": {
     "metaTitle": "Tickets",

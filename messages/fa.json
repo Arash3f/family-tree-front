@@ -752,7 +752,16 @@
     "currentSession": "همین دستگاه",
     "unknownDevice": "دستگاه نامشخص",
     "unknownIp": "IP نامشخص",
-    "working": "لطفاً صبر کنید…"
+    "working": "لطفاً صبر کنید…",
+    "impersonate": "ورود به حساب",
+    "impersonateTitle": "ورود به حساب {name} بدون رمز عبور",
+    "impersonateConfirm": "بدون رمز عبور وارد حساب «{name}» می‌شوید. تا پایان مهلت، همهٔ کارهایی که انجام دهید به نام او ثبت می‌شود. مطمئن هستید؟",
+    "impersonateCta": "ورود به حساب",
+    "impersonateError": "ورود به این حساب انجام نشد.",
+    "impersonateSelf": "نمی‌توانید به حساب خودتان وارد شوید.",
+    "impersonating": "شما در حال استفاده از حساب {name} هستید.",
+    "impersonatingExit": "بازگشت به حساب خودم",
+    "impersonatingExitError": "بازگشت به حساب شما انجام نشد. دوباره وارد شوید."
   },
   "tickets": {
     "metaTitle": "تیکت‌ها",
