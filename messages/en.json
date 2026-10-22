@@ -71,6 +71,12 @@
     "nextPage": "Next",
     "pageStatus": "Page {current} of {total}",
     "items": {
+      "u13": {
+        "iso": "2026-10-21",
+        "date": "Oct 2026",
+        "title": "Profile view",
+        "body": "A third way to read a tree, with no tree map at all. Search a name, open that person's full profile — photo, dates, places and descendant counts — and walk the family by clicking their parents, spouses, children or siblings. Back and forward keep your path like browser history."
+      },
       "u12": {
         "iso": "2026-09-27",
         "date": "Sep 2026",
