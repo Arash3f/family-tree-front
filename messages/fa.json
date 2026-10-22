@@ -984,6 +984,8 @@
     "loadError": "شجره‌نامه بارگذاری نشد. دوباره تلاش کنید.",
     "settings": "تنظیمات",
     "createTicket": "ثبت تیکت",
+    "canvasToolsShow": "نمایش ابزارهای درخت",
+    "canvasToolsHide": "بستن ابزارهای درخت",
     "addPerson": "افزودن فرد",
     "addMarriage": "افزودن ازدواج",
     "addSpouse": "افزودن همسر",

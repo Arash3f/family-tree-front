@@ -34,11 +34,6 @@ import {
 } from "@/lib/pedigree/index-tree";
 import { subsetWithoutHidden } from "@/lib/pedigree/collapse";
 import { ageInYearsAtYear, todayIso } from "@/lib/pedigree/dates";
-import {
-  HiOutlineArrowUturnLeft,
-  HiOutlineMap,
-  HiOutlineTicket,
-} from "react-icons/hi2";
 import { Link } from "@/i18n/navigation";
 import { Alert } from "@/components/ui/Feedback";
 import { Button } from "@/components/ui/Button";
@@ -52,7 +47,7 @@ import { PedigreeHeader } from "./PedigreeHeader";
 import { PedigreeOverlays } from "./PedigreeOverlays";
 import { PedigreeSidePanels } from "./PedigreeSidePanels";
 import { RelationResult } from "./RelationResult";
-import { BirthdayCalendarButton } from "./LazyBirthdayCalendar";
+import { CanvasChrome } from "./CanvasChrome";
 import {
   emptyPersonForm,
   personToForm,
@@ -1417,79 +1412,40 @@ export function PedigreeView({
           <div className={styles.canvasArea}>
             <div className={styles.canvasWrap}>
               {permissions.canReadPersons ? (
-                <div className={styles.canvasChrome}>
-                  <div
-                    className={styles.canvasPersonCount}
-                    title={t("statPeople", {
-                      count: formatLocaleDigits(persons.length, locale),
-                    })}
-                    aria-label={t("statPeople", {
-                      count: formatLocaleDigits(persons.length, locale),
-                    })}
-                  >
-                    {t("statPeople", {
-                      count: formatLocaleDigits(persons.length, locale),
-                    })}
-                  </div>
-                  <BirthdayCalendarButton
-                    prominent
-                    people={persons}
-                    canViewBirthDate={permissions.canViewBirthDate}
-                    open={birthdayOpen}
-                    onOpenChange={setBirthdayOpen}
-                    onSelectPerson={revealAndSelect}
-                  />
-                  {canCreateTicket ? (
-                    <button
-                      type="button"
-                      className={styles.canvasTicketBtn}
-                      title={t("createTicket")}
-                      aria-label={t("createTicket")}
-                      onClick={() => setTicketOpen(true)}
-                    >
-                      <HiOutlineTicket aria-hidden />
-                      <span>{t("createTicket")}</span>
-                    </button>
-                  ) : null}
-                  {focus.branchRootId ? (
-                    <button
-                      type="button"
-                      className={styles.pathExitBtn}
-                      onClick={() => {
-                        focus.clearBranchPreview(
-                          selectedId ??
-                            lastFocusPersonRef.current ??
-                            focus.branchRootId,
-                        );
-                      }}
-                    >
-                      <HiOutlineArrowUturnLeft aria-hidden />
-                      <span>{t("branchPreviewExit")}</span>
-                    </button>
-                  ) : null}
-                  {focus.coverPathIds.size > 0 ? (
-                    <button
-                      type="button"
-                      className={styles.pathExitBtn}
-                      onClick={exitPathfinding}
-                    >
-                      <HiOutlineArrowUturnLeft aria-hidden />
-                      <span>{t("exitPathfinding")}</span>
-                    </button>
-                  ) : null}
-                  {focus.coverPathIds.size > 0 &&
-                  relateFromId &&
-                  panel.kind !== "relate" ? (
-                    <button
-                      type="button"
-                      className={styles.pathExitBtn}
-                      onClick={reopenPathfindingPanel}
-                    >
-                      <HiOutlineMap aria-hidden />
-                      <span>{t("showPathfindingPanel")}</span>
-                    </button>
-                  ) : null}
-                </div>
+                <CanvasChrome
+                  peopleLabel={t("statPeople", {
+                    count: formatLocaleDigits(persons.length, locale),
+                  })}
+                  persons={persons}
+                  canViewBirthDate={permissions.canViewBirthDate}
+                  birthdayOpen={birthdayOpen}
+                  onBirthdayOpenChange={setBirthdayOpen}
+                  onSelectPerson={revealAndSelect}
+                  onCreateTicket={
+                    canCreateTicket ? () => setTicketOpen(true) : null
+                  }
+                  onExitBranch={
+                    focus.branchRootId
+                      ? () => {
+                          focus.clearBranchPreview(
+                            selectedId ??
+                              lastFocusPersonRef.current ??
+                              focus.branchRootId,
+                          );
+                        }
+                      : null
+                  }
+                  onExitPathfinding={
+                    focus.coverPathIds.size > 0 ? exitPathfinding : null
+                  }
+                  onShowPathPanel={
+                    focus.coverPathIds.size > 0 &&
+                    relateFromId &&
+                    panel.kind !== "relate"
+                      ? reopenPathfindingPanel
+                      : null
+                  }
+                />
               ) : null}
               {persons.length === 0 && permissions.canReadPersons ? (
                 <div className={styles.emptyState}>

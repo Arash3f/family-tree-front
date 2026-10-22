@@ -984,6 +984,8 @@
     "loadError": "Could not load the pedigree.",
     "settings": "Settings",
     "createTicket": "Create ticket",
+    "canvasToolsShow": "Show tree tools",
+    "canvasToolsHide": "Hide tree tools",
     "addPerson": "Add person",
     "addMarriage": "Add marriage",
     "addSpouse": "Add spouse",
