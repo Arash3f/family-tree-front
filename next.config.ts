@@ -1,7 +1,17 @@
+import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+/**
+ * The release this bundle was built from — `package.json` is the single source
+ * of truth, bumped together with the `vX.Y.Z` git tag, so the footer cannot
+ * claim a version the build is not.
+ */
+const { version: appVersion } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+) as { version: string };
 
 /** Hosts allowed to load Next.js dev assets (theme, menu, locale need client JS). */
 const devAllowedOrigins = [
@@ -16,6 +26,7 @@ const devAllowedOrigins = [
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  env: { NEXT_PUBLIC_APP_VERSION: appVersion },
   // Avoid 308 on /backend/.../ which used to strip Authorization before the API.
   skipTrailingSlashRedirect: true,
   allowedDevOrigins: devAllowedOrigins,

@@ -1,0 +1,9 @@
+/* Deliberately quiet: a line for screenshots and bug reports, not a feature. */
+.build {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: var(--tracking-normal);
+}

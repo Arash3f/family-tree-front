@@ -2,6 +2,8 @@ export type HealthStatus = {
   status: "ok" | "degraded" | "unreachable";
   postgres?: string;
   neo4j?: string;
+  /** API release as `GET /health` reports it; absent on older backends. */
+  version?: string;
 };
 
 /** Same-origin rewrite → API (see next.config.ts). Avoids LAN/localhost mismatches. */
@@ -94,6 +96,7 @@ export async function fetchHealth(
       status?: string;
       postgres?: string;
       neo4j?: string;
+      version?: string;
     };
 
     if (response.ok && data.status === "ok") {
@@ -101,6 +104,7 @@ export async function fetchHealth(
         status: "ok",
         postgres: data.postgres,
         neo4j: data.neo4j,
+        version: data.version,
       };
     }
 
@@ -113,6 +117,7 @@ export async function fetchHealth(
       status: "degraded",
       postgres: data.postgres,
       neo4j: data.neo4j,
+      version: data.version,
     };
   } catch (error) {
     if (signal?.aborted || isAbortError(error)) {

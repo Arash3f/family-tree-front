@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { BuildInfo } from "./BuildInfo";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import styles from "./Footer.module.css";
 
@@ -16,6 +17,7 @@ export async function Footer() {
             {t("rights")} · {year}
           </p>
           <p className={styles.tagline}>{t("tagline")}</p>
+          <BuildInfo />
         </div>
         <nav className={styles.legal} aria-label={t("legalNav")}>
           <Link href="/login">{t("signIn")}</Link>
