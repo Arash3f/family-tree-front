@@ -9,8 +9,10 @@ import {
   useRef,
   useState,
 } from "react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import {
+  HiArrowDownTray,
   HiArrowLeft,
   HiArrowRight,
   HiMagnifyingGlass,
@@ -26,6 +28,7 @@ import { DocumentPortal } from "@/components/ui/DocumentPortal";
 import { useFocusTrap, useScrollLock } from "@/components/ui/useFocusTrap";
 import { getPersonCard } from "@/lib/auth/client";
 import type {
+  Marriage,
   PersonCard,
   PersonCardSummary,
   Person,
@@ -36,9 +39,29 @@ import { ageInYearsAtYear, formatDateForLocale } from "@/lib/pedigree/dates";
 import { namedGenerationKey } from "@/lib/pedigree/descendants";
 import { buildTreeIndex } from "@/lib/pedigree/index-tree";
 import { personDisplayName } from "@/lib/pedigree/layout";
+import { ExportDialogHost } from "./ExportDialogHost";
+import type { PedigreeCanvasHandle } from "./PedigreeCanvas";
+import type { PedigreeDataAccess } from "./PedigreeSelectContext";
+import { ProfileBranchPanel } from "./ProfileBranchPanel";
+import { ProfileRelationPanel } from "./ProfileRelationPanel";
+import { useExportFlow } from "./useExportFlow";
 import { usePedigreePermissions } from "./usePedigreePermissions";
 import { useTreeData, type TreeSource } from "./useTreeData";
 import styles from "./ProfileExplorerView.module.css";
+
+/** The male-line chart and its capture code load with the dialog. */
+const MaleLineExportDialog = dynamic(
+  () =>
+    import("./MaleLineExportDialog").then((mod) => ({
+      default: mod.MaleLineExportDialog,
+    })),
+  { ssr: false },
+);
+
+/** Sections of an open profile. */
+const PROFILE_TABS = ["relatives", "branch", "relation"] as const;
+
+type ProfileTab = (typeof PROFILE_TABS)[number];
 
 /** How many search hits to render at once — enough to scan, cheap to paint. */
 const MAX_RESULTS = 48;
@@ -250,6 +273,28 @@ export function ProfileExplorerView({ treeId, treeSource = "member" }: Props) {
     return out;
   }, [trail, personById]);
 
+  const dataAccess = useMemo<PedigreeDataAccess>(
+    () => ({
+      canViewBirthDate: permissions.canViewBirthDate,
+      canViewMarriageDate: permissions.canViewMarriageDate,
+      canViewPhoto: permissions.canViewPhoto,
+    }),
+    [
+      permissions.canViewBirthDate,
+      permissions.canViewMarriageDate,
+      permissions.canViewPhoto,
+    ],
+  );
+
+  /** Set by the branch card's canvas; the tree export reads positions from it. */
+  const canvasApiRef = useRef<PedigreeCanvasHandle | null>(null);
+  const exportDialog = useExportFlow({
+    canvasApiRef,
+    treeName: tree.treeName ?? "",
+    scope: "branch",
+  });
+  const [maleLinePerson, setMaleLinePerson] = useState<Person | null>(null);
+
   const cardLoading = Boolean(currentId) && cardSettledForId !== currentId;
   const activeCard =
     personCard && currentId && personCard.person.id === currentId
@@ -379,10 +424,41 @@ export function ProfileExplorerView({ treeId, treeSource = "member" }: Props) {
           childrenByParent={childrenByParent}
           personById={personById}
           onOpen={openPerson}
+          apiTreeId={apiTreeId}
+          persons={persons}
+          marriages={marriages}
+          dataAccess={dataAccess}
+          canvasApiRef={canvasApiRef}
+          onExportBranch={exportDialog.openTreeExport}
+          onExportLineage={exportDialog.openLineageExport}
+          onExportMaleLine={setMaleLinePerson}
           locale={locale}
           t={t}
         />
       )}
+
+      {exportDialog.job ? (
+        <DocumentPortal>
+          <ExportDialogHost
+            flow={exportDialog}
+            posterRef={exportDialog.posterRef}
+            persons={persons}
+            marriages={marriages}
+            treeName={tree.treeName ?? ""}
+          />
+        </DocumentPortal>
+      ) : null}
+
+      {maleLinePerson ? (
+        <DocumentPortal>
+          <MaleLineExportDialog
+            person={maleLinePerson}
+            persons={persons}
+            treeName={tree.treeName ?? ""}
+            onClose={() => setMaleLinePerson(null)}
+          />
+        </DocumentPortal>
+      ) : null}
     </section>
   );
 }
@@ -521,6 +597,14 @@ function ProfileScreen({
   childrenByParent,
   personById,
   onOpen,
+  apiTreeId,
+  persons,
+  marriages,
+  dataAccess,
+  canvasApiRef,
+  onExportBranch,
+  onExportLineage,
+  onExportMaleLine,
   locale,
   t,
 }: {
@@ -534,6 +618,14 @@ function ProfileScreen({
   childrenByParent: Map<string, Person[]>;
   personById: Map<string, Person>;
   onOpen: (id: string) => void;
+  apiTreeId: string;
+  persons: Person[];
+  marriages: Marriage[];
+  dataAccess: PedigreeDataAccess;
+  canvasApiRef: React.MutableRefObject<PedigreeCanvasHandle | null>;
+  onExportBranch: () => void;
+  onExportLineage: (person: Person) => void;
+  onExportMaleLine: (person: Person) => void;
   locale: string;
   t: Translate;
 }) {
@@ -544,6 +636,7 @@ function ProfileScreen({
       : null;
 
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [tab, setTab] = useState<ProfileTab>("relatives");
   const photoTitleId = useId();
   const photoDialogRef = useRef<HTMLDivElement>(null);
   const closePhoto = useCallback(() => setPhotoOpen(false), []);
@@ -565,6 +658,8 @@ function ProfileScreen({
   const age = ageInYearsAtYear(hero.birth_date, hero.death_date, null, locale);
   /** Full record for the fields a summary does not carry (notes, places). */
   const detail: Person | null = card?.person ?? fallback;
+  /** The tree's own record, which the exports and the branch card need. */
+  const heroPerson: Person | null = personById.get(hero.id) ?? fallback;
 
   // Parents: from the card when loaded, else the raw person links.
   const parentPeople: DisplayPerson[] = card
@@ -714,6 +809,71 @@ function ProfileScreen({
 
         {detail?.notes ? <p className={styles.notes}>{detail.notes}</p> : null}
 
+        <div className={styles.exportRow}>
+          <span className={styles.exportLabel}>
+            <HiArrowDownTray aria-hidden /> {t("explorer.exportLabel")}
+          </span>
+          <button
+            type="button"
+            className={styles.exportAction}
+            onClick={() => heroPerson && onExportLineage(heroPerson)}
+            disabled={!heroPerson}
+          >
+            {t("explorer.exportLineage")}
+          </button>
+          <button
+            type="button"
+            className={styles.exportAction}
+            onClick={() => heroPerson && onExportMaleLine(heroPerson)}
+            disabled={!heroPerson}
+          >
+            {t("explorer.exportMaleLine")}
+          </button>
+        </div>
+
+        <nav
+          className={styles.tabBar}
+          role="tablist"
+          aria-label={t("explorer.sectionsLabel")}
+        >
+          {PROFILE_TABS.map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={tab === key}
+              className={`${styles.tab} ${tab === key ? styles.tabActive : ""}`}
+              onClick={() => setTab(key)}
+            >
+              {t(`explorer.tab.${key}`)}
+            </button>
+          ))}
+        </nav>
+
+        {tab === "branch" ? (
+          <ProfileBranchPanel
+            rootId={hero.id}
+            persons={persons}
+            marriages={marriages}
+            dataAccess={dataAccess}
+            canvasApiRef={canvasApiRef}
+            onOpenPerson={onOpen}
+            onExport={onExportBranch}
+          />
+        ) : null}
+
+        {tab === "relation" ? (
+          <ProfileRelationPanel
+            treeId={apiTreeId}
+            fromId={hero.id}
+            fromName={personDisplayName(hero)}
+            persons={persons}
+            personById={personById}
+            onOpenPerson={onOpen}
+          />
+        ) : null}
+
+        {tab === "relatives" ? (
         <div className={styles.relGrid}>
           <RelationColumn
             title={t("fields.parents")}
@@ -758,8 +918,9 @@ function ProfileScreen({
             />
           ) : null}
         </div>
+        ) : null}
 
-        {canViewMarriageDate && spouses.length > 0 ? (
+        {tab === "relatives" && canViewMarriageDate && spouses.length > 0 ? (
           <section className={styles.block}>
             <h3 className={styles.sectionLabel}>{t("explorer.marriageDates")}</h3>
             <ul className={styles.dateList}>

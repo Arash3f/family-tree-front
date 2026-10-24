@@ -71,6 +71,12 @@
     "nextPage": "Next",
     "pageStatus": "Page {current} of {total}",
     "items": {
+      "u14": {
+        "iso": "2026-10-24",
+        "date": "Oct 2026",
+        "title": "Branch, exports and relations in the profile view",
+        "body": "The profile view is complete: under each profile its own branch is drawn on a small tree — pick how many generations to show, add the parents, and drag the cards around. From there you can export the branch as an image or PDF, plus the lineage card and the male-line chart. Relations are now answered in plain words with the chain of names, no tree map needed."
+      },
       "u13": {
         "iso": "2026-10-21",
         "date": "Oct 2026",
@@ -257,7 +263,9 @@
     "rights": "Family Tree",
     "legalNav": "Account",
     "signIn": "Sign in",
-    "signUp": "Sign up"
+    "signUp": "Sign up",
+    "buildVersions": "Frontend {front} · Backend {back}",
+    "buildVersionsFrontOnly": "Frontend {front}"
   },
   "privacy": {
     "metaTitle": "Privacy policy",
@@ -564,6 +572,11 @@
       }
     },
     "updates": {
+      "u14": {
+        "date": "Oct 2026",
+        "title": "Branch, exports and relations in the profile view",
+        "body": "The profile view is complete: under each profile its own branch is drawn on a small tree — pick how many generations to show, add the parents, and drag the cards around. From there you can export the branch as an image or PDF, plus the lineage card and the male-line chart. Relations are now answered in plain words with the chain of names, no tree map needed."
+      },
       "u12": {
         "date": "Sep 2026",
         "title": "Relationships in plain words",
@@ -1185,7 +1198,27 @@
       "noParents": "No parents recorded.",
       "noSpouses": "No marriages recorded.",
       "noChildren": "No children recorded.",
-      "marriageDates": "Marriage dates"
+      "marriageDates": "Marriage dates",
+      "tab": {
+        "relatives": "Relatives",
+        "branch": "Branch",
+        "relation": "Relation"
+      },
+      "sectionsLabel": "Profile sections",
+      "exportLabel": "Export",
+      "exportLineage": "Lineage card",
+      "exportMaleLine": "Male line",
+      "branchTitle": "Branch view",
+      "branchHint": "Drag the cards to move people around; the export keeps this arrangement.",
+      "branchReset": "Tidy up",
+      "branchExport": "Export branch",
+      "branchDepth": "Generations",
+      "branchDepthN": "{count} generations",
+      "branchDepthAll": "All",
+      "branchWithParents": "With parents",
+      "relationMaleOnly": "Through men only",
+      "relationPrompt": "Type the second person's name to read the relation in plain words.",
+      "relationMorePaths": "Other routes"
     },
     "searchChildOf": "child of {parent}",
     "searchChildOfBoth": "child of {father} and {mother}",

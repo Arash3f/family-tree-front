@@ -1,0 +1,161 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--foreground);
+}
+
+.hint {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+}
+
+.iconBtn:focus-visible,
+.exportBtn:focus-visible,
+.chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.exportBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 2.25rem;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--background);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+
+.exportBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.depthGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  flex-wrap: wrap;
+}
+
+.controlLabel {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  margin-inline-end: var(--space-1, 0.25rem);
+}
+
+.chip {
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.chip:hover {
+  background: var(--surface-hover);
+}
+
+.chipActive {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: var(--accent);
+  color: var(--foreground);
+  font-weight: var(--weight-semibold);
+}
+
+.count {
+  margin-inline-start: auto;
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
+.canvasHost {
+  position: relative;
+  height: clamp(20rem, 52vh, 30rem);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--background);
+}
+
+/* Immersive: the dashboard frame steps aside (see useFullscreen), so the whole
+   card takes the viewport — header included, or there is no way back out. */
+.panelImmersive {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 60);
+  border: 0;
+  border-radius: 0;
+  background: var(--background);
+}
+
+.panelImmersive .canvasHost {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}

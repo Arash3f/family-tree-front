@@ -398,14 +398,26 @@ export function subsetForPath(
   };
 }
 
-/** Person plus all descendants (via parent links), then spouses of that set. */
+/**
+ * Person plus all descendants (via parent links), then spouses of that set.
+ *
+ * @param rootId - Person the branch hangs from
+ * @param persons - Every person of the tree
+ * @param marriages - Every marriage of the tree
+ * @param options - `maxDepth` keeps only that many generations below the root
+ *   (1 = the root's own children); omitted or null keeps the whole branch.
+ *
+ * @returns Ids of the branch people, empty when `rootId` is not in `persons`
+ */
 export function collectBranchIds(
   rootId: string,
   persons: Person[],
   marriages: Marriage[],
+  options?: { maxDepth?: number | null },
 ): Set<string> {
   if (!persons.some((person) => person.id === rootId)) return new Set();
 
+  const maxDepth = options?.maxDepth ?? null;
   const childrenByParent = new Map<string, string[]>();
   for (const person of persons) {
     for (const link of person.parents) {
@@ -416,13 +428,14 @@ export function collectBranchIds(
   }
 
   const keep = new Set<string>([rootId]);
-  const queue = [rootId];
+  const queue: { id: string; depth: number }[] = [{ id: rootId, depth: 0 }];
   while (queue.length > 0) {
-    const id = queue.shift()!;
+    const { id, depth } = queue.shift()!;
+    if (maxDepth !== null && depth >= maxDepth) continue;
     for (const childId of childrenByParent.get(id) ?? []) {
       if (keep.has(childId)) continue;
       keep.add(childId);
-      queue.push(childId);
+      queue.push({ id: childId, depth: depth + 1 });
     }
   }
 
@@ -438,13 +451,21 @@ export function collectBranchIds(
   return keep;
 }
 
-/** People and marriages for a branch rooted at one person. */
-export function subsetForBranch(
+/**
+ * Clips the tree to a set of people, keeping only the marriages both of whose
+ * spouses survive the clip.
+ *
+ * @param persons - Every person of the tree
+ * @param marriages - Every marriage of the tree
+ * @param keepIds - Ids to keep
+ *
+ * @returns The clipped `persons` and `marriages` lists
+ */
+export function subsetByIds(
   persons: Person[],
   marriages: Marriage[],
-  rootId: string,
+  keepIds: Set<string>,
 ): { persons: Person[]; marriages: Marriage[] } {
-  const keepIds = collectBranchIds(rootId, persons, marriages);
   if (keepIds.size === 0) return { persons: [], marriages: [] };
 
   return {
@@ -454,6 +475,19 @@ export function subsetForBranch(
         keepIds.has(marriage.spouse_a_id) && keepIds.has(marriage.spouse_b_id),
     ),
   };
+}
+
+/** People and marriages for a branch rooted at one person. */
+export function subsetForBranch(
+  persons: Person[],
+  marriages: Marriage[],
+  rootId: string,
+): { persons: Person[]; marriages: Marriage[] } {
+  return subsetByIds(
+    persons,
+    marriages,
+    collectBranchIds(rootId, persons, marriages),
+  );
 }
 
 /**
