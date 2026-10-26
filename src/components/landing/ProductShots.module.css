@@ -1,0 +1,94 @@
+.shots {
+  display: grid;
+  gap: var(--space-6);
+  margin-block-start: clamp(var(--space-6), 5vw, var(--space-8));
+}
+
+.figure {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+}
+
+/* A button: a click opens the shot full screen. */
+.frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--border) 88%, transparent);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.expand {
+  position: absolute;
+  inset-block-start: var(--space-3);
+  inset-inline-end: var(--space-3);
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-full);
+  background: rgb(20 25 27 / 62%);
+  color: #fff;
+  font-size: 1.1rem;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.frame:hover .expand,
+.frame:focus-visible .expand {
+  opacity: 1;
+}
+
+/* No hover on touch screens: keep the hint visible. */
+@media (hover: none) {
+  .expand {
+    opacity: 1;
+  }
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* One copy per theme; the hidden one is never fetched (lazy + not rendered). */
+.dark {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .light {
+  display: none;
+}
+
+:global(html[data-theme="dark"]) .dark {
+  display: block;
+}
+
+.caption {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.captionTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--foreground);
+}
+
+.note {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+

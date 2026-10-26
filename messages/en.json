@@ -61,6 +61,28 @@
         "title": "Roles and permissions",
         "body": "Decide who can view, edit, or add people on each tree — without mixing accounts across families."
       }
+    },
+    "shots": {
+      "tree": {
+        "title": "The whole family at a glance",
+        "body": "Each generation on its own row, couples side by side and children beneath them — with a timeline to see the family in any year.",
+        "alt": "A four-generation family shown as a tree in Family Tree"
+      },
+      "relation": {
+        "title": "How any two people are related",
+        "body": "Pick two people to see their relation — say, “first cousin” — with the step-by-step path lit up on the tree.",
+        "alt": "Finding the relation between two people, with the kinship path highlighted on the tree"
+      },
+      "note": "Screens from the real app; the names and details are invented.",
+      "viewer": {
+        "open": "View full screen",
+        "dialog": "Full-screen image",
+        "close": "Close",
+        "previous": "Previous image",
+        "next": "Next image",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
+      }
     }
   },
   "updates": {

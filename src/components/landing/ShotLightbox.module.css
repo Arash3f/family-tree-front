@@ -1,0 +1,150 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-site-sheet) + 10);
+  /* Opaque and always dark: a screenshot reads best on a near-black surround,
+     and page text showing through competes with the shot's own. */
+  background: #06090b;
+  color: #f3f6f7;
+  animation: fadeIn 160ms ease-out both;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  overflow: auto;
+  padding: max(4rem, calc(var(--safe-top) + 3.5rem)) max(4.5rem, var(--safe-right))
+    max(5rem, calc(var(--safe-bottom) + 4rem)) max(4.5rem, var(--safe-left));
+  overscroll-behavior: contain;
+}
+
+/* `margin: auto` rather than grid centring: a zoomed image wider than the
+   stage must stay reachable by scrolling on every side. */
+.zoomButton {
+  flex: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  overflow: hidden;
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 45%);
+  cursor: zoom-in;
+}
+
+/* The global `button { max-width: 100% }` would cap the zoom at the stage. */
+.zoomed .zoomButton {
+  max-width: none;
+  cursor: zoom-out;
+}
+
+/* No `display` here: the theme classes decide which copy shows. */
+.image {
+  vertical-align: top;
+  max-width: 100%;
+  max-height: calc(100dvh - 9rem - var(--safe-top) - var(--safe-bottom));
+  width: auto;
+  height: auto;
+}
+
+.zoomed .image {
+  width: 100%;
+  max-width: none;
+  max-height: none;
+}
+
+.control {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: var(--radius-full);
+  background: rgb(20 25 27 / 72%);
+  color: inherit;
+  font-size: 1.35rem;
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+
+.control:hover {
+  background: rgb(60 68 72 / 85%);
+}
+
+.close {
+  top: max(0.85rem, calc(var(--safe-top) + 0.5rem));
+  inset-inline-end: max(0.85rem, var(--safe-right));
+}
+
+.previous,
+.next {
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.previous {
+  inset-inline-start: max(0.85rem, var(--safe-left));
+}
+
+.next {
+  inset-inline-end: max(0.85rem, var(--safe-right));
+}
+
+.caption {
+  position: absolute;
+  inset-inline: 0;
+  bottom: max(1rem, calc(var(--safe-bottom) + 0.5rem));
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding-inline: 1rem;
+  font-size: var(--text-sm);
+  pointer-events: none;
+}
+
+.captionTitle {
+  font-weight: var(--weight-semibold);
+}
+
+.counter {
+  color: rgb(243 246 247 / 65%);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Phones: the image takes the full width and the arrows sit at the bottom. */
+@media (max-width: 40rem) {
+  .stage {
+    padding-inline: max(0.5rem, var(--safe-left)) max(0.5rem, var(--safe-right));
+  }
+
+  .previous,
+  .next {
+    top: auto;
+    bottom: max(0.6rem, calc(var(--safe-bottom) + 0.25rem));
+    translate: none;
+  }
+
+  .caption {
+    bottom: max(1.35rem, calc(var(--safe-bottom) + 1rem));
+    padding-inline: 4rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}

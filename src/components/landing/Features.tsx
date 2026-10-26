@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { formatLocaleDigits } from "@/lib/localeDigits";
+import { ProductShots } from "./ProductShots";
 import { Section } from "./Section";
 import styles from "./Features.module.css";
 
@@ -41,6 +42,7 @@ export async function Features() {
           </li>
         ))}
       </ul>
+      <ProductShots />
     </Section>
   );
 }

@@ -291,11 +291,69 @@ function buildTree() {
 
 const TREE_DATA = buildTree();
 
+/** `GET .../persons/{id}/card`: the detail panel's assembled payload. */
+function personCard({ persons, marriages }, personId) {
+  const byId = new Map(persons.map((p) => [p.id, p]));
+  const summary = (p) =>
+    p && {
+      id: p.id,
+      name: p.name,
+      gender: p.gender,
+      family_name: p.family_name,
+      birth_date: p.birth_date,
+      death_date: p.death_date,
+      photo_url: p.photo_url,
+    };
+  const counts = (people) => ({
+    male: people.filter((p) => p.gender === "male").length,
+    female: people.filter((p) => p.gender === "female").length,
+    total: people.length,
+  });
+  const person = byId.get(personId) ?? persons[0];
+
+  const generations = [];
+  let frontier = [person.id];
+  while (frontier.length > 0) {
+    const ids = new Set(frontier);
+    const children = persons.filter((p) => p.parents.some((l) => ids.has(l.parent_id)));
+    if (children.length === 0) break;
+    generations.push({
+      generation: generations.length + 1,
+      ...counts(children),
+      people: children.map(summary),
+    });
+    frontier = children.map((p) => p.id);
+  }
+
+  return {
+    person,
+    parents: person.parents.map((link) => ({
+      ...link,
+      person: summary(byId.get(link.parent_id)) ?? null,
+    })),
+    marriages: marriages
+      .filter((m) => m.spouse_a_id === person.id || m.spouse_b_id === person.id)
+      .map((m) => ({
+        ...m,
+        spouse:
+          summary(byId.get(m.spouse_a_id === person.id ? m.spouse_b_id : m.spouse_a_id)) ?? null,
+      })),
+    descendants: {
+      generations,
+      total: counts(generations.flatMap((g) => g.people)),
+    },
+  };
+}
+
 function paginate(items, body) {
   let page = 1;
   let pageSize = 100;
   try {
     const parsed = JSON.parse(body || "{}");
+    // `get_all` asks for every row regardless of page size, as the API does.
+    if (parsed?.pagination?.get_all) {
+      return { items, total: items.length, page: 1, page_size: items.length };
+    }
     page = parsed?.pagination?.page ?? 1;
     pageSize = parsed?.pagination?.page_size ?? 100;
   } catch {
@@ -314,14 +372,24 @@ function paginate(items, body) {
  * Installs the mock onto a Playwright page. Returns a list of any request the
  * mock did not recognise, so a route that quietly 404s is visible in the run
  * rather than showing up as an empty screen.
+ *
+ * `options.dataset` (see `showcase-data.mjs`) swaps the layout-stress fixtures
+ * for a presentable family: the signed-in name, the first tree's name and
+ * people, and a canned answer for the relation lookup.
  */
 export async function installMockApi(page, options = {}) {
   const unmatched = [];
+  const dataset = options.dataset;
   // `impersonating` mirrors what the API reports while an admin is signed
   // in as someone else: no session, and the banner shown on every screen.
+  const baseMe = dataset ? { ...ME, fullname: dataset.meFullname } : ME;
   const me = options.impersonating
-    ? { ...ME, is_impersonating: true, session_id: null }
-    : ME;
+    ? { ...baseMe, is_impersonating: true, session_id: null }
+    : baseMe;
+  const trees = dataset
+    ? [{ ...TREES[0], name: dataset.treeName }, ...TREES.slice(1)]
+    : TREES;
+  const treeData = dataset ?? TREE_DATA;
 
   await page.route("**/backend/**", async (route) => {
     const request = route.request();
@@ -357,7 +425,7 @@ export async function installMockApi(page, options = {}) {
     if (p === "/permissions/list") return json(paginate(PERMISSIONS, body));
     if (p === "/tickets/list") return json(paginate(TICKETS, body));
 
-    if (p === "/family-trees" && method === "GET") return json(TREES);
+    if (p === "/family-trees" && method === "GET") return json(trees);
 
     let m;
     if ((m = p.match(/^\/users\/([^/]+)\/sessions$/))) return json(SESSIONS);
@@ -368,11 +436,15 @@ export async function installMockApi(page, options = {}) {
     if ((m = p.match(/^\/tickets\/([^/]+)$/))) return json(TICKET_DETAIL);
     if ((m = p.match(/^\/family-trees\/([^/]+)\/members$/))) return json(MEMBERS);
     if ((m = p.match(/^\/family-trees\/([^/]+)\/persons\/list$/)))
-      return json(paginate(TREE_DATA.persons, body));
+      return json(paginate(treeData.persons, body));
     if ((m = p.match(/^\/family-trees\/([^/]+)\/marriages\/list$/)))
-      return json(paginate(TREE_DATA.marriages, body));
+      return json(paginate(treeData.marriages, body));
+    if ((m = p.match(/^\/family-trees\/[^/]+\/persons\/([^/]+)\/card$/)))
+      return json(personCard(treeData, m[1]));
+    if (dataset && (m = p.match(/\/relation\/[^/]+(\/alternatives)?$/)))
+      return json(dataset.relation.result);
     if ((m = p.match(/^\/family-trees\/([^/]+)$/)))
-      return json(TREES.find((t) => t.id === m[1]) ?? TREES[0]);
+      return json(trees.find((t) => t.id === m[1]) ?? trees[0]);
 
     unmatched.push(`${method} ${p}`);
     return json({ detail: "not mocked" }, 404);
