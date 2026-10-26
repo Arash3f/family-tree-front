@@ -19,16 +19,55 @@ same deployment).
 | | |
 |---|---|
 | Live site | **https://family.arash-alfooneh.ir** |
-| Version | `2.0.0` |
+| Version | `2.4.0` |
 | Node | `22` (Alpine in Docker) |
 | Package manager | [pnpm](https://pnpm.io) `10.34.5` |
 | Companion API | [family-tree-backend](https://github.com/Arash3f/family-tree-backend) |
 
 ---
 
+## Hosted or self-hosted
+
+Two ways to use Family Tree, both running this same code:
+
+| | **Hosted** | **Self-hosted** |
+|---|---|---|
+| Where | [family.arash-alfooneh.ir](https://family.arash-alfooneh.ir) | Your own server |
+| Cost | Free plan, paid plan for larger trees | Free, MIT licensed |
+| Setup | Sign up and start | This app + [family-tree-backend](https://github.com/Arash3f/family-tree-backend) with Docker (see [Docker](#docker)) |
+| Servers, backups, upgrades | Taken care of | Yours to run |
+
+---
+
+## Screenshots
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/showcase/tree-en-dark-2x.webp">
+  <img alt="A four-generation family tree" src="public/showcase/tree-en-light-2x.webp">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/showcase/relation-en-dark-2x.webp">
+  <img alt="Finding how two people are related, with the path highlighted" src="public/showcase/relation-en-light-2x.webp">
+</picture>
+
+<p>
+  <img alt="Persian interface, right-to-left" src="public/showcase/tree-fa-light-2x.webp" width="66%">
+  <img alt="Person details on a phone" src="public/showcase/profile-fa-mobile.webp" width="24%">
+</p>
+
+Every name and date above is invented — the screenshots come from
+`scripts/shoot-showcase.mjs`, which drives the real app against the mock API
+(`node scripts/shoot-showcase.mjs <baseUrl>` with the app running). The landing
+page uses the same files.
+
+---
+
 ## Contents
 
 - [Live production](#live-production)
+- [Hosted or self-hosted](#hosted-or-self-hosted)
+- [Screenshots](#screenshots)
 - [What it does](#what-it-does)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
