@@ -329,13 +329,15 @@
   animation: scrollPulse 1.8s ease-in-out infinite;
 }
 
+/*
+ * Motion only, no fade: the hero holds the LCP element, and a heading that
+ * starts at opacity 0 is not counted as painted until the fade ends.
+ */
 @keyframes heroIn {
   from {
-    opacity: 0;
     transform: translateY(14px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }

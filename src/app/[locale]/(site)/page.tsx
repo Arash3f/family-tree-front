@@ -8,7 +8,6 @@ import { Faq } from "@/components/landing/Faq";
 import { Features } from "@/components/landing/Features";
 import { Hero } from "@/components/landing/Hero";
 import { Updates } from "@/components/landing/Updates";
-import { AppSplash } from "@/components/loading/AppSplash";
 import {
   absoluteLocaleUrl,
   getSiteUrl,
@@ -77,7 +76,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const tLoading = await getTranslations({ locale, namespace: "loading" });
   const tMeta = await getTranslations({ locale, namespace: "meta" });
   const tHero = await getTranslations({ locale, namespace: "hero" });
   const pageUrl = absoluteLocaleUrl(locale);
@@ -133,7 +131,6 @@ export default async function HomePage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <AppSplash brand={tLoading("brand")} label={tLoading("label")} />
       <main id="main">
         <Hero />
         <Features />
