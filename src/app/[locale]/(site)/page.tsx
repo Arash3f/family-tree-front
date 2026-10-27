@@ -89,7 +89,7 @@ export default async function HomePage({ params }: Props) {
     ...AUTHOR_NAMES,
     jobTitle: tAuthor("role"),
     url: AUTHOR_LINKS.website,
-    sameAs: [AUTHOR_LINKS.linkedin, AUTHOR_LINKS.github],
+    sameAs: [AUTHOR_LINKS.linkedin, AUTHOR_LINKS.github, AUTHOR_LINKS.youtube],
   };
 
   const jsonLd = {

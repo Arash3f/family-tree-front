@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { getLocale, getTranslations } from "next-intl/server";
 import Image from "next/image";
-import { FaGithub, FaGlobe, FaLinkedin } from "react-icons/fa";
+import { FaBriefcase, FaGithub, FaGlobe, FaLinkedin, FaYoutube } from "react-icons/fa";
 import { AUTHOR_LINKS } from "@/lib/author";
 import { formatLocaleDigits } from "@/lib/localeDigits";
 import { Section } from "./Section";
@@ -54,6 +54,15 @@ export async function Author() {
           <p className={styles.bio}>{t("bio")}</p>
           <div className={styles.links}>
             <a
+              className={`${styles.link} ${styles.primary}`}
+              href={AUTHOR_LINKS.hire}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaBriefcase className={styles.icon} aria-hidden />
+              {t("hire")}
+            </a>
+            <a
               className={styles.link}
               href={AUTHOR_LINKS.website}
               target="_blank"
@@ -79,6 +88,15 @@ export async function Author() {
             >
               <FaGithub className={styles.icon} aria-hidden />
               {t("github")}
+            </a>
+            <a
+              className={styles.link}
+              href={AUTHOR_LINKS.youtube}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaYoutube className={styles.icon} aria-hidden />
+              {t("youtube")}
             </a>
           </div>
         </div>

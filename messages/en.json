@@ -210,7 +210,9 @@
     "bio": "I build backends that last — from clean domain models to production-ready APIs with NestJS, FastAPI and Clean Architecture. Based in Shiraz, working remotely worldwide.",
     "website": "Website",
     "linkedin": "LinkedIn",
-    "github": "GitHub"
+    "github": "GitHub",
+    "hire": "Work with me",
+    "youtube": "YouTube"
   },
   "faq": {
     "title": "Family tree questions, answered",
