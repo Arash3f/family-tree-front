@@ -7,6 +7,7 @@ import { createTicket, listFamilyTrees } from "@/lib/auth/client";
 import {
   AuthApiError,
   Permissions,
+  TICKET_CATEGORIES,
   type FamilyTree,
   type TicketCategory,
   type TicketDetail,
@@ -22,17 +23,10 @@ import { Form, FormActions, FormRow } from "@/components/ui/Form";
 
 const NO_TREES: FamilyTree[] = [];
 
-const CATEGORIES: TicketCategory[] = [
-  "general",
-  "account",
-  "technical",
-  "bug",
-  "feature_request",
-  "other",
-];
-
 type Props = {
   preferredFamilyTreeId?: string;
+  /** Opens the form on this category; an upgrade request also gets its text. */
+  preferredCategory?: TicketCategory;
   /** When set, the tree selector stays locked to this tree. */
   lockTreeId?: string;
   /** Compact layout for dialogs (fewer body rows). */
@@ -43,6 +37,7 @@ type Props = {
 
 export function TicketCreateForm({
   preferredFamilyTreeId,
+  preferredCategory,
   lockTreeId,
   compact = false,
   onCreated,
@@ -50,9 +45,12 @@ export function TicketCreateForm({
 }: Props) {
   const t = useTranslations("tickets");
   const { hasPermission } = useAuth();
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [category, setCategory] = useState<TicketCategory>("general");
+  const upgrading = preferredCategory === "upgrade_request";
+  const [title, setTitle] = useState(() => (upgrading ? t("upgradeTitle") : ""));
+  const [body, setBody] = useState(() => (upgrading ? t("upgradeBody") : ""));
+  const [category, setCategory] = useState<TicketCategory>(
+    preferredCategory ?? "general",
+  );
   const [selectedTreeId, setSelectedTreeId] = useState(lockTreeId ?? "");
   const [fetchedTrees, setFetchedTrees] = useState<FamilyTree[]>([]);
   const [busy, setBusy] = useState(false);
@@ -122,7 +120,7 @@ export function TicketCreateForm({
         required
         disabled={busy}
       >
-        {CATEGORIES.map((value) => (
+        {TICKET_CATEGORIES.map((value) => (
           <option key={value} value={value}>
             {t(`category.${value}`)}
           </option>

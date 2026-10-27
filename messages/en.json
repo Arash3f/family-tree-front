@@ -455,8 +455,10 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "close": "Close",
-    "freeAccountTitle": "Free account",
-    "freeAccountMessage": "You are on a free account (for now)"
+    "freeAccountTitle": "Free account limit",
+    "freeAccountMessage": "This would go past what a free account holds. Ask for an upgrade to keep adding — nothing you have already entered is lost.",
+    "freeAccountUpgrade": "Request upgrade",
+    "freeAccountLater": "Not now"
   },
   "dashboard": {
     "metaTitle": "Dashboard",
@@ -851,7 +853,8 @@
       "technical": "Technical",
       "bug": "Bug report",
       "feature_request": "Feature request",
-      "other": "Other"
+      "other": "Other",
+      "upgrade_request": "Upgrade request"
     },
     "back": "Back to tickets",
     "createTitle": "New ticket",
@@ -888,7 +891,9 @@
     "sendReply": "Send message",
     "sending": "Sending…",
     "replyError": "Could not send reply.",
-    "closedHint": "This ticket is closed. Replies are disabled."
+    "closedHint": "This ticket is closed. Replies are disabled.",
+    "upgradeTitle": "Upgrade to the Family plan",
+    "upgradeBody": "Hello, I would like to upgrade my account to the Family plan. Please send me the payment details."
   },
   "trees": {
     "metaTitle": "Family trees",

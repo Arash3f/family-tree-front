@@ -78,7 +78,19 @@ export type TicketCategory =
   | "technical"
   | "bug"
   | "feature_request"
+  | "upgrade_request"
   | "other";
+
+/** Every ticket category, in the order pickers list them. */
+export const TICKET_CATEGORIES: readonly TicketCategory[] = [
+  "general",
+  "account",
+  "technical",
+  "bug",
+  "feature_request",
+  "upgrade_request",
+  "other",
+];
 
 export type TicketMessage = {
   id: string;

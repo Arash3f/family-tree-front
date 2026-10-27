@@ -7,6 +7,7 @@ import { listFamilyTrees, listTickets } from "@/lib/auth/client";
 import {
   AuthApiError,
   Permissions,
+  TICKET_CATEGORIES,
   ticketQueueRole,
   type FamilyTree,
   type TicketCategory,
@@ -54,12 +55,7 @@ const STATUS_OPTIONS: Array<TicketStatus | "all"> = [
 
 const CATEGORY_OPTIONS: Array<TicketCategory | "all"> = [
   "all",
-  "general",
-  "account",
-  "technical",
-  "bug",
-  "feature_request",
-  "other",
+  ...TICKET_CATEGORIES,
 ];
 
 const SCOPE_OPTIONS: TicketScope[] = ["all", "mine", "incoming"];

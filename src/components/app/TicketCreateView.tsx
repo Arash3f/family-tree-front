@@ -3,16 +3,20 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Permissions } from "@/lib/auth/types";
+import { Permissions, type TicketCategory } from "@/lib/auth/types";
 import { useRouter } from "@/i18n/navigation";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import { TicketCreateForm } from "@/components/app/TicketCreateForm";
 
 type Props = {
   preferredFamilyTreeId?: string;
+  preferredCategory?: TicketCategory;
 };
 
-export function TicketCreateView({ preferredFamilyTreeId }: Props) {
+export function TicketCreateView({
+  preferredFamilyTreeId,
+  preferredCategory,
+}: Props) {
   const t = useTranslations("tickets");
   const { hasPermission } = useAuth();
   const router = useRouter();
@@ -37,6 +41,7 @@ export function TicketCreateView({ preferredFamilyTreeId }: Props) {
       <Panel delay={1}>
         <TicketCreateForm
           preferredFamilyTreeId={preferredFamilyTreeId}
+          preferredCategory={preferredCategory}
           onCreated={(ticket) => {
             router.replace(`/dashboard/tickets/${ticket.id}`);
           }}

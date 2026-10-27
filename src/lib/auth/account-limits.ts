@@ -7,6 +7,9 @@ export const FREE_MAX_MARRIAGES_PER_TREE = 8;
 /** Matches backend `ErrorCode.FREE_ACCOUNT_LIMIT`. */
 export const FREE_ACCOUNT_LIMIT_CODE = 1711;
 
+/** The ticket form, opened as an upgrade request. */
+export const UPGRADE_REQUEST_HREF = "/dashboard/tickets/new?category=upgrade_request";
+
 export function isFreeAccount(
   accountType: AccountType | null | undefined,
 ): boolean {
