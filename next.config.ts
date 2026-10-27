@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
   // Avoid 308 on /backend/.../ which used to strip Authorization before the API.
   skipTrailingSlashRedirect: true,
   allowedDevOrigins: devAllowedOrigins,
+  // The runner image drops `sharp` so @vercel/og rasterizes through resvg.wasm
+  // (see Dockerfile). Without sharp the image optimizer cannot run in
+  // standalone mode, and the single next/image on the landing page (the author
+  // photo) is already a small local asset, so serve it as-is.
+  images: { unoptimized: true },
   // /backend/* is proxied by src/app/backend/[...path]/route.ts (preserves Auth,
   // does not follow upstream redirects).
 };

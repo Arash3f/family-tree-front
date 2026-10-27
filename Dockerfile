@@ -68,6 +68,13 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# `sharp` arrives as an optional dependency of Next. @vercel/og prefers it over
+# the bundled resvg.wasm to rasterize Satori's SVG, but this platform's binary
+# has no SVG input, so every /opengraph-image and /twitter-image request died
+# with "Input buffer contains unsupported image format" (502). Dropping it takes
+# the resvg path, the one that already works outside Docker.
+RUN rm -rf node_modules/sharp node_modules/@img
+
 USER nextjs
 EXPOSE 3000
 
