@@ -46,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   }));
 
-  const staticPages = (["/guides"] as const).flatMap((path) =>
+  const staticPages = (["/guides", "/kinship"] as const).flatMap((path) =>
     routing.locales.map((locale) => ({
       url: absoluteLocaleUrl(locale, path),
       lastModified: GUIDES_TOOLS_UPDATED,

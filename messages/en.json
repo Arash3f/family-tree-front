@@ -293,7 +293,8 @@
     "buildVersions": "Frontend {front} · Backend {back}",
     "buildVersionsFrontOnly": "Frontend {front}",
     "pricing": "Pricing",
-    "guides": "Guides"
+    "guides": "Guides",
+    "kinship": "Kinship names"
   },
   "privacy": {
     "metaTitle": "Privacy policy",
@@ -1602,5 +1603,69 @@
     "ctaTitle": "Build your family tree for free",
     "ctaBody": "Add your family once, see how any two people are related, and export the tree as an image or a PDF.",
     "ctaButton": "Start your tree"
+  },
+  "kinship": {
+    "metaTitle": "Kinship name finder — what is this relative called?",
+    "metaDescription": "Build a relation step by step — my father's brother's son, my wife's sister — and see its name in English and Persian. Free, no sign-up.",
+    "title": "What is this relative called?",
+    "support": "Build the relation one step at a time and see its name in English and in Persian — the same names the family tree app uses. Free, and no account needed.",
+    "toolTitle": "Build the relation",
+    "addStep": "Add a step",
+    "chainLabel": "The relation",
+    "emptyChain": "Start with “father”, “mother” or any other step.",
+    "me": "my",
+    "undo": "Undo last step",
+    "clear": "Clear",
+    "maxSteps": "A chain can have up to {count} steps.",
+    "loading": "Looking it up…",
+    "error": "Could not name this relation right now. Please try again.",
+    "tooMany": "Too many lookups in a minute. Please wait a moment and try again.",
+    "answerLabel": "It is called",
+    "otherLanguage": "In Persian:",
+    "startHint": "Pick steps above to build a relation.",
+    "tableTitle": "Common relations",
+    "tableChain": "Relation",
+    "tablePersian": "Persian",
+    "tableEnglish": "English",
+    "faqTitle": "Questions",
+    "faq": [
+      {
+        "q": "Why does Persian have four words where English says “cousin”?",
+        "a": "Persian names the side of the family and the sibling in between. Your father's brother's son is پسرعمو, your father's sister's son is پسرعمه, your mother's brother's son is پسردایی and your mother's sister's son is پسرخاله. English folds all four into “cousin”, so the tool's English name keeps the side: “paternal uncle's son”."
+      },
+      {
+        "q": "Why are there two Persian words for my spouse's father?",
+        "a": "Persian says it differently depending on whose spouse it is: a man calls his wife's father پدرزن, a woman calls her husband's father پدرشوهر. Start the chain with “wife” or “husband” and the tool picks the right one."
+      },
+      {
+        "q": "Why is a relation sometimes described rather than named?",
+        "a": "Not every relation has a single everyday word. When there is none — your grandfather's brother, say — the tool names the closest part it can and describes the rest: “grandfather's brother”."
+      },
+      {
+        "q": "Is anything I enter saved?",
+        "a": "No. The chain is sent only to be named and is not stored. You do not need an account."
+      },
+      {
+        "q": "How do I find how two real people are related?",
+        "a": "In the family tree app, add your relatives once, then choose two people and use “Find relation”. It shows the closest path between them on the tree, names it, and can offer other ways they are related."
+      }
+    ],
+    "ctaTitle": "See this relation in your own family tree",
+    "ctaBody": "Add your relatives once, and the app finds how any two of them are related — and names it, in English and Persian.",
+    "steps": {
+      "father": "father",
+      "mother": "mother",
+      "brother": "brother",
+      "sister": "sister",
+      "son": "son",
+      "daughter": "daughter",
+      "husband": "husband",
+      "wife": "wife"
+    }
+  },
+  "kinshipTeaser": {
+    "title": "What do you call your father's brother's son?",
+    "body": "Build any relation step by step and see its name in English and Persian — paternal uncle's son is پسرعمو. Free, no account needed.",
+    "cta": "Try the kinship tool"
   }
 }

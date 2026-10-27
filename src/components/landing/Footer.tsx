@@ -21,6 +21,7 @@ export async function Footer() {
         </div>
         <nav className={styles.legal} aria-label={t("legalNav")}>
           <Link href="/guides">{t("guides")}</Link>
+          <Link href="/kinship">{t("kinship")}</Link>
           <Link href="/pricing">{t("pricing")}</Link>
           <Link href="/login">{t("signIn")}</Link>
           <Link href="/register">{t("signUp")}</Link>

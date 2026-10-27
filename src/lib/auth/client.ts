@@ -1,4 +1,5 @@
 import { getApiBaseUrl } from "@/lib/api";
+import type { KinshipLabel, KinshipStep } from "@/lib/kinship";
 import {
   buildExportBasename,
   downloadBlob,
@@ -377,6 +378,21 @@ export async function registerRequest(input: {
   notifyAuthChange();
   scheduleProactiveTokenRefresh();
   return tokens;
+}
+
+/** Names a chain of family steps; public, so it works signed out. */
+export async function labelKinshipChain(
+  steps: readonly KinshipStep[],
+  signal?: AbortSignal,
+): Promise<KinshipLabel> {
+  const response = await apiFetch("/kinship/label", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ steps }),
+    skipAuth: true,
+    signal,
+  });
+  return jsonOrThrow<KinshipLabel>(response);
 }
 
 export async function fetchMyUsage(): Promise<AccountUsage> {

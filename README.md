@@ -81,7 +81,7 @@ which drive the real app against the mock API (`node scripts/shoot-showcase.mjs
 - [Local development](#local-development)
 - [Configuration](#configuration)
 - [Talking to the API](#talking-to-the-api)
-- [Guides](#guides)
+- [Guides and the kinship tool](#guides-and-the-kinship-tool)
 - [Testing and quality](#testing-and-quality)
 - [CI](#ci)
 - [Commits](#commits)
@@ -285,7 +285,7 @@ PWA cache.
 
 ---
 
-## Guides
+## Guides and the kinship tool
 
 **Guides** (`/[locale]/guides`) are MDX files — adding one is adding a file:
 
@@ -310,6 +310,11 @@ readingMinutes: 8
 The index, the route, the sitemap, `Article` and `BreadcrumbList` JSON-LD, hreflang and the social
 card (`/<locale>/guides/<slug>/og-image`, rendered on request) all derive from the file. Links that
 start with `/` stay in the reader's locale; links to files (`/downloads/….xlsx`) download as they are.
+
+The **kinship tool** (`/[locale]/kinship`) builds a chain of steps and asks the API's public
+`POST /kinship/label`, which names it with the same labeller as the relationship finder. The
+reference table under it lives in `src/lib/kinship.ts` and mirrors
+`tests/unit/services/test_kinship_chain.py` in the backend row for row; change both together.
 
 ## Testing and quality
 

@@ -6,6 +6,7 @@ import { Author } from "@/components/landing/Author";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { Faq } from "@/components/landing/Faq";
 import { Features } from "@/components/landing/Features";
+import { KinshipTeaser } from "@/components/landing/KinshipTeaser";
 import { Hero } from "@/components/landing/Hero";
 import { Updates } from "@/components/landing/Updates";
 import {
@@ -134,6 +135,7 @@ export default async function HomePage({ params }: Props) {
       <main id="main">
         <Hero />
         <Features />
+        <KinshipTeaser />
         <Updates />
         <Suspense fallback={null}>
           <Architecture />
