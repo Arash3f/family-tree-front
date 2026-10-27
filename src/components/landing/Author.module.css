@@ -3,7 +3,7 @@
   grid-template-columns: auto minmax(0, 1fr);
   gap: clamp(1.15rem, 3vw, 1.75rem);
   align-items: start;
-  max-width: 46rem;
+  max-width: 62rem;
   padding: clamp(1.25rem, 3.5vw, 1.85rem);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -62,9 +62,11 @@
   text-wrap: pretty;
 }
 
+/* Equal columns: on a wide card all five links share one row, and when they
+ * wrap every button keeps the same width. */
 .links {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
   gap: var(--space-3);
   margin-block-start: var(--space-3);
 }
@@ -72,7 +74,9 @@
 .link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
+  white-space: nowrap;
   min-height: 2.6rem;
   padding-inline: 0.95rem;
   border: 1px solid var(--border);
@@ -121,11 +125,7 @@
   }
 
   .links {
-    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
-  }
-
-  .link {
-    justify-content: center;
   }
 }
