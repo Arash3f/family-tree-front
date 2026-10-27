@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -39,4 +40,19 @@ const nextConfig: NextConfig = {
   // does not follow upstream redirects).
 };
 
-export default withNextIntl(nextConfig);
+/**
+ * Guides are MDX files imported by their route, not pages of their own, so
+ * pageExtensions stays at its default. Plugins are named as strings, which
+ * both webpack (production builds) and Turbopack (`next dev`) accept.
+ */
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [
+      "remark-frontmatter",
+      ["remark-mdx-frontmatter", { name: "frontmatter" }],
+      "remark-gfm",
+    ],
+  },
+});
+
+export default withNextIntl(withMDX(nextConfig));

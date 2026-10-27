@@ -262,6 +262,9 @@ export function Header() {
             <Link className={styles.docs} href="/demo" onClick={close}>
               {tDemo("navLabel")}
             </Link>
+            <Link className={styles.docs} href="/guides" onClick={close}>
+              {t("guides")}
+            </Link>
             <Link className={styles.docs} href="/pricing" onClick={close}>
               {t("pricing")}
             </Link>
@@ -321,6 +324,9 @@ export function Header() {
           )}
           <Link className={styles.docs} href="/demo">
             {tDemo("navLabel")}
+          </Link>
+          <Link className={styles.docs} href="/guides">
+            {t("guides")}
           </Link>
           <Link className={styles.docs} href="/pricing">
             {t("pricing")}

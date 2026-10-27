@@ -1,0 +1,231 @@
+/* Shared by the guides index, a guide and the kinship tool page. */
+
+.page {
+  display: grid;
+  gap: var(--space-6);
+  width: min(100%, 46rem);
+  margin-inline: auto;
+  padding-block: clamp(1.5rem, 4vh, 3rem) clamp(2rem, 5vh, 3.5rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+}
+
+.wide {
+  width: min(100%, var(--content-max));
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.crumbs a {
+  color: inherit;
+}
+
+.crumbs a:hover {
+  color: var(--accent-strong);
+}
+
+.intro {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+
+.support {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+/* ---- index ---- */
+
+.list {
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.card {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.card:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  transform: translate3d(0, -2px, 0);
+}
+
+.cardTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+
+.cardBody {
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+}
+
+.promo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--accent-muted) 45%, var(--surface));
+}
+
+.promoTitle {
+  font-weight: var(--weight-bold);
+  font-size: var(--text-lg);
+}
+
+.promoBody {
+  color: var(--muted);
+}
+
+/* ---- article body ---- */
+
+.prose {
+  color: var(--foreground);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+}
+
+.prose > * + * {
+  margin-block-start: 1em;
+}
+
+.prose h2 {
+  margin-block-start: 2em;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+
+.prose h3 {
+  margin-block-start: 1.6em;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+}
+
+.prose ul,
+.prose ol {
+  display: grid;
+  gap: 0.4em;
+  padding-inline-start: 1.4em;
+}
+
+.prose a {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.prose strong {
+  font-weight: var(--weight-bold);
+}
+
+.prose blockquote {
+  padding: var(--space-3) var(--space-4);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  color: var(--ink-soft, var(--foreground));
+}
+
+.prose code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  font-size: 0.92em;
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--text-md);
+}
+
+.prose th,
+.prose td {
+  padding: 0.55em 0.8em;
+  border: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.prose th {
+  background: var(--surface-sunken);
+  font-weight: var(--weight-semibold);
+}
+
+/* ---- closing blocks ---- */
+
+.cta {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--accent-muted) 55%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+}
+
+.ctaTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.ctaBody {
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+}
+
+.relatedTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}

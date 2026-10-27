@@ -1,3 +1,20 @@
+/*
+ * English pages do not download Vazirmatn, yet some of them quote Persian
+ * words (the kinship tool, the relationship-names guide). Fraunces and Source
+ * Sans have no Arabic-script glyphs, so the browser fell back to a font chosen
+ * per platform at a visibly smaller size. This face takes only the Arabic
+ * script range from fonts already on the device and scales it to sit with the
+ * Latin text; nothing is downloaded and Latin text is unaffected. On Persian
+ * pages the html[lang="fa"] stacks below put Vazirmatn first instead.
+ */
+@font-face {
+  font-family: "Persian Fallback";
+  src: local("Tahoma"), local("Segoe UI"), local("Geeza Pro"), local("Noto Sans Arabic"),
+    local("Arial");
+  unicode-range: U+0600-06FF, U+0750-077F, U+FB50-FDFF, U+FE70-FEFF, U+200C-200D;
+  size-adjust: 112%;
+}
+
 :root {
   --background: #fbfbfa;
   --foreground: #14191b;
@@ -147,8 +164,12 @@
   --header-stack: calc(
     var(--safe-top) + 0.75rem + var(--header-h) + 0.75rem
   );
-  --font-display: var(--font-fraunces), "Georgia", serif;
-  --font-body: var(--font-source-sans), "Segoe UI", sans-serif;
+  /* "Persian Fallback" leads on purpose: it only covers Arabic script, so
+     Latin text still reaches the next family. Placed after it, next/font's own
+     metric fallback (local Arial, shrunk to Source Sans' size) caught Persian
+     first. */
+  --font-display: "Persian Fallback", var(--font-fraunces), "Georgia", serif;
+  --font-body: "Persian Fallback", var(--font-source-sans), "Segoe UI", sans-serif;
 
   /*
    * Select chevron. The colour is baked into the data URL because background

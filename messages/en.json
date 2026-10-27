@@ -24,7 +24,8 @@
     "skipToContent": "Skip to content",
     "signIn": "Sign in",
     "faq": "FAQ",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "guides": "Guides"
   },
   "hero": {
     "brand": "Family Tree",
@@ -291,7 +292,8 @@
     "signUp": "Sign up",
     "buildVersions": "Frontend {front} · Backend {back}",
     "buildVersionsFrontOnly": "Frontend {front}",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "guides": "Guides"
   },
   "privacy": {
     "metaTitle": "Privacy policy",
@@ -1584,5 +1586,21 @@
       "Once paid, your account moves to the Family plan for a year."
     ],
     "keepNote": "If a plan ends, nothing is deleted: your trees stay as they are and you can still view and export them. Only adding past the free limits stops."
+  },
+  "guides": {
+    "metaTitle": "Family tree guides",
+    "metaDescription": "Practical guides to building a family tree, naming relatives in English and Persian, and importing a tree from Excel.",
+    "title": "Guides",
+    "support": "Practical guides to building your family tree, naming your relatives and bringing a tree in from Excel.",
+    "toolTitle": "Kinship name finder",
+    "toolBody": "Build a chain like “my father's brother's son” and see what the relation is called, in English and Persian.",
+    "toolLink": "Open the tool",
+    "readingTime": "{minutes} min read",
+    "updated": "Updated {date}",
+    "related": "Related guides",
+    "breadcrumb": "Breadcrumb",
+    "ctaTitle": "Build your family tree for free",
+    "ctaBody": "Add your family once, see how any two people are related, and export the tree as an image or a PDF.",
+    "ctaButton": "Start your tree"
   }
 }

@@ -1,0 +1,151 @@
+---
+title: "Family tree Excel template (with a free sample file)"
+description: "Write your family tree in Excel and import it in one go: the columns, codes for people and marriages, Gregorian or Persian dates, and a ready-made sample file to download."
+date: "2026-10-27"
+keywords: ["family tree excel template", "family tree spreadsheet", "genealogy excel", "family tree import"]
+locale: "en"
+translationOf: "family-tree-excel-template"
+readingMinutes: 7
+---
+
+If your family's details are already in a spreadsheet — or you would rather write everything in Excel
+first and import it later — you do not have to enter people one at a time. The family tree app has an
+**Excel template** that brings in dozens of people and marriages at once.
+
+**[Download the sample Excel file (English)](/downloads/family-tree-excel-sample-en.xlsx)** ·
+[Persian sample](/downloads/family-tree-excel-sample-fa.xlsx)
+
+The sample holds a small three-generation family, the Karimis, so you can see how every column is
+filled in. This guide walks through that file column by column.
+
+## The file has three sheets
+
+| Sheet | What it holds |
+| --- | --- |
+| **Instructions** | A description of every column — the same as this guide |
+| **Persons** | One person per row |
+| **Marriages** | One marriage per row |
+
+The sheets can be named in English (Persons, Marriages) or in Persian; both are accepted.
+
+## The key idea: codes
+
+Every row has a short **code** — `P1`, `P2` for people, `M1`, `M2` for marriages. Rows point at each
+other through these codes: a child names its parents' codes, a marriage names its two spouses' codes.
+
+That has two advantages: you never have to repeat a name exactly, and two people with the same name
+can never be mixed up.
+
+A code is only needed when another row points at it. Someone who is nobody's parent in the file and
+has no marriage can go without one.
+
+## The Persons sheet
+
+| Column | Required? | What goes in it |
+| --- | --- | --- |
+| code | no | A short code for the row, like P1 |
+| first name | **yes** | |
+| family name | no | |
+| gender | **yes** | `male` or `female` |
+| birth date | no | Gregorian or Persian; leave empty if unknown |
+| death date | no | Leave empty for someone living |
+| birth place | no | |
+| death place | no | |
+| notes | no | Anything worth keeping |
+| parent 1 code | no | The first parent's code |
+| parent 1 (name) | — | For display only; never read back |
+| parent 1 type | no | `biological` (the default), `adoptive` or `step` |
+| parent 2 code | no | The second parent's code |
+| parent 2 (name) | — | For display only |
+| parent 2 type | no | As parent 1 type |
+| born from marriage (code) | no | The code of the marriage this person was born into, from the Marriages sheet |
+| born from marriage (couple) | — | For display only |
+
+The display-only columns — the parents' names and the couple's names — are there so the sheet is easy
+for you to read. They are ignored on import; what counts are the **codes**. A typo in one of them
+cannot break anything.
+
+## The Marriages sheet
+
+| Column | Required? | What goes in it |
+| --- | --- | --- |
+| code | no | A short code for the marriage, like M1 |
+| spouse 1 code | **yes** | One spouse's code from the Persons sheet |
+| spouse 1 (name) | — | For display only |
+| spouse 2 code | **yes** | The other spouse's code |
+| spouse 2 (name) | — | For display only |
+| marriage date | **yes** | Gregorian or Persian |
+| divorce date | no | If there was one |
+
+When a child has a "born from marriage" code, their biological parents must be the two people of that
+marriage. It catches a common inconsistency before it reaches the tree.
+
+## Dates: Gregorian or Persian
+
+Both calendars are accepted:
+
+- **Gregorian:** `2019-04-23`
+- **Persian (Jalali):** `1398/02/03`
+
+If you do not know a date, leave the cell empty. An approximate date belongs in the notes — "around
+1920" — rather than in the date column.
+
+## A small example
+
+These rows from the sample record a couple and their son:
+
+| code | first name | family name | gender | birth date | parent 1 code | parent 2 code | born from marriage (code) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| P1 | Ali | Karimi | male | 1330/01/01 | | | |
+| P2 | Zahra | Karimi | female | 1335/05/10 | | | |
+| P3 | Reza | Karimi | male | 1358/03/20 | P1 | P2 | M1 |
+
+And on the Marriages sheet:
+
+| code | spouse 1 code | spouse 2 code | marriage date |
+| --- | --- | --- | --- |
+| M1 | P1 | P2 | 1955-06-01 |
+
+Reza (P3) is the son of Ali (P1) and Zahra (P2), born into marriage M1. Notice that the birth dates
+here are Persian and the marriage date is Gregorian — the two can be mixed freely.
+
+## Importing the file
+
+1. In the app, open the tree you want to fill.
+2. Choose **Import from Excel** and pick your file.
+3. A **preview** opens. If the file has problems — a code pointing at a row that does not exist, a date
+   that cannot be read — every problem is listed at once, with the row numbers you see in your own
+   spreadsheet, so you can fix them all and upload once.
+4. If there are none, choose the rows you want and use **Import selected**. Only checked rows are
+   applied.
+
+The preview also points out a couple of things: two rows with the same name, family name, gender and
+birth date are imported as two separate people; and a marriage recorded below the usual legal
+marriage age is flagged, though it is still imported.
+
+## Bulk edits: export, edit, import again
+
+The template is not only for starting out. To correct a lot of information at once:
+
+1. Use **Export to Excel** on the tree.
+2. Edit the file in Excel.
+3. **Import** the same file again.
+
+A file exported from the tree carries a **hidden** "internal id" column. That column is what makes a
+re-import apply your rows as **edits** to the same people instead of adding new ones. Leave it alone.
+
+Without that column, a row that exactly matches someone already in the tree is still treated as an
+edit rather than a new person. But if several people in the tree share the same name and birth date,
+the app cannot tell which one you mean and adds the row as a new person. That is why, for edits, it is
+best to always start from the tree's own export.
+
+## A few habits that save trouble
+
+- **Keep codes unique.** Two rows with the same code are reported as a problem.
+- **Row order does not matter.** A child can come before its parents in the file; the codes link them
+  correctly.
+- **Start small.** The first time, import ten or fifteen rows, look at the result on the tree, then add
+  the rest.
+
+If you have not gathered the information yet, [how to build a family tree, step by step](/guides/build-a-family-tree)
+helps you decide where to start.

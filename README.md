@@ -81,6 +81,7 @@ which drive the real app against the mock API (`node scripts/shoot-showcase.mjs
 - [Local development](#local-development)
 - [Configuration](#configuration)
 - [Talking to the API](#talking-to-the-api)
+- [Guides](#guides)
 - [Testing and quality](#testing-and-quality)
 - [CI](#ci)
 - [Commits](#commits)
@@ -283,6 +284,32 @@ The service worker skips caching `/backend` so API responses are never served st
 PWA cache.
 
 ---
+
+## Guides
+
+**Guides** (`/[locale]/guides`) are MDX files — adding one is adding a file:
+
+```text
+src/content/guides/<locale>/<slug>.mdx   →   /<locale>/guides/<slug>
+```
+
+```mdx
+---
+title: "How to build a family tree, step by step"
+description: "One sentence: the card, the meta description and the social card."
+date: "2026-10-27"
+updated: "2026-11-02"            # optional; drives the sitemap's lastModified
+keywords: ["family tree", "genealogy"]
+locale: "en"                      # must match the folder
+translationOf: "build-a-family-tree"  # the other locale's slug, for hreflang
+readingMinutes: 8
+# draft: true                     # hides it everywhere
+---
+```
+
+The index, the route, the sitemap, `Article` and `BreadcrumbList` JSON-LD, hreflang and the social
+card (`/<locale>/guides/<slug>/og-image`, rendered on request) all derive from the file. Links that
+start with `/` stay in the reader's locale; links to files (`/downloads/….xlsx`) download as they are.
 
 ## Testing and quality
 
