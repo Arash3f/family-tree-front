@@ -24,6 +24,7 @@ import {
 import type { PedigreeCanvasHandle } from "./PedigreeCanvas";
 import type { ExportSettings } from "./ExportPreviewDialog";
 import type { PersonLineagePosterHandle } from "./PersonLineagePoster";
+import { useExportWatermark } from "./useExportWatermark";
 
 /** Screen-sized preview render; the download uses the full pixel budget. */
 const EXPORT_PREVIEW_MAX_EDGE = 1400;
@@ -90,6 +91,7 @@ export function useExportFlow(input: {
   const t = useTranslations("pedigree");
   const locale = useLocale();
   const { showError, showSuccess } = useFeedback();
+  const watermark = useExportWatermark();
 
   const [job, setJob] = useState<ExportJob | null>(null);
   const [settings, setSettings] = useState<ExportSettings>(
@@ -197,6 +199,7 @@ export function useExportFlow(input: {
             locale,
             maxEdge: EXPORT_PREVIEW_MAX_EDGE,
             targetScale: 1,
+            watermark,
           });
           if (cancelled) return;
           setPreviewUrl(render.dataUrl);
@@ -216,7 +219,7 @@ export function useExportFlow(input: {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [job?.kind, theme, retryToken, locale, canvasApiRef]);
+  }, [job?.kind, theme, retryToken, locale, canvasApiRef, watermark]);
 
   const plan = useMemo<PagePlan | null>(() => {
     if (!graphSize) return null;
@@ -273,6 +276,7 @@ export function useExportFlow(input: {
             paper: settings.paper,
             orientation: settings.orientation,
             fit: settings.fit,
+            watermark,
             onProgress,
           });
           downloadBlob(blob, name, "pdf");
@@ -283,6 +287,7 @@ export function useExportFlow(input: {
             graphic,
             background: theme.background,
             locale,
+            watermark,
             onProgress,
           });
           setPngDownscaled(render.downscaled);

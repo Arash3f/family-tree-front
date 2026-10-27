@@ -98,6 +98,34 @@ export function fitText(
   return low > 0 ? `${chars.slice(0, low).join("")}${ellipsis}` : ellipsis;
 }
 
+/**
+ * Stamp the free-account credit line in the bottom corner of a finished
+ * canvas, on the side where a line of text in `locale` ends.
+ *
+ * A mid grey at partial opacity reads on both the light and the dark export
+ * palettes without competing with the tree.
+ */
+function paintWatermark(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  text: string,
+  locale: string,
+) {
+  const size = Math.max(12, Math.round(Math.min(width, height) * 0.016));
+  const margin = Math.round(size * 1.1);
+  const rtl = locale === "fa";
+  ctx.save();
+  ctx.globalAlpha = 0.7;
+  ctx.fillStyle = "#8a94a3";
+  ctx.font = `600 ${size}px ${canvasFontFamily(locale)}`;
+  ctx.direction = rtl ? "rtl" : "ltr";
+  ctx.textAlign = "end";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillText(text, rtl ? margin : width - margin, height - margin);
+  ctx.restore();
+}
+
 /** Widest text run, used to decide how far outside a tile to look for text. */
 function textGutter(texts: TextRun[]): number {
   let widest = 0;
@@ -254,6 +282,8 @@ export async function renderPedigreePng(opts: {
   locale: string;
   maxEdge?: number;
   targetScale?: number;
+  /** Credit line for free accounts; paid ones leave it out. */
+  watermark?: string;
   onProgress?: RenderProgress;
 }): Promise<PngRender> {
   const { graphic } = opts;
@@ -310,6 +340,9 @@ export async function renderPedigreePng(opts: {
       }
     }
 
+    if (opts.watermark) {
+      paintWatermark(ctx, pixelWidth, pixelHeight, opts.watermark, opts.locale);
+    }
     const dataUrl = canvas.toDataURL("image/png");
     if (!dataUrl.startsWith("data:image/png") || dataUrl.length < 2000) {
       throw new Error("export-png");
@@ -372,6 +405,8 @@ export async function renderPedigreePdf(opts: {
   maxPages?: number;
   dpi?: number;
   quality?: PdfQuality;
+  /** Credit line for free accounts, stamped on every page. */
+  watermark?: string;
   onProgress?: RenderProgress;
 }): Promise<PdfRender> {
   const { graphic } = opts;
@@ -413,6 +448,9 @@ export async function renderPedigreePdf(opts: {
         opts.locale,
         gutter,
       );
+      if (opts.watermark) {
+        paintWatermark(ctx, pixelWidth, pixelHeight, opts.watermark, opts.locale);
+      }
 
       const image: PdfImage =
         quality === "lossless"

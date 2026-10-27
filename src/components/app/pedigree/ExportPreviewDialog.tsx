@@ -61,6 +61,8 @@ type Props = {
   progress?: number | null;
   /** Set when a PNG had to be shrunk below true size. */
   pngDownscaled?: boolean;
+  /** Set when the export will carry the free-account credit line. */
+  watermarked?: boolean;
   canConfirm?: boolean;
   locale: string;
   /** Basename without extension; user-editable. */
@@ -87,6 +89,7 @@ export function ExportPreviewDialog({
   downloading,
   progress,
   pngDownscaled,
+  watermarked,
   canConfirm = true,
   locale,
   filename,
@@ -139,6 +142,9 @@ export function ExportPreviewDialog({
           <div>
             <h2 id={titleId}>{title}</h2>
             <p className={styles.hint}>{t("exportPreview.hint")}</p>
+            {watermarked ? (
+              <p className={styles.hint}>{t("exportWatermarkNote")}</p>
+            ) : null}
           </div>
           <button
             type="button"

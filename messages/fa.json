@@ -1447,7 +1447,9 @@
       "marriedAt": "تاریخ ازدواج",
       "divorcedAt": "تاریخ طلاق",
       "relateTo": "نسبت با"
-    }
+    },
+    "exportWatermark": "ساخته‌شده با family.arash-alfooneh.ir",
+    "exportWatermarkNote": "خروجی حساب رایگان یک خط کوچک معرفی دارد."
   },
   "roles": {
     "metaTitle": "نقش‌ها",

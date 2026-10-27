@@ -233,3 +233,12 @@
   font-size: 0.72rem;
   font-weight: 600;
 }
+
+.watermark {
+  margin: 0.35rem 0 0;
+  color: var(--export-muted, #8a9a9d);
+  font-size: 0.66rem;
+  opacity: 0.85;
+  text-align: end;
+  unicode-bidi: plaintext;
+}

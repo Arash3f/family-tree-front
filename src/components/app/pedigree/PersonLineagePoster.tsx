@@ -37,6 +37,8 @@ type Props = {
   marriages: Marriage[];
   treeName: string;
   theme: ExportTheme;
+  /** Free-account credit line, printed under the footer. */
+  watermark?: string;
 };
 
 export type PersonLineagePosterHandle = {
@@ -52,7 +54,7 @@ function initials(name: string): string {
 
 export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
   function PersonLineagePoster(
-    { person, persons, marriages, treeName, theme },
+    { person, persons, marriages, treeName, theme, watermark },
     ref,
   ) {
     const t = useTranslations("pedigree");
@@ -321,6 +323,7 @@ export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
         </section>
 
         <p className={styles.footer}>{treeName || t("title")}</p>
+        {watermark ? <p className={styles.watermark}>{watermark}</p> : null}
       </div>
     );
   },

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
 import type { Marriage, Person } from "@/lib/auth/types";
 import type { ExportFlow } from "./useExportFlow";
+import { useExportWatermark } from "./useExportWatermark";
 
 /** Export UI and its `html-to-image` dependency load when the dialog opens. */
 const ExportPreviewDialog = dynamic(
@@ -41,6 +42,7 @@ export function ExportDialogHost({
 }: Props) {
   const t = useTranslations("pedigree");
   const locale = useLocale();
+  const watermark = useExportWatermark();
   const { job } = flow;
   if (!job) return null;
 
@@ -57,6 +59,7 @@ export function ExportDialogHost({
       locale={locale}
       progress={flow.progress}
       pngDownscaled={flow.pngDownscaled}
+      watermarked={Boolean(watermark)}
       theme={flow.theme}
       presetId={flow.presetId}
       preview={
@@ -68,6 +71,7 @@ export function ExportDialogHost({
             marriages={marriages}
             treeName={treeName}
             theme={flow.theme}
+            watermark={watermark}
           />
         ) : flow.previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

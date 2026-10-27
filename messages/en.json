@@ -1447,7 +1447,9 @@
       "marriedAt": "Married on",
       "divorcedAt": "Divorced on",
       "relateTo": "Related to"
-    }
+    },
+    "exportWatermark": "Made with family.arash-alfooneh.ir",
+    "exportWatermarkNote": "Exports from a free account carry a small credit line."
   },
   "roles": {
     "metaTitle": "Roles",
