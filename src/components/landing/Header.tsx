@@ -262,6 +262,9 @@ export function Header() {
             <Link className={styles.docs} href="/demo" onClick={close}>
               {tDemo("navLabel")}
             </Link>
+            <Link className={styles.docs} href="/pricing" onClick={close}>
+              {t("pricing")}
+            </Link>
             <a
               className={styles.docs}
               href={getApiDocsUrl()}
@@ -318,6 +321,9 @@ export function Header() {
           )}
           <Link className={styles.docs} href="/demo">
             {tDemo("navLabel")}
+          </Link>
+          <Link className={styles.docs} href="/pricing">
+            {t("pricing")}
           </Link>
           <a
             className={styles.docs}

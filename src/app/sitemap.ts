@@ -9,6 +9,7 @@ import { absoluteLocaleUrl, languageAlternates } from "@/lib/site-url";
  */
 const LANDING_UPDATED = new Date("2026-10-24");
 const DEMO_UPDATED = new Date("2026-09-25");
+const PRICING_UPDATED = new Date("2026-10-27");
 
 /** Public marketing pages only — auth and dashboard are noindex. */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -33,5 +34,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   }));
 
-  return [...landing, ...demo];
+  const pricing = routing.locales.map((locale) => ({
+    url: absoluteLocaleUrl(locale, "/pricing"),
+    lastModified: PRICING_UPDATED,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+    alternates: {
+      languages: languageAlternates("/pricing"),
+    },
+  }));
+
+  return [...landing, ...demo, ...pricing];
 }

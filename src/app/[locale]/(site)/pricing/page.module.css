@@ -1,0 +1,135 @@
+.page {
+  display: grid;
+  gap: var(--space-6);
+  padding-block: clamp(1.5rem, 4vh, 3rem) clamp(2rem, 5vh, 3.5rem);
+  padding-inline: var(--page-pad-inline-start) var(--page-pad-inline-end);
+}
+
+.intro {
+  max-width: 42rem;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.025em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+:global(html[lang="fa"]) .title {
+  letter-spacing: var(--tracking-normal);
+  line-height: var(--leading-snug);
+}
+
+.support {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  text-wrap: pretty;
+}
+
+.plans {
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  align-items: stretch;
+}
+
+.plan {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, var(--radius-md));
+  background: color-mix(in srgb, var(--surface) 92%, var(--background));
+}
+
+.featured {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow: var(--shadow-md);
+}
+
+.planName {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.price {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--accent-strong);
+}
+
+.tagline {
+  color: var(--muted);
+  line-height: var(--leading-normal);
+}
+
+.features {
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: auto;
+  padding-block: var(--space-2) var(--space-4);
+}
+
+.features li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2);
+  align-items: start;
+  line-height: var(--leading-normal);
+}
+
+.check {
+  margin-block-start: 0.3em;
+  color: var(--accent);
+}
+
+.external {
+  display: flex;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease;
+}
+
+.external:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent-muted) 40%, transparent);
+}
+
+.how {
+  max-width: 42rem;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.howTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+
+.steps {
+  display: grid;
+  gap: var(--space-2);
+  padding-inline-start: 1.25rem;
+  line-height: var(--leading-normal);
+}
+
+.note {
+  color: var(--muted);
+  line-height: var(--leading-relaxed);
+}

@@ -23,7 +23,8 @@
     "language": "Language",
     "skipToContent": "Skip to content",
     "signIn": "Sign in",
-    "faq": "FAQ"
+    "faq": "FAQ",
+    "pricing": "Pricing"
   },
   "hero": {
     "brand": "Family Tree",
@@ -287,7 +288,8 @@
     "signIn": "Sign in",
     "signUp": "Sign up",
     "buildVersions": "Frontend {front} · Backend {back}",
-    "buildVersionsFrontOnly": "Frontend {front}"
+    "buildVersionsFrontOnly": "Frontend {front}",
+    "pricing": "Pricing"
   },
   "privacy": {
     "metaTitle": "Privacy policy",
@@ -1508,5 +1510,54 @@
     "registerText": "Email us at the address below and we'll get back to you.",
     "mailSubject": "Family Tree account help",
     "mailBody": "Username: {username}\n\nPlease describe the problem:\n"
+  },
+  "pricing": {
+    "metaTitle": "Pricing — Family Tree",
+    "metaDescription": "Start free, move to the Family plan for unlimited trees and people, or host it yourself. Plans for the online family tree in Persian and English.",
+    "title": "Plans",
+    "support": "Start free. When your family outgrows it, move to the Family plan — or run it on your own server.",
+    "familyPrice": "On request",
+    "freePrice": "Free",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "tagline": "To start your tree and see how it feels.",
+        "features": [
+          "{trees} trees",
+          "{people} people and {marriages} marriages per tree",
+          "Relationship finder",
+          "Image and PDF export with a small credit line"
+        ],
+        "cta": "Start free"
+      },
+      "family": {
+        "name": "Family",
+        "tagline": "For a whole family, without limits.",
+        "features": [
+          "Unlimited trees, people and marriages",
+          "Exports without the credit line",
+          "Support through tickets",
+          "Yearly plan, renewed on request"
+        ],
+        "cta": "Request upgrade"
+      },
+      "selfHost": {
+        "name": "Self-host",
+        "tagline": "Your server, your data. Open source.",
+        "features": [
+          "Every feature, no limits",
+          "Docker Compose setup",
+          "You run backups and updates"
+        ],
+        "cta": "View on GitHub"
+      }
+    },
+    "howTitle": "How upgrading works",
+    "howSteps": [
+      "Sign in and send an upgrade request from the dashboard.",
+      "We reply with the payment details.",
+      "Once paid, your account moves to the Family plan for a year."
+    ],
+    "keepNote": "If a plan ends, nothing is deleted: your trees stay as they are and you can still view and export them. Only adding past the free limits stops."
   }
 }
