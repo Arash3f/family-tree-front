@@ -41,6 +41,8 @@ Two ways to use Family Tree, both running this same code:
 
 ## Screenshots
 
+![Adding a child, then asking how two people are related](public/showcase/demo-en.gif)
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="public/showcase/tree-en-dark-2x.webp">
   <img alt="A four-generation family tree" src="public/showcase/tree-en-light-2x.webp">
@@ -56,10 +58,14 @@ Two ways to use Family Tree, both running this same code:
   <img alt="Person details on a phone" src="public/showcase/profile-fa-mobile.webp" width="24%">
 </p>
 
+The same demo in Persian, right to left, on the Jalali calendar:
+
+![افزودن فرزند و پیدا کردن نسبت دو نفر](public/showcase/demo-fa.gif)
+
 Every name and date above is invented — the screenshots come from
-`scripts/shoot-showcase.mjs`, which drives the real app against the mock API
-(`node scripts/shoot-showcase.mjs <baseUrl>` with the app running). The landing
-page uses the same files.
+`scripts/shoot-showcase.mjs` and the demo from `scripts/record-demo-gif.mjs`,
+which drive the real app against the mock API (`node scripts/shoot-showcase.mjs
+<baseUrl>` with the app running). The landing page uses the same files.
 
 ---
 
