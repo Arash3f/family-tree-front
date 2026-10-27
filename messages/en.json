@@ -492,6 +492,25 @@
         "title": "Support tickets",
         "body": "Open a ticket when something goes wrong, link a related tree, and follow the conversation until it closes."
       }
+    },
+    "usage": {
+      "title": "Your plan",
+      "free": "Free",
+      "paid": "Family",
+      "paidOpenEnded": "No end date",
+      "paidUntil": "Paid through {date}",
+      "trees": "Trees you own",
+      "people": "People in {tree}",
+      "marriages": "Marriages in {tree}",
+      "ofLimit": "{used} of {limit}",
+      "unlimited": "{used}",
+      "noTrees": "You do not own a tree yet.",
+      "upgrade": "Request upgrade",
+      "renew": "Renew",
+      "seePlans": "See plans",
+      "expiring": "Your Family plan ends in {count} days. Renew to keep adding without limits.",
+      "expiringToday": "Your Family plan ends today. Renew to keep adding without limits.",
+      "loadError": "Could not load your plan."
     }
   },
   "help": {
@@ -811,7 +830,9 @@
     "impersonateSelf": "You cannot sign in as yourself.",
     "impersonating": "You are using {name}'s account.",
     "impersonatingExit": "Back to my account",
-    "impersonatingExitError": "Could not return to your account. Please sign in again."
+    "impersonatingExitError": "Could not return to your account. Please sign in again.",
+    "paidUntil": "Paid through",
+    "paidUntilHint": "The last day the plan covers. Leave it empty for a plan that never ends."
   },
   "tickets": {
     "metaTitle": "Tickets",

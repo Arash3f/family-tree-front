@@ -19,6 +19,7 @@ import {
 } from "./token-timing";
 import {
   AuthApiError,
+  type AccountUsage,
   type AppPermission,
   type AppRole,
   type AppUser,
@@ -378,6 +379,11 @@ export async function registerRequest(input: {
   return tokens;
 }
 
+export async function fetchMyUsage(): Promise<AccountUsage> {
+  const response = await apiFetch("/auth/usage");
+  return jsonOrThrow<AccountUsage>(response);
+}
+
 export async function fetchCurrentUser(): Promise<AuthUser> {
   const response = await apiFetch("/auth/me");
   const data = await jsonOrThrow<
@@ -396,6 +402,7 @@ export async function fetchCurrentUser(): Promise<AuthUser> {
     session_id: data.session_id ?? null,
     is_impersonating: data.is_impersonating === true,
     account_type: data.account_type === "paid" ? "paid" : "free",
+    paid_until: data.paid_until ?? null,
     preferred_locale:
       data.preferred_locale === "en" || data.preferred_locale === "fa"
         ? data.preferred_locale
@@ -522,6 +529,7 @@ export async function createUser(input: {
   country_code?: string | null;
   role_id?: string | null;
   account_type?: "free" | "paid";
+  paid_until?: string | null;
 }): Promise<AppUser> {
   const response = await apiFetch("/users", {
     method: "POST",
@@ -542,6 +550,8 @@ export async function updateUser(input: {
   re_password?: string;
   role_id?: string | null;
   account_type?: "free" | "paid";
+  /** null makes a paid plan open-ended; leave it out to keep the date. */
+  paid_until?: string | null;
 }): Promise<AppUser> {
   const data: Record<string, unknown> = {};
   if (input.username !== undefined) data.username = input.username;
@@ -553,6 +563,7 @@ export async function updateUser(input: {
   if (input.re_password !== undefined) data.re_password = input.re_password;
   if (input.role_id !== undefined) data.role_id = input.role_id;
   if (input.account_type !== undefined) data.account_type = input.account_type;
+  if (input.paid_until !== undefined) data.paid_until = input.paid_until;
 
   const response = await apiFetch("/users", {
     method: "PUT",

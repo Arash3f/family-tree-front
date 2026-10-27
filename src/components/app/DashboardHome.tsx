@@ -11,6 +11,7 @@ import {
 } from "react-icons/hi2";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { ButtonLink } from "@/components/ui/Button";
+import { PlanUsageCard } from "./PlanUsageCard";
 import styles from "./DashboardHome.module.css";
 
 const FEATURES = [
@@ -34,6 +35,8 @@ export function DashboardHome() {
         </h1>
         <p className={styles.support}>{t("welcomeSupport")}</p>
       </header>
+
+      <PlanUsageCard />
 
       <ul className={styles.features}>
         {FEATURES.map(({ key, Icon }) => (

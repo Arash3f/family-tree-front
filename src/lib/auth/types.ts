@@ -30,7 +30,10 @@ export type AuthUser = {
   session_id: string | null;
   /** True when this session is an admin acting as someone else. */
   is_impersonating: boolean;
+  /** The plan in force today: "free" once a paid plan's last day has passed. */
   account_type: AccountType;
+  /** Last day (YYYY-MM-DD) a paid plan covers; null when it never lapses. */
+  paid_until: string | null;
   preferred_locale: PreferredLocale | null;
   preferred_theme: PreferredTheme | null;
 };
@@ -52,8 +55,35 @@ export type AppUser = {
   phone?: string | null;
   role_id: string | null;
   account_type?: AccountType;
+  paid_until?: string | null;
   is_active?: boolean;
   last_session_at?: string | null;
+};
+
+export type FreeLimits = {
+  owned_trees: number;
+  persons_per_tree: number;
+  marriages_per_tree: number;
+};
+
+export type TreeUsage = {
+  tree_id: string;
+  name: string;
+  persons: number;
+  marriages: number;
+};
+
+/** `GET /auth/usage`: the caller's own trees against the quotas of their plan. */
+export type AccountUsage = {
+  account_type: AccountType;
+  paid_until: string | null;
+  /** Days the paid plan still covers, today included; null when it never lapses. */
+  days_left: number | null;
+  /** Whether the free quotas apply right now. */
+  limited: boolean;
+  free_limits: FreeLimits;
+  owned_trees: number;
+  trees: TreeUsage[];
 };
 
 export type AppRole = {

@@ -29,11 +29,12 @@ import {
 } from "@/lib/auth/types";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/Button";
-import { SelectField, TextField } from "@/components/ui/Field";
+import { Field, SelectField, TextField } from "@/components/ui/Field";
 import { Alert, Badge } from "@/components/ui/Feedback";
 import { Form, FormActions, FormRow } from "@/components/ui/Form";
 import { Page, PageHeader, Panel } from "@/components/ui/Page";
 import { toLatinDigits } from "@/lib/localeDigits";
+import { DateField } from "./pedigree/LazyDateField";
 import styles from "./UsersView.module.css";
 
 type Props = {
@@ -73,6 +74,8 @@ export function UserDetailView({ userId }: Props) {
   const [phone, setPhone] = useState("");
   const [roleId, setRoleId] = useState("");
   const [accountType, setAccountType] = useState<"free" | "paid">("free");
+  // ISO day, or "" for a paid plan that never lapses.
+  const [paidUntil, setPaidUntil] = useState("");
   const [password, setPassword] = useState("");
   const [rePassword, setRePassword] = useState("");
   const [loading, setLoading] = useState(true);
@@ -123,6 +126,7 @@ export function UserDetailView({ userId }: Props) {
       applyPhoneFields(data.user.phone);
       setRoleId(data.user.role_id ?? "");
       setAccountType(data.user.account_type === "paid" ? "paid" : "free");
+      setPaidUntil(data.user.paid_until ?? "");
       setSessions(data.sessions);
       if (data.roles) setRoles(data.roles);
     },
@@ -184,6 +188,7 @@ export function UserDetailView({ userId }: Props) {
         re_password?: string;
         role_id?: string | null;
         account_type?: "free" | "paid";
+        paid_until?: string | null;
       } = { user_id: userId };
 
       if (username.trim() && username.trim() !== target?.username) {
@@ -214,6 +219,10 @@ export function UserDetailView({ userId }: Props) {
       if (accountType !== (target?.account_type ?? "free")) {
         payload.account_type = accountType;
       }
+      const nextPaidUntil = paidUntil || null;
+      if (nextPaidUntil !== (target?.paid_until ?? null)) {
+        payload.paid_until = nextPaidUntil;
+      }
       if (password) {
         payload.password = password;
         payload.re_password = rePassword;
@@ -227,6 +236,7 @@ export function UserDetailView({ userId }: Props) {
       applyPhoneFields(updated.phone);
       setRoleId(updated.role_id ?? "");
       setAccountType(updated.account_type === "paid" ? "paid" : "free");
+      setPaidUntil(updated.paid_until ?? "");
       setPassword("");
       setRePassword("");
       setMessage(t("saveSuccess"));
@@ -418,6 +428,21 @@ export function UserDetailView({ userId }: Props) {
             <option value="free">{t("accountFree")}</option>
             <option value="paid">{t("accountPaid")}</option>
           </SelectField>
+
+          {accountType === "paid" ? (
+            <Field label={t("paidUntil")} hint={t("paidUntilHint")}>
+              {({ id }) => (
+                <DateField
+                  id={id}
+                  value={paidUntil}
+                  onChange={setPaidUntil}
+                  locale={locale}
+                  disabled={saving || deleting}
+                  clearable
+                />
+              )}
+            </Field>
+          ) : null}
 
           <TextField
             label={t("newPassword")}

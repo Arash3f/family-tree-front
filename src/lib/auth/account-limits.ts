@@ -10,6 +10,9 @@ export const FREE_ACCOUNT_LIMIT_CODE = 1711;
 /** The ticket form, opened as an upgrade request. */
 export const UPGRADE_REQUEST_HREF = "/dashboard/tickets/new?category=upgrade_request";
 
+/** A paid plan shows its renewal banner from this many days before it ends. */
+export const RENEWAL_NOTICE_DAYS = 14;
+
 export function isFreeAccount(
   accountType: AccountType | null | undefined,
 ): boolean {
