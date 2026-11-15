@@ -1100,6 +1100,8 @@
     "downloadLineageError": "Could not download the info card.",
     "downloadLineagePdfSuccess": "Info card PDF downloaded.",
     "downloadLineagePdfError": "Could not download the info card PDF.",
+    "siblingsTitle": "Siblings",
+    "siblingsEmpty": "No siblings recorded.",
     "downloadMaleLine": "Male line",
     "maleLine": {
       "title": "Male line",
@@ -1119,6 +1121,9 @@
       "format": "File format",
       "png": "PNG image",
       "pdf": "PDF",
+      "content": "Card content",
+      "includeSiblings": "Brothers and sisters",
+      "includeSiblingsHint": "Also list siblings on the info card.",
       "formatHint": {
         "png": "A single image file — quick to share.",
         "pdf": "Print-ready; a large tree spreads over pages."

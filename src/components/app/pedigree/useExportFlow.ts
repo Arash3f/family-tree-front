@@ -63,6 +63,8 @@ export type ExportFlow = {
   /** 0..1 while a download renders, or null when idle. */
   progress: number | null;
   pngDownscaled: boolean;
+  /** Lineage card only: also print brothers and sisters. */
+  includeSiblings: boolean;
   posterRef: RefObject<PersonLineagePosterHandle | null>;
   /** Without a format the dialog reopens on whichever one was picked last. */
   openTreeExport: (format?: "png" | "pdf") => void;
@@ -71,6 +73,7 @@ export type ExportFlow = {
   changeTheme: (theme: ExportTheme) => void;
   changePreset: (id: ExportPresetId) => void;
   changeFilename: (filename: string) => void;
+  changeIncludeSiblings: (include: boolean) => void;
   retry: () => void;
   confirm: () => Promise<void>;
   close: () => void;
@@ -111,6 +114,7 @@ export function useExportFlow(input: {
     height: number;
   } | null>(null);
   const [pngDownscaled, setPngDownscaled] = useState(false);
+  const [includeSiblings, setIncludeSiblings] = useState(false);
   /** Reused between preview and download so photos are fetched once. */
   const graphicRef = useRef<PedigreeGraphic | null>(null);
   const posterRef = useRef<PersonLineagePosterHandle | null>(null);
@@ -140,6 +144,7 @@ export function useExportFlow(input: {
       setPreviewLoading(true);
       setGraphSize(null);
       setPngDownscaled(false);
+      setIncludeSiblings(false);
       if (format) setSettings((current) => ({ ...current, format }));
       const nextJob: ExportJob = { kind: "tree", person: null };
       setFilename(suggestFilename(nextJob));
@@ -154,6 +159,7 @@ export function useExportFlow(input: {
       setPreviewUrl(null);
       setPreviewError(false);
       setPreviewLoading(false);
+      setIncludeSiblings(false);
       setSettings((current) => ({ ...current, format }));
       const nextJob: ExportJob = { kind: "lineage", person };
       setFilename(suggestFilename(nextJob));
@@ -171,6 +177,7 @@ export function useExportFlow(input: {
     setPreviewLoading(false);
     setGraphSize(null);
     setFilename("");
+    setIncludeSiblings(false);
   }, [downloading]);
 
   // Rebuild the graphic whenever the palette changes; page and paper choices
@@ -301,6 +308,7 @@ export function useExportFlow(input: {
       setPreviewUrl(null);
       setGraphSize(null);
       setFilename("");
+      setIncludeSiblings(false);
     } catch {
       showError(
         isLineage
@@ -344,6 +352,7 @@ export function useExportFlow(input: {
     filename,
     progress,
     pngDownscaled,
+    includeSiblings,
     posterRef,
     openTreeExport,
     openLineageExport,
@@ -351,6 +360,7 @@ export function useExportFlow(input: {
     changeTheme,
     changePreset,
     changeFilename: setFilename,
+    changeIncludeSiblings: setIncludeSiblings,
     retry,
     confirm,
     close,

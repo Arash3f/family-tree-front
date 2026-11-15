@@ -56,6 +56,38 @@ function childrenByParentId(persons: Person[]): Map<string, Person[]> {
 }
 
 /**
+ * Other children of any parent of `personId` (full and half siblings), sorted
+ * like descendant lists. The subject themself is never included.
+ *
+ * @param personId - Subject whose siblings to list
+ * @param persons - Full person list for the tree
+ *
+ * @returns Sibling people, birth-date then name ordered
+ */
+export function listSiblingsOfPerson(
+  personId: string,
+  persons: Person[],
+): Person[] {
+  const byId = new Map(persons.map((person) => [person.id, person]));
+  const subject = byId.get(personId);
+  if (!subject || subject.parents.length === 0) return [];
+
+  const childrenMap = childrenByParentId(persons);
+  const seen = new Set<string>([personId]);
+  const siblings: Person[] = [];
+
+  for (const link of subject.parents) {
+    for (const child of childrenMap.get(link.parent_id) ?? []) {
+      if (seen.has(child.id)) continue;
+      seen.add(child.id);
+      siblings.push(child);
+    }
+  }
+
+  return sortPeople(siblings);
+}
+
+/**
  * Count unique descendants of `rootId` by generation (1 = children).
  * A person reachable by several paths is counted once, at the closest generation.
  */

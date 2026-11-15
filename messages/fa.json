@@ -1100,6 +1100,8 @@
     "downloadLineageError": "دانلود کارت مشخصات انجام نشد. دوباره تلاش کنید.",
     "downloadLineagePdfSuccess": "فایل PDF کارت مشخصات دانلود شد.",
     "downloadLineagePdfError": "دانلود PDF کارت مشخصات انجام نشد. دوباره تلاش کنید.",
+    "siblingsTitle": "خواهر و برادر",
+    "siblingsEmpty": "خواهر یا برادری ثبت نشده است.",
     "downloadMaleLine": "شجرهٔ مردان",
     "maleLine": {
       "title": "شجرهٔ مردان",
@@ -1119,6 +1121,9 @@
       "format": "نوع فایل",
       "png": "تصویر PNG",
       "pdf": "PDF",
+      "content": "محتوای کارت",
+      "includeSiblings": "خواهر و برادرها",
+      "includeSiblingsHint": "لیست خواهر و برادر را هم روی کارت مشخصات نشان بده.",
       "formatHint": {
         "png": "یک فایل تصویری؛ مناسب برای اشتراک‌گذاری سریع.",
         "pdf": "آمادهٔ چاپ؛ درخت‌های بزرگ در چند صفحه چاپ می‌شوند."

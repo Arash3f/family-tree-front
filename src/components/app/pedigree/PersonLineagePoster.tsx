@@ -17,6 +17,7 @@ import {
 } from "@/lib/pedigree/dates";
 import {
   countDescendantsByGeneration,
+  listSiblingsOfPerson,
   namedGenerationKey,
 } from "@/lib/pedigree/descendants";
 import {
@@ -39,6 +40,8 @@ type Props = {
   theme: ExportTheme;
   /** Free-account credit line, printed under the footer. */
   watermark?: string;
+  /** When set, list brothers and sisters on the card before descendants. */
+  includeSiblings?: boolean;
 };
 
 export type PersonLineagePosterHandle = {
@@ -54,7 +57,15 @@ function initials(name: string): string {
 
 export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
   function PersonLineagePoster(
-    { person, persons, marriages, treeName, theme, watermark },
+    {
+      person,
+      persons,
+      marriages,
+      treeName,
+      theme,
+      watermark,
+      includeSiblings = false,
+    },
     ref,
   ) {
     const t = useTranslations("pedigree");
@@ -70,6 +81,11 @@ export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
     const stats = useMemo(
       () => countDescendantsByGeneration(person.id, persons),
       [person.id, persons],
+    );
+    const siblings = useMemo(
+      () =>
+        includeSiblings ? listSiblingsOfPerson(person.id, persons) : [],
+      [includeSiblings, person.id, persons],
     );
     const spouses = useMemo(
       () =>
@@ -227,6 +243,44 @@ export const PersonLineagePoster = forwardRef<PersonLineagePosterHandle, Props>(
                 );
               })}
             </ul>
+          </section>
+        ) : null}
+
+        {includeSiblings ? (
+          <section className={styles.block}>
+            <h3>{t("siblingsTitle")}</h3>
+            {siblings.length === 0 ? (
+              <p className={styles.meta}>{t("siblingsEmpty")}</p>
+            ) : (
+              <ul className={styles.list}>
+                {siblings.map((item) => {
+                  const deceased = Boolean(item.death_date);
+                  const itemAge = ageInYears(item.birth_date, item.death_date);
+                  return (
+                    <li key={item.id} className={styles.row}>
+                      <span>{personDisplayName(item)}</span>
+                      <span className={`${styles.chip} ${styles[item.gender]}`}>
+                        {t(`gender.${item.gender}`)}
+                      </span>
+                      <span
+                        className={`${styles.chip} ${
+                          deceased ? styles.deceased : styles.living
+                        }`}
+                      >
+                        {t(deceased ? "vital.deceased" : "vital.alive")}
+                      </span>
+                      {itemAge !== null ? (
+                        <span className={styles.meta}>
+                          {t("ageYears", {
+                            count: formatLocaleDigits(itemAge, locale),
+                          })}
+                        </span>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
         ) : null}
 

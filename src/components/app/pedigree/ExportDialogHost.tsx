@@ -60,6 +60,12 @@ export function ExportDialogHost({
       progress={flow.progress}
       pngDownscaled={flow.pngDownscaled}
       watermarked={Boolean(watermark)}
+      includeSiblings={
+        job.kind === "lineage" ? flow.includeSiblings : undefined
+      }
+      onIncludeSiblingsChange={
+        job.kind === "lineage" ? flow.changeIncludeSiblings : undefined
+      }
       theme={flow.theme}
       presetId={flow.presetId}
       preview={
@@ -72,6 +78,7 @@ export function ExportDialogHost({
             treeName={treeName}
             theme={flow.theme}
             watermark={watermark}
+            includeSiblings={flow.includeSiblings}
           />
         ) : flow.previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element

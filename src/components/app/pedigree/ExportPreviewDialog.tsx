@@ -63,6 +63,12 @@ type Props = {
   pngDownscaled?: boolean;
   /** Set when the export will carry the free-account credit line. */
   watermarked?: boolean;
+  /**
+   * Lineage card only. When defined, the siblings toggle is shown; `undefined`
+   * hides it (tree exports).
+   */
+  includeSiblings?: boolean;
+  onIncludeSiblingsChange?: (include: boolean) => void;
   canConfirm?: boolean;
   locale: string;
   /** Basename without extension; user-editable. */
@@ -90,6 +96,8 @@ export function ExportPreviewDialog({
   progress,
   pngDownscaled,
   watermarked,
+  includeSiblings,
+  onIncludeSiblingsChange,
   canConfirm = true,
   locale,
   filename,
@@ -104,6 +112,7 @@ export function ExportPreviewDialog({
   const t = useTranslations("pedigree");
   const titleId = useId();
   const filenameId = useId();
+  const siblingsToggleId = useId();
   const modalRef = useRef<HTMLDivElement>(null);
   const controlsLocked = Boolean(downloading);
   const num = (value: number) => formatLocaleDigits(value, locale);
@@ -262,6 +271,27 @@ export function ExportPreviewDialog({
                 <p className={styles.warning}>{t("exportPreview.pngDownscaled")}</p>
               ) : null}
             </fieldset>
+
+            {includeSiblings !== undefined && onIncludeSiblingsChange ? (
+              <fieldset className={styles.fieldset}>
+                <legend>{t("exportPreview.content")}</legend>
+                <label className={styles.radioRow} htmlFor={siblingsToggleId}>
+                  <input
+                    id={siblingsToggleId}
+                    type="checkbox"
+                    checked={includeSiblings}
+                    disabled={controlsLocked}
+                    onChange={(event) =>
+                      onIncludeSiblingsChange(event.target.checked)
+                    }
+                  />
+                  <span>
+                    <strong>{t("exportPreview.includeSiblings")}</strong>
+                    <em>{t("exportPreview.includeSiblingsHint")}</em>
+                  </span>
+                </label>
+              </fieldset>
+            ) : null}
 
             {showPageOptions ? (
               <>
