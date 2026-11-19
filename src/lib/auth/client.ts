@@ -43,6 +43,9 @@ import {
   type TicketDetail,
   type TicketMessage,
   type TicketStatus,
+  type McpStatus,
+  type McpToken,
+  type McpTokenCreated,
   type TicketSummary,
   type TreeMembership,
   type UserSession,
@@ -459,6 +462,35 @@ export async function fetchMySessions(): Promise<UserSession[]> {
 
 export async function revokeMySession(sessionId: string): Promise<void> {
   const response = await apiFetch(`/auth/sessions/${sessionId}`, {
+    method: "DELETE",
+  });
+  await jsonOrThrow(response);
+}
+
+export async function fetchMcpStatus(): Promise<McpStatus> {
+  const response = await apiFetch("/auth/mcp-tokens/status");
+  return jsonOrThrow<McpStatus>(response);
+}
+
+export async function fetchMcpTokens(): Promise<McpToken[]> {
+  const response = await apiFetch("/auth/mcp-tokens");
+  return jsonOrThrow<McpToken[]>(response);
+}
+
+export async function createMcpToken(input: {
+  name: string;
+  expires_in_days?: number | null;
+}): Promise<McpTokenCreated> {
+  const response = await apiFetch("/auth/mcp-tokens", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  return jsonOrThrow<McpTokenCreated>(response);
+}
+
+export async function revokeMcpToken(tokenId: string): Promise<void> {
+  const response = await apiFetch(`/auth/mcp-tokens/${tokenId}`, {
     method: "DELETE",
   });
   await jsonOrThrow(response);

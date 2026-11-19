@@ -11,6 +11,7 @@ const SECTIONS = [
   { href: "/dashboard/profile/permissions", key: "navPermissions" as const },
   { href: "/dashboard/profile/password", key: "navPassword" as const },
   { href: "/dashboard/profile/sessions", key: "navSessions" as const },
+  { href: "/dashboard/profile/mcp", key: "navMcp" as const },
 ];
 
 export function ProfileOverviewView() {

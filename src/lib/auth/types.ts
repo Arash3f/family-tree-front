@@ -47,6 +47,27 @@ export type UserSession = {
   is_current: boolean;
 };
 
+export type McpStatus = {
+  enabled: boolean;
+  endpoint: string;
+  tools: string[];
+  max_active_tokens: number;
+  default_expires_days: number;
+};
+
+export type McpToken = {
+  id: string;
+  name: string;
+  token_prefix: string;
+  expires_at: string | null;
+  last_used_at: string | null;
+  created_at: string | null;
+};
+
+export type McpTokenCreated = McpToken & {
+  token: string;
+};
+
 export type AppUser = {
   id: string;
   username: string;
