@@ -168,6 +168,10 @@ export function ProfileMcpView() {
             </p>
           </Panel>
 
+          <Panel delay={1} title={t("mcpChatgptTitle")} support={t("mcpChatgptSupport")}>
+            <p className={styles.mono}>{endpoint}</p>
+          </Panel>
+
           <Panel delay={2} title={t("mcpCreateTitle")} support={t("mcpCreateSupport")}>
             <div className={styles.sessionItem}>
               <label className={styles.sessionMeta} htmlFor="mcp-token-name">

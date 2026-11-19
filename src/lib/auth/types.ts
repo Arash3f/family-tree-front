@@ -68,6 +68,16 @@ export type McpTokenCreated = McpToken & {
   token: string;
 };
 
+export type OAuthConsentRequest = {
+  id: string;
+  client_id: string;
+  client_name: string;
+  redirect_uri: string;
+  resource: string;
+  scope: string;
+  expires_at: string;
+};
+
 export type AppUser = {
   id: string;
   username: string;

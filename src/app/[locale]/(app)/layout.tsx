@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { AppShell } from "@/components/app/AppShell";
 
@@ -12,8 +13,10 @@ export const metadata: Metadata = {
 
 export default function AppLayout({ children }: Props) {
   return (
-    <AuthGuard>
-      <AppShell>{children}</AppShell>
-    </AuthGuard>
+    <Suspense fallback={null}>
+      <AuthGuard>
+        <AppShell>{children}</AppShell>
+      </AuthGuard>
+    </Suspense>
   );
 }

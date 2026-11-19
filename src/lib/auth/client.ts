@@ -46,6 +46,7 @@ import {
   type McpStatus,
   type McpToken,
   type McpTokenCreated,
+  type OAuthConsentRequest,
   type TicketSummary,
   type TreeMembership,
   type UserSession,
@@ -494,6 +495,25 @@ export async function revokeMcpToken(tokenId: string): Promise<void> {
     method: "DELETE",
   });
   await jsonOrThrow(response);
+}
+
+export async function fetchOAuthConsentRequest(
+  requestId: string,
+): Promise<OAuthConsentRequest> {
+  const response = await apiFetch(`/oauth/consent-requests/${requestId}`);
+  return jsonOrThrow<OAuthConsentRequest>(response);
+}
+
+export async function decideOAuthConsent(
+  requestId: string,
+  approve: boolean,
+): Promise<{ redirect_to: string }> {
+  const response = await apiFetch(`/oauth/consent-requests/${requestId}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ approve }),
+  });
+  return jsonOrThrow<{ redirect_to: string }>(response);
 }
 
 export async function changeOwnPassword(input: {

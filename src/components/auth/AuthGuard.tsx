@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { hasStoredTokens, isTokenStorageEventKey } from "@/lib/auth/storage";
 import { useAuthStore } from "@/stores/auth-store";
@@ -26,6 +27,7 @@ export function AuthGuard({ children }: Props) {
   const status = useAuthStore((s) => s.status);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const hasTokens = useSyncExternalStore(
     subscribeTokenStorage,
     hasStoredTokens,
@@ -34,9 +36,11 @@ export function AuthGuard({ children }: Props) {
 
   useEffect(() => {
     if (status === "anonymous") {
-      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+      const search = searchParams.toString();
+      const next = search ? `${pathname}?${search}` : pathname;
+      router.replace(`/login?next=${encodeURIComponent(next)}`);
     }
-  }, [status, router, pathname]);
+  }, [status, router, pathname, searchParams]);
 
   if (status === "authenticated" || (status === "loading" && hasTokens)) {
     return children;

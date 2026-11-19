@@ -694,6 +694,23 @@
       }
     }
   },
+  "oauth": {
+    "metaTitle": "Authorize access — Family Tree",
+    "title": "Authorize an application",
+    "support": "This request comes from an MCP client (for example ChatGPT). Approving lets it read your family trees.",
+    "loading": "Loading…",
+    "missingRequest": "The consent request id is missing from the URL.",
+    "loadError": "Could not load the consent request.",
+    "decideError": "Could not save your decision. Try again.",
+    "client": "Client name",
+    "clientId": "Client id",
+    "resource": "MCP resource",
+    "scope": "Scope",
+    "permissionNote": "Read-only access to your family trees. No create or delete.",
+    "approve": "Allow",
+    "deny": "Deny",
+    "working": "Working…"
+  },
   "profile": {
     "metaTitle": "My profile",
     "permissionsMetaTitle": "Permissions — Family Tree",
@@ -785,7 +802,9 @@
     "mcpNoTokens": "No tokens yet.",
     "mcpLastUsed": "Last used",
     "mcpRevoke": "Revoke",
-    "mcpRevokeConfirm": "Revoke this token? Clients using it will stop working."
+    "mcpRevokeConfirm": "Revoke this token? Clients using it will stop working.",
+    "mcpChatgptTitle": "ChatGPT",
+    "mcpChatgptSupport": "In ChatGPT, add a custom MCP server and paste this URL as the Server URL. Auth is OAuth; the user signs in on the consent page."
   },
   "users": {
     "metaTitle": "Users",
